@@ -124,7 +124,7 @@ button.danger{border-color:#7b4141;color:#ffdede}
   <div class="sub">
     YCBT 直连 · 无云端 · 无订阅
     <span class="badge">Web Bluetooth</span>
-    <span class="badge">v0.7</span>
+    <span class="badge">v0.7.1</span>
   </div>
   <div id="status" class="status">未连接</div>
   <div class="row">
@@ -410,7 +410,7 @@ function renderTrend(){
   // 按时间倒序
   items.sort((a,b)=>new Date(b.t)-new Date(a.t));
   box.innerHTML=items.slice(0,8).map(i=>
-    `<div class="trend-item"><span>${escapeHTML(i.text)}</span><span class="muted">${escapeHTML(new Date(i.t).toLocaleString("zh-CN",{hour12:false})}</span></div>`
+    `<div class="trend-item"><span>${escapeHTML(i.text)}</span><span class="muted">${escapeHTML(new Date(i.t).toLocaleString("zh-CN",{hour12:false}))}</span></div>`
   ).join("");
 }
 
@@ -594,42 +594,59 @@ async function connect(){
   try{
     if(!navigator.bluetooth) throw new Error("请使用 Bluefy 或 Chrome");
     setStatus("正在选择 TK5…");
-    device=await navigator.bluetooth.requestDevice({
-      filters:[{namePrefix:"TK5"},{namePrefix:"tk5"}],
-      optionalServices:[YCBT_SERVICE]
+
+    // 如果已经连接，先断开再重新连
+    if(device?.gatt?.connected){
+      try{ device.gatt.disconnect(); }catch(_){}
+    }
+
+    device = await navigator.bluetooth.requestDevice({
+      filters: [
+        { namePrefix: "TK5" },
+        { namePrefix: "tk5" }
+      ],
+      optionalServices: [YCBT_SERVICE]
     });
-    log("Selected: "+(device.name||"unknown"));
-    server=await device.gatt.connect();
+
+    log("Selected: " + (device.name || "unknown"));
+    server = await device.gatt.connect();
     log("GATT connected");
 
-    const service=await server.getPrimaryService(YCBT_SERVICE);
-    c1=await service.getCharacteristic(C1_UUID);
-    c3=await service.getCharacteristic(C3_UUID);
+    const service = await server.getPrimaryService(YCBT_SERVICE);
+    c1 = await service.getCharacteristic(C1_UUID);
+    c3 = await service.getCharacteristic(C3_UUID);
 
-    c1.addEventListener("characteristicvaluechanged",e=>consumeStream("C1",e.target.value.buffer));
-    c3.addEventListener("characteristicvaluechanged",e=>consumeStream("C3",e.target.value.buffer));
+    // 避免重复绑定监听器
+    c1.oncharacteristicvaluechanged = e => consumeStream("C1", e.target.value.buffer);
+    c3.oncharacteristicvaluechanged = e => consumeStream("C3", e.target.value.buffer);
+
     await c1.startNotifications();
     await c3.startNotifications();
     log("Notifications subscribed");
 
-    device.addEventListener("gattserverdisconnected",()=>{
-      setStatus("已断开"); log("GATT disconnected");
-      c1=c3=null; historyQueryRunning=false; setHistoryButtonsDisabled(false);
-    });
+    device.ongattserverdisconnected = () => {
+      setStatus("已断开");
+      log("GATT disconnected");
+      c1 = c3 = null;
+      historyQueryRunning = false;
+      setHistoryButtonsDisabled(false);
+    };
 
-    setStatus("已连接 · "+(device.name||"TK5"));
-    await sendYCBT(0x0201,[0x47,0x46]);
-    await sendYCBT(0x0100,makeTimePayload());
+    setStatus("已连接 · " + (device.name || "TK5"));
+
+    await sendYCBT(0x0201, [0x47, 0x46]);
+    await sendYCBT(0x0100, makeTimePayload());
     await sendYCBT(0x021b);
     await sendYCBT(0x0200);
     await sendYCBT(0x0203);
     await sendYCBT(0x020c);
-    await sendYCBT(0x032f,[0x01,0x00]);
-    await sendYCBT(0x0309,[0x01,0x00,0x02,0xA0]);
+    await sendYCBT(0x032f, [0x01, 0x00]);
+    await sendYCBT(0x0309, [0x01, 0x00, 0x02, 0xA0]);
+
     log("TK5 initialization complete");
-  }catch(e){
-    setStatus("连接失败："+e.message);
-    log("ERROR: "+e.message);
+  } catch(e) {
+    setStatus("连接失败：" + e.message);
+    log("ERROR: " + e.message);
   }
 }
 
@@ -708,7 +725,7 @@ $("csv").addEventListener("click",()=>downloadText("tk5-health.csv",makeCSV(),"t
 
 renderHistory();
 renderTrend();
-log("TK5 Health v0.7 loaded");
+log("TK5 Health v0.7.1 loaded");
 log("请使用 Bluefy（iOS）或 Chrome（Android）打开");
 </script>
 </body>
