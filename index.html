@@ -1,0 +1,993 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,viewport-fit=cover"
+  >
+  <title>TK5 Health</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #f5f5f7;
+      color: #111;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    }
+    .card {
+      max-width: 560px;
+      margin: auto;
+      background: white;
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 5px 25px rgba(0,0,0,.08);
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 30px;
+    }
+    .sub {
+      color: #777;
+      margin-bottom: 20px;
+    }
+    .status {
+      padding: 13px;
+      border-radius: 14px;
+      background: #f0f0f2;
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 15px;
+      padding: 16px;
+      background: #111;
+      color: white;
+      font-size: 17px;
+      font-weight: 600;
+    }
+    button:active {
+      opacity: .7;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .metric {
+      background: #f7f7f8;
+      border-radius: 18px;
+      padding: 18px;
+    }
+    .label {
+      color: #777;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .value {
+      font-size: 34px;
+      font-weight: 700;
+    }
+    .unit {
+      font-size: 13px;
+      color: #777;
+    }
+    .device {
+      margin-top: 18px;
+      padding: 14px;
+      background: #f7f7f8;
+      border-radius: 15px;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    .log {
+      margin-top: 18px;
+      padding: 12px;
+      background: #111;
+      color: #ddd;
+      border-radius: 14px;
+      font-family: monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      max-height: 180px;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+    .note {
+      margin-top: 18px;
+      color: #777;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+  <h1>TK5 Health</h1>
+  <div class="sub">
+    Smart Ring · Free
+  </div>
+  <div id="status" class="status">
+    未连接
+  </div>
+  <button id="connect">
+    连接 TK5 52F5
+  </button>
+  <div class="grid">
+    <div class="metric">
+      <div class="label">❤️ 心率</div>
+      <div id="hr" class="value">--</div>
+      <div class="unit">BPM</div>
+    </div>
+    <div class="metric">
+      <div class="label">🩸 血氧</div>
+      <div id="spo2" class="value">--</div>
+      <div class="unit">%</div>
+    </div>
+    <div class="metric">
+      <div class="label">👣 步数</div>
+      <div id="steps" class="value">--</div>
+      <div class="unit">steps</div>
+    </div>
+    <div class="metric">
+      <div class="label">🔋 电量</div>
+      <div id="battery" class="value">--</div>
+      <div class="unit">%</div>
+    </div>
+  </div>
+  <div class="device">
+    <div>
+      设备：
+      <span id="deviceName">--</span>
+    </div>
+    <div>
+      BLE：
+      <span id="deviceState">未连接</span>
+    </div>
+    <div>
+      YCBT：
+      <span id="ycbtState">未启动</span>
+    </div>
+  </div>
+  <div id="log" class="log">
+    TK5 Health v0.2
+  </div>
+  <div class="note">
+    第一阶段：标准 BLE Heart Rate 2A37。<br>
+    第二阶段：YCBT BE9400 私有协议。<br><br>
+    本页面不会连接 SmartHealth 云端，也不需要订阅。
+  </div>
+</div>
+<script>
+/* =========================================================
+   TK5 / YCBT BLE
+   ========================================================= */
+const HR_SERVICE =
+  "heart_rate";
+const HR_CHAR =
+  "heart_rate_measurement";
+const YCBT_SERVICE =
+  "be940000-7333-be46-b7ae-689e71722bd5";
+const YCBT_C1 =
+  "be940001-7333-be46-b7ae-689e71722bd5";
+const YCBT_C3 =
+  "be940003-7333-be46-b7ae-689e71722bd5";
+let device = null;
+let server = null;
+let hrCharacteristic = null;
+let c1 = null;
+let c3 = null;
+/*
+ * C1 / C3 数据可能被 BLE 分片。
+ */
+let c1Buffer = new Uint8Array(0);
+let c3Buffer = new Uint8Array(0);
+/* =========================================================
+   UI
+   ========================================================= */
+function setStatus(text) {
+  document.getElementById("status").textContent =
+    text;
+}
+function log(text) {
+  const box =
+    document.getElementById("log");
+  box.textContent +=
+    "\n" + text;
+  box.scrollTop =
+    box.scrollHeight;
+}
+function setValue(id, value) {
+  document.getElementById(id).textContent =
+    value;
+}
+/* =========================================================
+   HEX
+   ========================================================= */
+function hex(bytes) {
+  return Array.from(bytes)
+    .map(x =>
+      x.toString(16).padStart(2,"0")
+    )
+    .join(" ");
+}
+/* =========================================================
+   CRC-16
+   YCBT / Open-RingBridge compatible
+   ========================================================= */
+function crc16(data) {
+  let s = 0xffff;
+  for (let i = 0; i < data.length; i++) {
+    s =
+      (
+        ((s << 8) & 0xff00) |
+        ((s >> 8) & 0x00ff)
+      ) ^ data[i];
+    s ^= (s & 0xff) >> 4;
+    s ^= (s << 12) & 0xffff;
+    s ^= ((s & 0xff) << 5) & 0xffff;
+  }
+  return s & 0xffff;
+}
+/* =========================================================
+   创建 YCBT packet
+   type = group << 8 | key
+   ========================================================= */
+function makePacket(type, payload = []) {
+  const len =
+    4 + payload.length + 2;
+  const packet =
+    new Uint8Array(len);
+  packet[0] =
+    (type >> 8) & 0xff;
+  packet[1] =
+    type & 0xff;
+  packet[2] =
+    len & 0xff;
+  packet[3] =
+    (len >> 8) & 0xff;
+  for (
+    let i = 0;
+    i < payload.length;
+    i++
+  ) {
+    packet[4 + i] =
+      payload[i];
+  }
+  const crc =
+    crc16(
+      packet.slice(
+        0,
+        len - 2
+      )
+    );
+  packet[len - 2] =
+    crc & 0xff;
+  packet[len - 1] =
+    (crc >> 8) & 0xff;
+  return packet;
+}
+/* =========================================================
+   写 C1
+   ========================================================= */
+async function sendCommand(
+  type,
+  payload = []
+) {
+  if (!c1) {
+    throw new Error(
+      "YCBT C1 尚未连接"
+    );
+  }
+  const packet =
+    makePacket(
+      type,
+      payload
+    );
+  log(
+    "TX " +
+    type.toString(16).padStart(4,"0") +
+    ": " +
+    hex(packet)
+  );
+  await c1.writeValueWithoutResponse(
+    packet
+  );
+}
+/* =========================================================
+   BLE HR 2A37
+   ========================================================= */
+function parseHeartRate(value) {
+  if (
+    !value ||
+    value.byteLength < 2
+  ) {
+    return;
+  }
+  const flags =
+    value.getUint8(0);
+  const is16Bit =
+    (flags & 1) !== 0;
+  let hr;
+  if (is16Bit) {
+    if (
+      value.byteLength < 3
+    ) {
+      return;
+    }
+    hr =
+      value.getUint16(
+        1,
+        true
+      );
+  } else {
+    hr =
+      value.getUint8(1);
+  }
+  if (
+    hr > 0 &&
+    hr < 250
+  ) {
+    setValue(
+      "hr",
+      hr
+    );
+  }
+}
+/* =========================================================
+   YCBT packet parser
+   ========================================================= */
+function appendBuffer(
+  oldBuffer,
+  newData
+) {
+  const result =
+    new Uint8Array(
+      oldBuffer.length +
+      newData.length
+    );
+  result.set(
+    oldBuffer,
+    0
+  );
+  result.set(
+    newData,
+    oldBuffer.length
+  );
+  return result;
+}
+/*
+ * 从 BLE characteristic 中提取完整 packet。
+ */
+function parsePackets(
+  buffer,
+  source
+) {
+  let offset = 0;
+  const packets = [];
+  while (
+    buffer.length -
+    offset >= 4
+  ) {
+    const len =
+      buffer[offset + 2] |
+      (buffer[offset + 3] << 8);
+    /*
+     * 防止错误长度造成死循环。
+     */
+    if (
+      len < 6 ||
+      len > 4096
+    ) {
+      log(
+        source +
+        " invalid length " +
+        len
+      );
+      offset++;
+      continue;
+    }
+    if (
+      buffer.length -
+      offset <
+      len
+    ) {
+      break;
+    }
+    const packet =
+      buffer.slice(
+        offset,
+        offset + len
+      );
+    packets.push(
+      packet
+    );
+    offset += len;
+  }
+  return {
+    packets,
+    rest: buffer.slice(offset)
+  };
+}
+/* =========================================================
+   C1 packet
+   ========================================================= */
+function handleC1(event) {
+  const incoming =
+    new Uint8Array(
+      event.target.value.buffer
+    );
+  c1Buffer =
+    appendBuffer(
+      c1Buffer,
+      incoming
+    );
+  const parsed =
+    parsePackets(
+      c1Buffer,
+      "C1"
+    );
+  c1Buffer =
+    parsed.rest;
+  for (
+    const packet of parsed.packets
+  ) {
+    handleYcbtPacket(
+      packet,
+      "C1"
+    );
+  }
+}
+/* =========================================================
+   C3 packet
+   ========================================================= */
+function handleC3(event) {
+  const incoming =
+    new Uint8Array(
+      event.target.value.buffer
+    );
+  c3Buffer =
+    appendBuffer(
+      c3Buffer,
+      incoming
+    );
+  const parsed =
+    parsePackets(
+      c3Buffer,
+      "C3"
+    );
+  c3Buffer =
+    parsed.rest;
+  for (
+    const packet of parsed.packets
+  ) {
+    handleYcbtPacket(
+      packet,
+      "C3"
+    );
+  }
+}
+/* =========================================================
+   YCBT data decoder
+   ========================================================= */
+function handleYcbtPacket(
+  packet,
+  source
+) {
+  if (
+    packet.length < 6
+  ) {
+    return;
+  }
+  const type =
+    (
+      packet[0] << 8
+    ) |
+    packet[1];
+  const payload =
+    packet.slice(
+      4,
+      packet.length - 2
+    );
+  log(
+    source +
+    " RX " +
+    type.toString(16).padStart(4,"0") +
+    ": " +
+    hex(payload)
+  );
+  /*
+   * 0x0200
+   * DeviceInfo
+   *
+   * payload[5] = battery
+   */
+  if (
+    type === 0x0200
+  ) {
+    if (
+      payload.length >= 6
+    ) {
+      const battery =
+        payload[5];
+      if (
+        battery >= 0 &&
+        battery <= 100
+      ) {
+        setValue(
+          "battery",
+          battery
+        );
+      }
+    }
+  }
+  /*
+   * 0x020C
+   * NowStep
+   *
+   * bytes 0..1 = steps
+   */
+  if (
+    type === 0x020c
+  ) {
+    if (
+      payload.length >= 2
+    ) {
+      const steps =
+        payload[0] |
+        (payload[1] << 8);
+      setValue(
+        "steps",
+        steps.toLocaleString()
+      );
+    }
+  }
+  /*
+   * 0x0601
+   * Real-time HR
+   */
+  if (
+    type === 0x0601
+  ) {
+    if (
+      payload.length >= 1
+    ) {
+      const hr =
+        payload[0];
+      if (
+        hr > 0 &&
+        hr < 250
+      ) {
+        setValue(
+          "hr",
+          hr
+        );
+      }
+    }
+  }
+  /*
+   * 0x0602
+   * Real-time SpO2
+   */
+  if (
+    type === 0x0602
+  ) {
+    if (
+      payload.length >= 1
+    ) {
+      const spo2 =
+        payload[0];
+      if (
+        spo2 >= 50 &&
+        spo2 <= 100
+      ) {
+        setValue(
+          "spo2",
+          spo2
+        );
+      }
+    }
+  }
+  /*
+   * 0x060A
+   * Comprehensive real-time data
+   *
+   * [0..2] steps
+   * [3..4] distance
+   * [5..6] calories
+   * [7] HR
+   * [8] SBP
+   * [9] DBP
+   * [10] SpO2
+   * [11] respiration
+   * [12] temp integer
+   * [13] temp decimal
+   * [14] wearing
+   * [15] battery
+   */
+  if (
+    type === 0x060a
+  ) {
+    if (
+      payload.length >= 16
+    ) {
+      /*
+       * 3-byte little endian steps
+       */
+      const steps =
+        payload[0] |
+        (payload[1] << 8) |
+        (payload[2] << 16);
+      if (
+        steps > 0
+      ) {
+        setValue(
+          "steps",
+          steps.toLocaleString()
+        );
+      }
+      /*
+       * HR
+       */
+      const hr =
+        payload[7];
+      if (
+        hr > 0 &&
+        hr < 250
+      ) {
+        setValue(
+          "hr",
+          hr
+        );
+      }
+      /*
+       * SpO2
+       */
+      const spo2 =
+        payload[10];
+      if (
+        spo2 >= 50 &&
+        spo2 <= 100
+      ) {
+        setValue(
+          "spo2",
+          spo2
+        );
+      }
+      /*
+       * Battery
+       *
+       * Some TK5 firmware returns 0 here.
+       * We therefore do NOT overwrite a valid
+       * battery value with zero.
+       */
+      const battery =
+        payload[15];
+      if (
+        battery > 0 &&
+        battery <= 100
+      ) {
+        setValue(
+          "battery",
+          battery
+        );
+      }
+    }
+  }
+}
+/* =========================================================
+   设置当前时间
+   ========================================================= */
+function makeTimePayload() {
+  const now =
+    new Date();
+  /*
+   * YCBT uses:
+   * year LE
+   * month
+   * day
+   * hour
+   * minute
+   * second
+   * day-of-week
+   */
+  const year =
+    now.getFullYear();
+  /*
+   * JS:
+   * Sunday = 0
+   * Monday = 1
+   *
+   * YCBT expects:
+   * Monday = 0 ... Sunday = 6
+   */
+  const dow =
+    (now.getDay() + 6) % 7;
+  return [
+    year & 0xff,
+    (year >> 8) & 0xff,
+    now.getMonth() + 1,
+    now.getDate(),
+    now.getHours(),
+    now.getMinutes(),
+    now.getSeconds(),
+    dow
+  ];
+}
+/* =========================================================
+   YCBT 初始化
+   ========================================================= */
+async function startYCBT() {
+  try {
+    document.getElementById(
+      "ycbtState"
+    ).textContent =
+      "连接中";
+    const service =
+      await server.getPrimaryService(
+        YCBT_SERVICE
+      );
+    c1 =
+      await service.getCharacteristic(
+        YCBT_C1
+      );
+    c3 =
+      await service.getCharacteristic(
+        YCBT_C3
+      );
+    /*
+     * C1 = indications
+     */
+    await c1.startNotifications();
+    c1.addEventListener(
+      "characteristicvaluechanged",
+      handleC1
+    );
+    /*
+     * C3 = indications
+     */
+    await c3.startNotifications();
+    c3.addEventListener(
+      "characteristicvaluechanged",
+      handleC3
+    );
+    log(
+      "YCBT C1/C3 notifications ready"
+    );
+    /*
+     * 1. GetSupportFunction
+     */
+    await sendCommand(
+      0x0201,
+      [0x47, 0x46]
+    );
+    await sleep(400);
+    /*
+     * 2. Set time
+     */
+    await sendCommand(
+      0x0100,
+      makeTimePayload()
+    );
+    await sleep(400);
+    /*
+     * 3. GetChipScheme
+     */
+    await sendCommand(
+      0x021b,
+      []
+    );
+    await sleep(400);
+    /*
+     * 4. GetDeviceInfo
+     *
+     * This normally gives battery.
+     */
+    await sendCommand(
+      0x0200,
+      [0x47, 0x43]
+    );
+    await sleep(1000);
+    /*
+     * 5. Get current steps
+     */
+    await sendCommand(
+      0x020c,
+      []
+    );
+    await sleep(400);
+    /*
+     * 6. Start real-time monitoring
+     */
+    await sendCommand(
+      0x0309,
+      [0x01, 0x00, 0x02, 0xa0]
+    );
+    document.getElementById(
+      "ycbtState"
+    ).textContent =
+      "已启动";
+    log(
+      "YCBT real-time START sent"
+    );
+    setStatus(
+      "TK5 已连接 · 正在读取健康数据"
+    );
+  } catch (error) {
+    console.error(error);
+    log(
+      "YCBT ERROR: " +
+      (error.message || error)
+    );
+    document.getElementById(
+      "ycbtState"
+    ).textContent =
+      "启动失败";
+    /*
+     * 标准 HR 仍然可以继续工作。
+     */
+    setStatus(
+      "已连接，但 YCBT 数据启动失败"
+    );
+  }
+}
+/* =========================================================
+   Sleep helper
+   ========================================================= */
+function sleep(ms) {
+  return new Promise(
+    resolve =>
+      setTimeout(resolve, ms)
+  );
+}
+/* =========================================================
+   主连接
+   ========================================================= */
+async function connectTK5() {
+  try {
+    if (
+      !navigator.bluetooth
+    ) {
+      setStatus(
+        "当前浏览器不支持 Web Bluetooth，请使用 Bluefy"
+      );
+      return;
+    }
+    setStatus(
+      "正在搜索 TK5..."
+    );
+    device =
+      await navigator.bluetooth.requestDevice({
+        filters: [
+          {
+            namePrefix: "TK5"
+          }
+        ],
+        optionalServices: [
+          HR_SERVICE,
+          YCBT_SERVICE
+        ]
+      });
+    const name =
+      device.name || "";
+    document.getElementById(
+      "deviceName"
+    ).textContent =
+      name || "TK5";
+    if (
+      !name.toUpperCase().startsWith("TK5")
+    ) {
+      setStatus(
+        "找到的设备不是 TK5"
+      );
+      return;
+    }
+    setStatus(
+      "已找到 " +
+      name +
+      "，正在连接..."
+    );
+    document.getElementById(
+      "deviceState"
+    ).textContent =
+      "连接中";
+    device.addEventListener(
+      "gattserverdisconnected",
+      () => {
+        setStatus(
+          "设备已断开"
+        );
+        document.getElementById(
+          "deviceState"
+        ).textContent =
+          "已断开";
+        document.getElementById(
+          "ycbtState"
+        ).textContent =
+          "已断开";
+      }
+    );
+    server =
+      await device.gatt.connect();
+    document.getElementById(
+      "deviceState"
+    ).textContent =
+      "已连接";
+    /*
+     * 标准 HR
+     */
+    try {
+      const hrService =
+        await server.getPrimaryService(
+          HR_SERVICE
+        );
+      hrCharacteristic =
+        await hrService.getCharacteristic(
+          HR_CHAR
+        );
+      hrCharacteristic.addEventListener(
+        "characteristicvaluechanged",
+        event => {
+          parseHeartRate(
+            event.target.value
+          );
+        }
+      );
+      await hrCharacteristic.startNotifications();
+      log(
+        "Standard Heart Rate 2A37 ready"
+      );
+    } catch (e) {
+      log(
+        "Standard HR unavailable: " +
+        e.message
+      );
+    }
+    /*
+     * YCBT private protocol
+     */
+    await startYCBT();
+  } catch (error) {
+    console.error(error);
+    setStatus(
+      "连接失败：" +
+      (error.message || error)
+    );
+    document.getElementById(
+      "deviceState"
+    ).textContent =
+      "连接失败";
+  }
+}
+/* =========================================================
+   Button
+   ========================================================= */
+document
+  .getElementById("connect")
+  .addEventListener(
+    "click",
+    connectTK5
+  );
+/* =========================================================
+   Browser check
+   ========================================================= */
+if (
+  !navigator.bluetooth
+) {
+  setStatus(
+    "请使用 Bluefy 打开本网页"
+  );
+}
+</script>
+</body>
+</html>
