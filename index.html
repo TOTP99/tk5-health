@@ -5,740 +5,387 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>TK5 Health</title>
 <style>
-:root{
-  --bg:#071018;
-  --gold:#d6b56a;
-  --cyan:#67d9df;
-  --text:#edf5f7;
-  --muted:#8ea3ad;
-  --line:#715f35;
-  --line2:#29404b;
-  --danger:#ff7777;
-  --ok:#72d7ae;
-}
-*{box-sizing:border-box}
-html{background:#050a0e}
-body{
-  margin:0;min-height:100vh;
-  background:radial-gradient(circle at 20% 0%,#183140 0%,#071018 38%,#050a0e 100%);
-  color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  padding:max(16px,env(safe-area-inset-top)) 14px max(40px,env(safe-area-inset-bottom));
-}
-main{width:100%;max-width:780px;margin:0 auto}
-header,.card{
-  border:1px solid var(--line);
-  background:linear-gradient(145deg,rgba(17,30,41,.98),rgba(7,15,22,.98));
-  border-radius:18px;
-  box-shadow:0 14px 35px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.045);
-}
-header{padding:18px;margin-bottom:12px}
-h1{margin:0;font-size:24px;letter-spacing:.6px}
-h2{font-size:15px;margin:0 0 12px;color:var(--gold);letter-spacing:1px}
-.sub{color:var(--muted);font-size:12px;margin-top:6px}
-.status{
-  margin-top:14px;padding:10px 12px;border:1px solid var(--line2);
-  border-radius:11px;color:var(--cyan);background:#07141c;font-size:13px;
-}
-.card{padding:15px;margin:12px 0}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.metric{
-  position:relative;overflow:hidden;border:1px solid #35505b;
-  background:linear-gradient(145deg,#142733,#0a151d);
-  border-radius:13px;padding:12px;min-height:96px;
-}
-.metric::after{
-  content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
-  background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4;
-}
-.label{font-size:12px;color:var(--muted)}
-.value{font-size:26px;font-weight:700;line-height:1;margin:8px 0 3px}
-.unit{font-size:11px;color:var(--muted)}
-.row{display:flex;flex-wrap:wrap;gap:4px}
-button{
-  border:1px solid #8b7440;border-radius:11px;padding:10px 12px;margin:2px;
-  background:linear-gradient(145deg,#172933,#101d25);color:var(--text);font-size:13px;
-  box-shadow:inset 0 1px rgba(255,255,255,.06),0 4px 12px rgba(0,0,0,.18);
-}
-button:active{transform:translateY(1px);filter:brightness(1.12)}
-button:disabled{opacity:.4;pointer-events:none}
-button.primary{background:linear-gradient(135deg,#806a39,#4f4327);color:#fff}
-button.cyan{border-color:#438d91;background:linear-gradient(135deg,#153b41,#10282e)}
-button.danger{border-color:#7b4141;color:#ffdede}
-.small{font-size:12px;color:var(--muted);line-height:1.5}
-.device-line{padding:6px 0;border-bottom:1px solid #1e3038;font-size:12px}
-.device-line:last-child{border-bottom:0}
-
-/* 血压 & HRV 独立区域 */
-.vitals-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-.vital-card{
-  border:1px solid #35505b;border-radius:13px;padding:14px;
-  background:linear-gradient(145deg,#142733,#0a151d);
-}
-.vital-card .title{font-size:12px;color:var(--muted);margin-bottom:8px}
-.vital-card .big{font-size:28px;font-weight:700;color:var(--gold)}
-.vital-card .subv{font-size:13px;color:var(--muted);margin-top:4px}
-.measure-tip{font-size:12px;color:var(--cyan);margin-top:8px;min-height:18px}
-
-/* 历史卡片 */
-.history{max-height:460px;overflow:auto;margin-top:10px;border-top:1px solid #1d3038;padding-top:10px}
-.record-card{
-  background:linear-gradient(145deg,#142733,#0c1820);
-  border:1px solid #2a4550;border-radius:12px;padding:12px 14px;margin-bottom:8px;
-}
-.record-card .time{color:var(--gold);font-size:12px;margin-bottom:6px}
-.record-card .vals{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:13px}
-.record-card .tag-live{color:var(--cyan);font-size:11px;margin-left:6px}
-.record-card .tag-hist{color:var(--muted);font-size:11px;margin-left:6px}
-
-/* 趋势 */
-.trend-box{
-  margin-top:12px;padding:12px;border:1px solid #2a4550;border-radius:12px;
-  background:#0a151d;font-size:13px;
-}
-.trend-box .t-title{color:var(--gold);font-size:12px;margin-bottom:8px}
-.trend-item{padding:4px 0;border-bottom:1px solid #1a2e36;display:flex;justify-content:space-between}
-.trend-item:last-child{border-bottom:0}
-
-#log{
-  margin-top:10px;background:#030709;border:1px solid #25343b;color:#9fe9d0;
-  font:11px/1.45 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
-  white-space:pre-wrap;word-break:break-all;max-height:260px;overflow:auto;
-  padding:10px;border-radius:10px;
-}
-.badge{
-  display:inline-block;padding:2px 7px;border:1px solid #3b5962;
-  border-radius:999px;color:var(--cyan);font-size:10px;margin-left:4px;
-}
-@media(max-width:480px){
-  .vitals-grid{grid-template-columns:1fr}
-  .value{font-size:22px}
-  .vital-card .big{font-size:24px}
-}
+:root{--gold:#d6b56a;--cyan:#67d9df;--text:#edf5f7;--muted:#8ea3ad;--line:#715f35;--line2:#29404b}
+*{box-sizing:border-box}html{background:#050a0e}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 20% 0%,#183140 0%,#071018 40%,#050a0e 100%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:max(14px,env(safe-area-inset-top)) 12px max(28px,env(safe-area-inset-bottom))}
+main{max-width:720px;margin:0 auto}
+.card{border:1px solid var(--line);background:linear-gradient(145deg,rgba(17,30,41,.98),rgba(7,15,22,.98));border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 10px 28px rgba(0,0,0,.4)}
+h1{margin:0;font-size:22px}h1 span{color:var(--gold);font-size:14px;margin-left:6px}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.status{margin-top:10px;padding:8px 12px;border:1px solid var(--line2);border-radius:10px;color:var(--cyan);background:#07141c;font-size:13px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.m{border:1px solid #35505b;border-radius:12px;padding:12px;background:linear-gradient(145deg,#142733,#0a151d);min-height:86px}
+.m .l{font-size:12px;color:var(--muted)}.m .v{font-size:24px;font-weight:700;margin:6px 0 2px;line-height:1.1}.m .u{font-size:11px;color:var(--muted)}
+button{border:1px solid #8b7440;border-radius:10px;padding:10px 14px;background:linear-gradient(145deg,#172933,#101d25);color:var(--text);font-size:13px}
+button:active{filter:brightness(1.1)}button:disabled{opacity:.4;pointer-events:none}
+button.p{background:linear-gradient(135deg,#806a39,#4f4327);color:#fff}
+button.c{border-color:#438d91;background:linear-gradient(135deg,#153b41,#10282e)}
+button.d{border-color:#7b4141;color:#ffdede}
+.hist{max-height:340px;overflow:auto;margin-top:6px}
+.rc{background:#0c1820;border:1px solid #2a4550;border-radius:10px;padding:10px 12px;margin-bottom:6px;font-size:13px}
+.rc .t{color:var(--gold);font-size:12px;margin-bottom:3px}
+#log{margin-top:8px;background:#030709;border:1px solid #25343b;color:#9fe9d0;font:11px/1.4 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-all;max-height:260px;overflow:auto;padding:10px;border-radius:10px}
 </style>
 </head>
 <body>
 <main>
-<header>
-  <h1>TK5 Health</h1>
-  <div class="sub">
-    YCBT 直连 · 无云端 · 无订阅
-    <span class="badge">Web Bluetooth</span>
-    <span class="badge">v0.7.2</span>
+<div class="card">
+  <h1>TK5 Health <span>v1.0</span></h1>
+  <div class="row" style="margin-top:10px">
+    <button id="btnConnect" class="p">连接</button>
+    <button id="btnDisconnect">断开</button>
   </div>
   <div id="status" class="status">未连接</div>
-  <div class="row">
-    <button id="connect" class="primary">连接 TK5</button>
-    <button id="disconnect">断开</button>
-  </div>
-</header>
+</div>
 
-<!-- 实时四指标 -->
-<section class="card">
+<div class="card">
   <div class="grid">
-    <div class="metric">
-      <div class="label">❤️ 实时心率</div>
-      <div id="hr" class="value">--</div>
-      <div class="unit">BPM</div>
-    </div>
-    <div class="metric">
-      <div class="label">🩸 血氧</div>
-      <div id="spo2" class="value">--</div>
-      <div class="unit">SpO₂ %</div>
-    </div>
-    <div class="metric">
-      <div class="label">👣 今日步数</div>
-      <div id="steps" class="value">--</div>
-      <div class="unit">steps</div>
-    </div>
-    <div class="metric">
-      <div class="label">🔋 电量</div>
-      <div id="battery" class="value">--</div>
-      <div class="unit">%</div>
-    </div>
+    <div class="m"><div class="l">❤️ 心率</div><div id="hr" class="v">--</div><div class="u">BPM</div></div>
+    <div class="m"><div class="l">🩸 血氧</div><div id="spo2" class="v">--</div><div class="u">%</div></div>
+    <div class="m"><div class="l">🩺 血压</div><div id="bp" class="v">-- / --</div><div class="u" id="bpHr"></div></div>
+    <div class="m"><div class="l">📈 HRV</div><div id="hrv" class="v">--</div><div class="u"></div></div>
+    <div class="m"><div class="l">👣 步数</div><div id="steps" class="v">--</div><div class="u">今日</div></div>
+    <div class="m"><div class="l">🔋 电量</div><div id="battery" class="v">--</div><div class="u">%</div></div>
   </div>
+</div>
 
-  <!-- 血压 & HRV 分开 -->
-  <div class="vitals-grid">
-    <div class="vital-card">
-      <div class="title">🩺 实时血压</div>
-      <div id="bpValue" class="big">-- / --</div>
-      <div id="bpHr" class="subv"></div>
-    </div>
-    <div class="vital-card">
-      <div class="title">📈 HRV</div>
-      <div id="hrvValue" class="big">--</div>
-      <div id="hrvNote" class="subv"></div>
-    </div>
-  </div>
-  <div id="measureTip" class="measure-tip"></div>
-</section>
-
-<!-- 测量 -->
-<section class="card">
-  <h2>测量</h2>
+<div class="card">
   <div class="row">
-    <button class="cyan" data-mode="0">测心率</button>
-    <button class="cyan" data-mode="2">测血氧</button>
-    <button class="cyan" data-mode="1">测血压</button>
-    <button class="cyan" data-mode="10">测 HRV</button>
+    <button class="c" data-mode="0">测心率</button>
+    <button class="c" data-mode="2">测血氧</button>
+    <button class="c" data-mode="1">测血压</button>
+    <button class="c" data-mode="10">测HRV</button>
     <button data-mode="-1">停止</button>
   </div>
-  <div class="small">结果仅供参考，不作为医疗诊断。</div>
-</section>
-
-<!-- 简单趋势 -->
-<section class="card">
-  <h2>最近趋势</h2>
-  <div class="trend-box">
-    <div class="t-title">最近血压 / 血氧（本地记录）</div>
-    <div id="trendList" class="small">暂无数据，测量或同步历史后显示</div>
+  <div class="row" style="margin-top:8px">
+    <button data-h="09">同步全部</button>
+    <button data-h="08">血压历史</button>
+    <button data-h="06">心率历史</button>
   </div>
-</section>
+</div>
 
-<!-- 历史 -->
-<section class="card">
-  <h2>历史数据同步</h2>
-  <div class="row" id="historyBtns">
-    <button data-h="09">全部（推荐）</button>
-    <button data-h="08">血压</button>
-    <button data-h="06">历史心率</button>
-    <button data-h="02">活动</button>
-    <button data-h="04">睡眠</button>
-    <button data-h="1a">血氧</button>
-    <button data-h="1e">体温</button>
-    <button data-h="33">身体数据</button>
-  </div>
-  <div class="small">推荐点「全部」。单独血氧/体温常无响应。</div>
-  <div id="history" class="history"></div>
-</section>
+<div class="card"><div id="history" class="hist"></div></div>
 
-<!-- 设备 -->
-<section class="card">
-  <h2>设备</h2>
-  <div id="device"><div class="device-line">等待连接…</div></div>
-</section>
-
-<!-- 本地 -->
-<section class="card">
-  <h2>本地数据</h2>
+<div class="card">
   <div class="row">
-    <button id="json">导出 JSON</button>
-    <button id="csv">导出 CSV</button>
-    <button id="copy">复制日志</button>
-    <button id="clear">清空日志</button>
-    <button id="clearRecords" class="danger">清空本地记录</button>
+    <button id="btnCopy">复制日志</button>
+    <button id="btnClearLog">清空日志</button>
+    <button id="btnJson">导出JSON</button>
+    <button id="btnClearRec" class="d">清空记录</button>
   </div>
   <div id="log"></div>
-</section>
+</div>
 </main>
 
 <script>
 "use strict";
 
-const YCBT_SERVICE = "be940000-7333-be46-b7ae-689e71722bd5";
-const C1_UUID = "be940001-7333-be46-b7ae-689e71722bd5";
-const C3_UUID = "be940003-7333-be46-b7ae-689e71722bd5";
+const SVC = "be940000-7333-be46-b7ae-689e71722bd5";
+const C1U = "be940001-7333-be46-b7ae-689e71722bd5";
+const C3U = "be940003-7333-be46-b7ae-689e71722bd5";
+const EPOCH = 946684800;
 
-let device=null, server=null, c1=null, c3=null;
-let c1Buffer=new Uint8Array(), c3Buffer=new Uint8Array();
-let logs=[], records=JSON.parse(localStorage.getItem("tk5Records")||"[]");
-let historyQueryRunning=false, historyUnlockTimer=null;
-let currentHistoryKey=null, currentHistoryFrameType=null, historyChunks=[];
-let currentMeasureMode=-1;
+let device = null, c1 = null, c3 = null;
+let c1Buf = new Uint8Array(), c3Buf = new Uint8Array();
+let logs = [], records = JSON.parse(localStorage.getItem("tk5Records") || "[]");
+let histBusy = false, histTimer = null, histType = null, histChunks = [];
+let measureMode = -1;
 
 const $ = id => document.getElementById(id);
 
-function log(t){
-  const time=new Date().toLocaleTimeString("zh-CN",{hour12:false});
-  const line=`[${time}] ${t}`;
+function log(t) {
+  const line = `[${new Date().toLocaleTimeString("zh-CN",{hour12:false})}] ${t}`;
   logs.push(line);
-  $("log").textContent=logs.join("\n");
-  $("log").scrollTop=$("log").scrollHeight;
-  console.log(line);
+  $("log").textContent = logs.join("\n");
+  $("log").scrollTop = $("log").scrollHeight;
 }
-function setStatus(t){$("status").textContent=t}
-function setHistoryButtonsDisabled(d){
-  document.querySelectorAll("#historyBtns button").forEach(b=>b.disabled=d);
-}
-function hex(d){return Array.from(d).map(x=>x.toString(16).padStart(2,"0")).join(" ")}
-function concatUint8(a,b){const o=new Uint8Array(a.length+b.length);o.set(a,0);o.set(b,a.length);return o}
-function escapeHTML(v){return String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function status(t) { $("status").textContent = t; }
+function hex(a) { return Array.from(a).map(x => x.toString(16).padStart(2,"0")).join(" "); }
+function cat(a,b) { const o = new Uint8Array(a.length+b.length); o.set(a,0); o.set(b,a.length); return o; }
+function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
-const TK5_EPOCH_OFFSET=946684800;
-function tk5TimestampToDate(b0,b1,b2,b3){
-  const raw=b0+b1*256+b2*65536+b3*16777216;
-  return new Date((raw+TK5_EPOCH_OFFSET)*1000);
+function ts(b0,b1,b2,b3) {
+  return new Date((b0 + b1*256 + b2*65536 + b3*16777216 + EPOCH) * 1000);
 }
-function formatTime(d){return d.toLocaleString("zh-CN",{hour12:false})}
+function fmt(d) { return d.toLocaleString("zh-CN",{hour12:false}); }
 
-/* 解码 */
-function decodeHRHistory(bytes){
-  const list=[];
-  for(let i=0;i+6<=bytes.length;i+=6){
-    const date=tk5TimestampToDate(bytes[i],bytes[i+1],bytes[i+2],bytes[i+3]);
-    list.push({time:date.toISOString(),local:formatTime(date),hr:bytes[i+5]});
+function crc16(data) {
+  let c = 0xffff;
+  for (let i = 0; i < data.length; i++) {
+    c ^= data[i] << 8;
+    for (let b = 0; b < 8; b++) c = (c & 0x8000) ? ((c << 1) ^ 0x1021) & 0xffff : (c << 1) & 0xffff;
   }
-  return list;
-}
-function decodeBPHistory(bytes){
-  const list=[];
-  for(let i=0;i+8<=bytes.length;i+=8){
-    const date=tk5TimestampToDate(bytes[i],bytes[i+1],bytes[i+2],bytes[i+3]);
-    list.push({time:date.toISOString(),local:formatTime(date),flag:bytes[i+4],systolic:bytes[i+5],diastolic:bytes[i+6],hr:bytes[i+7]});
-  }
-  return list;
-}
-function decodeComprehensiveHistory(bytes){
-  const list=[];
-  for(let i=0;i+20<=bytes.length;i+=20){
-    const date=tk5TimestampToDate(bytes[i],bytes[i+1],bytes[i+2],bytes[i+3]);
-    list.push({
-      time:date.toISOString(),local:formatTime(date),
-      hr:bytes[i+6],systolic:bytes[i+7],diastolic:bytes[i+8],spo2:bytes[i+9],
-      unknown:bytes[i+10],counter:bytes[i+11]|(bytes[i+12]<<8)
-    });
-  }
-  return list;
-}
-function decodeBodyDataHistory(bytes){
-  const list=[];
-  for(let i=0;i+28<=bytes.length;i+=28){
-    const date=tk5TimestampToDate(bytes[i],bytes[i+1],bytes[i+2],bytes[i+3]);
-    const buckets=[];
-    for(let j=0;j<10;j++) buckets.push(bytes[i+4+j]);
-    list.push({time:date.toISOString(),local:formatTime(date),buckets,value15:bytes[i+14]});
-  }
-  return list;
-}
-function decodeActivityHistory(bytes){
-  if(bytes.length>=8){
-    const date=tk5TimestampToDate(bytes[0],bytes[1],bytes[2],bytes[3]);
-    return [{time:date.toISOString(),local:formatTime(date),raw:hex(bytes)}];
-  }
-  return [{raw:hex(bytes)}];
+  return c;
 }
 
-/* CRC & 包 */
-function crc16(data){
-  let crc=0xffff;
-  for(let i=0;i<data.length;i++){
-    crc^=data[i]<<8;
-    for(let b=0;b<8;b++) crc=(crc&0x8000)?((crc<<1)^0x1021)&0xffff:(crc<<1)&0xffff;
-  }
-  return crc;
-}
-function makePacket(type,payload=[]){
-  const len=4+payload.length+2;
-  const p=new Uint8Array(len);
-  p[0]=(type>>8)&0xff;p[1]=type&0xff;p[2]=len&0xff;p[3]=(len>>8)&0xff;
-  p.set(payload,4);
-  const c=crc16(p.slice(0,len-2));
-  p[len-2]=c&0xff;p[len-1]=(c>>8)&0xff;
+function packet(type, payload = []) {
+  const len = 4 + payload.length + 2;
+  const p = new Uint8Array(len);
+  p[0] = (type >> 8) & 0xff; p[1] = type & 0xff;
+  p[2] = len & 0xff; p[3] = (len >> 8) & 0xff;
+  p.set(payload, 4);
+  const c = crc16(p.slice(0, len - 2));
+  p[len-2] = c & 0xff; p[len-1] = (c >> 8) & 0xff;
   return p;
 }
-function makeTimePayload(){
-  const d=new Date(),y=d.getFullYear();
-  return new Uint8Array([y&0xff,(y>>8)&0xff,d.getMonth()+1,d.getDate(),d.getHours(),d.getMinutes(),d.getSeconds(),d.getDay()===0?6:d.getDay()-1]);
+
+function timePayload() {
+  const d = new Date(), y = d.getFullYear();
+  return new Uint8Array([y&0xff,(y>>8)&0xff, d.getMonth()+1, d.getDate(), d.getHours(), d.getMinutes(), d.getSeconds(), d.getDay()===0?6:d.getDay()-1]);
 }
 
-async function sendYCBT(type,payload=[]){
-  if(!c1){log("ERROR: C1 不可用");return false}
-  const packet=makePacket(type,payload);
-  log(`TX C1 0x${type.toString(16).padStart(4,"0")} [${hex(packet)}]`);
-  try{
-    if(c1.properties.writeWithoutResponse) await c1.writeValueWithoutResponse(packet);
-    else await c1.writeValue(packet);
-    return true;
-  }catch(e){log(`TX ERROR: ${e.message}`);return false}
+async function send(type, payload = []) {
+  if (!c1) return;
+  const p = packet(type, payload);
+  log(`TX 0x${type.toString(16).padStart(4,"0")} [${hex(p)}]`);
+  try {
+    if (c1.properties.writeWithoutResponse) await c1.writeValueWithoutResponse(p);
+    else await c1.writeValue(p);
+  } catch (e) { log("TX ERR " + e.message); }
 }
 
-function consumeStream(kind,data){
-  let buf=kind==="C1"?c1Buffer:c3Buffer;
-  buf=concatUint8(buf,new Uint8Array(data));
-  while(buf.length>=4){
-    const total=buf[2]|(buf[3]<<8);
-    if(total<6){buf=buf.slice(1);continue}
-    if(buf.length<total) break;
-    handlePacket(kind,buf.slice(0,total));
-    buf=buf.slice(total);
+function feed(kind, data) {
+  let buf = kind === "C1" ? c1Buf : c3Buf;
+  buf = cat(buf, new Uint8Array(data));
+  while (buf.length >= 4) {
+    const total = buf[2] | (buf[3] << 8);
+    if (total < 6) { buf = buf.slice(1); continue; }
+    if (buf.length < total) break;
+    const pkt = buf.slice(0, total);
+    buf = buf.slice(total);
+    const type = (pkt[0] << 8) | pkt[1];
+    const payload = pkt.slice(4, pkt.length - 2);
+    const ok = (pkt[pkt.length-2] | (pkt[pkt.length-1] << 8)) === crc16(pkt.slice(0, pkt.length-2));
+    log(`RX ${kind} 0x${type.toString(16).padStart(4,"0")} ${ok?"OK":"BAD"} [${hex(payload)}]`);
+    handle(type, payload);
   }
-  if(kind==="C1") c1Buffer=buf; else c3Buffer=buf;
+  if (kind === "C1") c1Buf = buf; else c3Buf = buf;
 }
 
-function handlePacket(kind,packet){
-  if(packet.length<6) return;
-  const type=(packet[0]<<8)|packet[1];
-  const payload=packet.slice(4,packet.length-2);
-  const ok=(packet[packet.length-2]|(packet[packet.length-1]<<8))===crc16(packet.slice(0,packet.length-2));
-  log(`RX ${kind} 0x${type.toString(16).padStart(4,"0")} len=${packet.length} crc=${ok?"OK":"BAD"} payload=[${hex(payload)}]`);
-  parseYCBT(type,payload);
+function add(type, data) {
+  records.unshift({ time: new Date().toISOString(), type, data });
+  records = records.slice(0, 4000);
+  localStorage.setItem("tk5Records", JSON.stringify(records));
+  renderHist();
 }
 
-/* 记录 & 渲染 */
-function addRecord(type,data){
-  records.unshift({time:new Date().toISOString(),type,data});
-  records=records.slice(0,5000);
-  localStorage.setItem("tk5Records",JSON.stringify(records));
-  renderHistory();
-  renderTrend();
+function decodeHR(bytes) {
+  const r = [];
+  for (let i = 0; i + 6 <= bytes.length; i += 6)
+    r.push({ local: fmt(ts(bytes[i],bytes[i+1],bytes[i+2],bytes[i+3])), hr: bytes[i+5] });
+  return r;
+}
+function decodeBP(bytes) {
+  const r = [];
+  for (let i = 0; i + 8 <= bytes.length; i += 8)
+    r.push({ local: fmt(ts(bytes[i],bytes[i+1],bytes[i+2],bytes[i+3])), sys: bytes[i+5], dia: bytes[i+6], hr: bytes[i+7] });
+  return r;
+}
+function decodeAll(bytes) {
+  const r = [];
+  for (let i = 0; i + 20 <= bytes.length; i += 20)
+    r.push({
+      local: fmt(ts(bytes[i],bytes[i+1],bytes[i+2],bytes[i+3])),
+      hr: bytes[i+6], sys: bytes[i+7], dia: bytes[i+8], spo2: bytes[i+9]
+    });
+  return r;
 }
 
-function renderTrend(){
-  const box=$("trendList");
-  const items=[];
-  for(const r of records){
-    if(r.type==="bp") items.push({t:r.time, text:`血压 ${r.data.systolic}/${r.data.diastolic}  HR${r.data.hr}`});
-    else if(r.type==="spo2") items.push({t:r.time, text:`血氧 ${r.data.value}%`});
-    else if(r.type==="history-all-decoded" && r.data.decoded){
-      for(const d of r.data.decoded){
-        if(d.systolic>0||d.spo2>0){
-          let s=[];
-          if(d.systolic>0) s.push(`血压 ${d.systolic}/${d.diastolic}`);
-          if(d.hr>0) s.push(`HR${d.hr}`);
-          if(d.spo2>0) s.push(`血氧 ${d.spo2}%`);
-          items.push({t:d.time, text:s.join(" · ")});
-        }
+function renderHist() {
+  const box = $("history");
+  const cards = [];
+  for (const rec of records) {
+    if (rec.type === "all" && rec.data) {
+      for (const x of [...rec.data].reverse()) {
+        if (!x.sys && !x.hr && !x.spo2) continue;
+        cards.push(`<div class="rc"><div class="t">${esc(x.local)}</div><div>${x.sys?`血压 <b>${x.sys}/${x.dia}</b> `:""}${x.hr?`心率 <b>${x.hr}</b> `:""}${x.spo2?`血氧 <b>${x.spo2}</b>%`:""}</div></div>`);
       }
+    } else if (rec.type === "bp") {
+      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>血压 <b>${rec.data.sys}/${rec.data.dia}</b> 心率 <b>${rec.data.hr}</b></div></div>`);
+    } else if (rec.type === "spo2") {
+      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>血氧 <b>${rec.data}</b>%</div></div>`);
+    } else if (rec.type === "hr") {
+      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>心率 <b>${rec.data}</b></div></div>`);
+    } else if (rec.type === "hrv") {
+      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>HRV <b>${rec.data}</b></div></div>`);
     }
-    if(items.length>=12) break;
+    if (cards.length >= 40) break;
   }
-  if(items.length===0){
-    box.innerHTML="暂无数据，测量或同步历史后显示";
-    return;
-  }
-  // 按时间倒序
-  items.sort((a,b)=>new Date(b.t)-new Date(a.t));
-  box.innerHTML=items.slice(0,8).map(i=>
-    `<div class="trend-item"><span>${escapeHTML(i.text)}</span><span class="muted">${escapeHTML(new Date(i.t).toLocaleString("zh-CN",{hour12:false}))}</span></div>`
-  ).join("");
+  box.innerHTML = cards.length ? cards.join("") : "";
 }
 
-function renderHistory(){
-  const box=$("history");
-  const cards=[];
-
-  for(const rec of records){
-    if(rec.type==="history-all-decoded" && rec.data.decoded){
-      for(const item of [...rec.data.decoded].reverse()){ // 新的在前
-        const hasBP=item.systolic>0||item.diastolic>0;
-        const hasHR=item.hr>0;
-        const hasSpO2=item.spo2>0;
-        if(!hasBP && !hasHR && !hasSpO2) continue;
-        cards.push(`<div class="record-card">
-          <div class="time">${escapeHTML(item.local)} <span class="tag-hist">历史</span></div>
-          <div class="vals">
-            ${hasBP?`<span>血压 <strong>${item.systolic}/${item.diastolic}</strong></span>`:""}
-            ${hasHR?`<span>心率 <strong>${item.hr}</strong> bpm</span>`:""}
-            ${hasSpO2?`<span>血氧 <strong>${item.spo2}</strong>%</span>`:""}
-          </div>
-        </div>`);
-      }
-    } else if(rec.type==="history-bp-decoded" && rec.data.decoded){
-      for(const item of [...rec.data.decoded].reverse()){
-        cards.push(`<div class="record-card">
-          <div class="time">${escapeHTML(item.local)} <span class="tag-hist">历史血压</span></div>
-          <div class="vals">
-            <span>血压 <strong>${item.systolic}/${item.diastolic}</strong></span>
-            <span>心率 <strong>${item.hr}</strong> bpm</span>
-          </div>
-        </div>`);
-      }
-    } else if(rec.type==="bp"){
-      cards.push(`<div class="record-card">
-        <div class="time">${escapeHTML(new Date(rec.time).toLocaleString("zh-CN",{hour12:false}))} <span class="tag-live">实时</span></div>
-        <div class="vals">
-          <span>血压 <strong>${rec.data.systolic}/${rec.data.diastolic}</strong></span>
-          <span>心率 <strong>${rec.data.hr}</strong> bpm</span>
-        </div>
-      </div>`);
-    } else if(rec.type==="spo2"){
-      cards.push(`<div class="record-card">
-        <div class="time">${escapeHTML(new Date(rec.time).toLocaleString("zh-CN",{hour12:false}))} <span class="tag-live">实时</span></div>
-        <div class="vals"><span>血氧 <strong>${rec.data.value}</strong>%</span></div>
-      </div>`);
-    } else if(rec.type==="hrv"){
-      cards.push(`<div class="record-card">
-        <div class="time">${escapeHTML(new Date(rec.time).toLocaleString("zh-CN",{hour12:false}))} <span class="tag-live">实时</span></div>
-        <div class="vals"><span>HRV <strong>${rec.data.value}</strong></span></div>
-      </div>`);
-    }
-    if(cards.length>=25) break;
-  }
-
-  box.innerHTML = cards.length ? cards.join("") : '<div class="small" style="padding:10px 0">暂无记录，先测量或点「全部」同步</div>';
-}
-
-/* 协议解析 */
-function parseYCBT(type,p){
-  switch(type){
+function handle(type, p) {
+  switch (type) {
     case 0x0200:
-      log("DEVICE INFO ["+hex(p)+"]");
-      // 多位置尝试电量
-      if(p.length>=6 && p[5]>=0 && p[5]<=100) $("battery").textContent=p[5];
-      else if(p.length>=1 && p[0]>=0 && p[0]<=100 && p[0]!==0xfe) $("battery").textContent=p[0];
-      else if(p.length>=2 && p[1]>=0 && p[1]<=100) $("battery").textContent=p[1];
-      else if(p.length>=3 && p[2]>=0 && p[2]<=100) $("battery").textContent=p[2];
+      if (p.length > 5 && p[5] >= 0 && p[5] <= 100) $("battery").textContent = p[5];
+      else if (p.length === 1 && p[0] <= 100 && p[0] !== 0xfe) $("battery").textContent = p[0];
       break;
-    case 0x0201: log("SUPPORT FUNCTION"); break;
-    case 0x021b: log("CHIP SCHEME ["+hex(p)+"]"); break;
-    case 0x0203:{
-      let name="";
-      try{name=new TextDecoder().decode(p).replace(/\0/g,"")}catch{name=hex(p)}
-      $("device").innerHTML=`<div class="device-line">设备名：<strong>${escapeHTML(name||"TK5")}</strong></div>
-        <div class="device-line">Bluetooth：${escapeHTML(device?.name||"TK5")}</div>`;
-      break;
-    }
     case 0x020c:
-      if(p.length>=2){
-        const steps=p[0]|(p[1]<<8);
-        $("steps").textContent=steps;
-        addRecord("steps",{value:steps});
-        log("Steps = "+steps);
+      if (p.length >= 2) {
+        const s = p[0] | (p[1] << 8);
+        $("steps").textContent = s;
       }
       break;
     case 0x0601:
-      if(p.length>=1){
-        const hr=p[0];
-        if(hr>0 && hr<250){ $("hr").textContent=hr; addRecord("hr",{bpm:hr}); }
+      if (p[0] > 0 && p[0] < 250) {
+        $("hr").textContent = p[0];
+        add("hr", p[0]);
       }
       break;
     case 0x0602:
-      if(p.length>=1){
-        const spo2=p[0];
-        if(spo2>0 && spo2<=100){ $("spo2").textContent=spo2; addRecord("spo2",{value:spo2}); }
+      if (p[0] > 0 && p[0] <= 100) {
+        $("spo2").textContent = p[0];
+        add("spo2", p[0]);
       }
       break;
-    case 0x0603:{
-      // 更稳健：根据数据包内容自动判断类型，不完全依赖 currentMeasureMode
-      if(p.length >= 3){
-        const b0 = p[0], b1 = p[1], b2 = p[2], b3 = p[3] || 0;
-
-        // 血压特征：前三字节都在合理生理范围（SYS 70-200, DIA 40-130, HR 40-200）
-        const looksLikeBP = b0 >= 70 && b0 <= 200 && b1 >= 40 && b1 <= 130 && b2 >= 40 && b2 <= 200;
-
-        // HRV 特征：前面多为 0，有效值在后面
-        const looksLikeHRV = (b0 === 0 && b1 === 0) || currentMeasureMode === 0x0a || currentMeasureMode === 10;
-
-        if(looksLikeBP || currentMeasureMode === 1){
-          const sys = b0, dia = b1, hr = b2;
-          $("bpValue").textContent = `${sys} / ${dia}`;
-          $("bpHr").textContent = `心率 ${hr} bpm`;
-          $("measureTip").textContent = "血压测量中，请保持静止…";
-          addRecord("bp", {systolic:sys, diastolic:dia, hr});
-          log(`BP = ${sys}/${dia} HR=${hr}`);
-        } else if(looksLikeHRV){
-          const val = b3 || b2 || b0 || 0;
-          $("hrvValue").textContent = val;
-          let note = "原始值";
-          if(val >= 20 && val <= 50) note = "可能处于正常波动范围";
-          else if(val > 50) note = "数值偏高（需更多样本确认）";
-          else if(val > 0 && val < 20) note = "数值偏低（需更多样本确认）";
-          $("hrvNote").textContent = note;
-          $("measureTip").textContent = "HRV 测量中…";
-          addRecord("hrv", {value:val, raw:hex(p)});
-          log("HRV = " + val);
-        } else {
-          // 兜底：把原始数据也显示出来，方便排查
-          $("measureTip").textContent = "收到数据: " + hex(p).slice(0, 24);
-          log("0603 raw = [" + hex(p) + "]");
-        }
+    case 0x0603:
+      if (measureMode === 1 && p.length >= 3) {
+        $("bp").textContent = `${p[0]} / ${p[1]}`;
+        $("bpHr").textContent = "HR " + p[2];
+        add("bp", { sys: p[0], dia: p[1], hr: p[2] });
+        log(`BP ${p[0]}/${p[1]} HR${p[2]}`);
+      } else if (measureMode === 10 || measureMode === 0x0a) {
+        const v = p[3] || p[0] || 0;
+        $("hrv").textContent = v;
+        add("hrv", v);
+        log("HRV " + v);
       }
       break;
-    }
     case 0x040e:
-      log("Device Event ["+hex(p)+"]");
-      if(p[0]===0x01) $("measureTip").textContent="血压测量完成";
-      if(p[0]===0x02) $("measureTip").textContent="血氧测量完成";
-      if(p[0]===0x0a) $("measureTip").textContent="HRV 测量完成";
+      if (p[0] === 1) log("血压完成");
+      if (p[0] === 2) log("血氧完成");
+      if (p[0] === 0x0a) log("HRV完成");
       break;
-
-    case 0x0511: case 0x0513: case 0x0515: case 0x0517:
-    case 0x0518: case 0x0522: case 0x0526: case 0x0530: case 0x0534:
-      if(currentHistoryFrameType===null) currentHistoryFrameType=type;
-      historyChunks.push(p);
+    case 0x0515: case 0x0517: case 0x0518:
+      if (histType === null) histType = type;
+      histChunks.push(p);
       break;
-
-    case 0x0580:{
-      log("HISTORY TERMINAL 0580");
-      const full=historyChunks.reduce(concatUint8,new Uint8Array());
-      let summary={raw:hex(p)};
-      if(p.length>=4){ summary.numRecords=p[0]|(p[1]<<8); summary.totalBytes=p[2]|(p[3]<<8); }
-
-      if(currentHistoryFrameType===0x0515){
-        summary.decoded=decodeHRHistory(full);
-        addRecord("history-hr-decoded",summary);
-        log(`历史心率 ${summary.decoded.length} 条`);
-      } else if(currentHistoryFrameType===0x0517){
-        summary.decoded=decodeBPHistory(full);
-        addRecord("history-bp-decoded",summary);
-        log(`历史血压 ${summary.decoded.length} 条`);
-      } else if(currentHistoryFrameType===0x0518){
-        summary.decoded=decodeComprehensiveHistory(full);
-        addRecord("history-all-decoded",summary);
-        log(`综合历史 ${summary.decoded.length} 条`);
-      } else if(currentHistoryFrameType===0x0534){
-        summary.decoded=decodeBodyDataHistory(full);
-        addRecord("history-bodydata-decoded",summary);
-      } else if(currentHistoryFrameType===0x0511){
-        summary.decoded=decodeActivityHistory(full);
-        addRecord("history-activity-decoded",summary);
-      } else addRecord("history-terminal",summary);
-
-      if(historyUnlockTimer){clearTimeout(historyUnlockTimer);historyUnlockTimer=null}
-      historyQueryRunning=false;
-      currentHistoryKey=currentHistoryFrameType=null;
-      historyChunks=[];
-      setHistoryButtonsDisabled(false);
-      setStatus("已连接 · "+(device?.name||"TK5"));
+    case 0x0580: {
+      const buf = histChunks.reduce(cat, new Uint8Array());
+      if (histType === 0x0515) {
+        const d = decodeHR(buf);
+        add("hrHist", d);
+        log("心率历史 " + d.length);
+      } else if (histType === 0x0517) {
+        const d = decodeBP(buf);
+        add("bpHist", d);
+        log("血压历史 " + d.length);
+      } else if (histType === 0x0518) {
+        const d = decodeAll(buf);
+        add("all", d);
+        log("综合历史 " + d.length);
+      }
+      clearTimeout(histTimer);
+      histBusy = false; histType = null; histChunks = [];
+      document.querySelectorAll("[data-h]").forEach(b => b.disabled = false);
+      status("已连接 · " + (device?.name || "TK5"));
       break;
     }
-    default:
-      if((type&0xff00)===0x0500){
-        log(`HISTORY STATUS 0x${type.toString(16)} [${hex(p)}]`);
-        if(p[0]===0xfc) log("返回 0xFC（可能不支持或无数据）");
-      } else log(`UNHANDLED 0x${type.toString(16).padStart(4,"0")} [${hex(p)}]`);
   }
 }
 
-/* 连接 */
-async function connect(){
-  try{
-    if(!navigator.bluetooth) throw new Error("请使用 Bluefy 或 Chrome");
-    setStatus("正在选择 TK5…");
-
-    // 如果已经连接，先断开再重新连
-    if(device?.gatt?.connected){
-      try{ device.gatt.disconnect(); }catch(_){}
-    }
+async function connect() {
+  try {
+    if (!navigator.bluetooth) throw new Error("需要 Bluefy / Chrome");
+    status("选择设备…");
+    if (device?.gatt?.connected) try { device.gatt.disconnect(); } catch (_) {}
 
     device = await navigator.bluetooth.requestDevice({
-      filters: [
-        { namePrefix: "TK5" },
-        { namePrefix: "tk5" }
-      ],
-      optionalServices: [YCBT_SERVICE]
+      filters: [{ namePrefix: "TK5" }, { namePrefix: "tk5" }],
+      optionalServices: [SVC]
     });
+    log("Selected " + (device.name || ""));
+    await device.gatt.connect();
+    log("GATT OK");
 
-    log("Selected: " + (device.name || "unknown"));
-    server = await device.gatt.connect();
-    log("GATT connected");
+    const svc = await device.gatt.getPrimaryService(SVC);
+    c1 = await svc.getCharacteristic(C1U);
+    c3 = await svc.getCharacteristic(C3U);
 
-    const service = await server.getPrimaryService(YCBT_SERVICE);
-    c1 = await service.getCharacteristic(C1_UUID);
-    c3 = await service.getCharacteristic(C3_UUID);
-
-    // 避免重复绑定监听器
-    c1.oncharacteristicvaluechanged = e => consumeStream("C1", e.target.value.buffer);
-    c3.oncharacteristicvaluechanged = e => consumeStream("C3", e.target.value.buffer);
-
+    c1.addEventListener("characteristicvaluechanged", e => feed("C1", e.target.value.buffer));
+    c3.addEventListener("characteristicvaluechanged", e => feed("C3", e.target.value.buffer));
     await c1.startNotifications();
     await c3.startNotifications();
-    log("Notifications subscribed");
+    log("Notify OK");
 
-    device.ongattserverdisconnected = () => {
-      setStatus("已断开");
-      log("GATT disconnected");
+    device.addEventListener("gattserverdisconnected", () => {
+      status("已断开");
       c1 = c3 = null;
-      historyQueryRunning = false;
-      setHistoryButtonsDisabled(false);
-    };
+      histBusy = false;
+    });
 
-    setStatus("已连接 · " + (device.name || "TK5"));
+    status("已连接 · " + (device.name || "TK5"));
 
-    await sendYCBT(0x0201, [0x47, 0x46]);
-    await sendYCBT(0x0100, makeTimePayload());
-    await sendYCBT(0x021b);
-    await sendYCBT(0x0200);
-    await sendYCBT(0x0203);
-    await sendYCBT(0x020c);
-    await sendYCBT(0x032f, [0x01, 0x00]);
-    await sendYCBT(0x0309, [0x01, 0x00, 0x02, 0xA0]);
+    await send(0x0201, [0x47, 0x46]);
+    await send(0x0100, timePayload());
+    await send(0x021b);
+    await send(0x0200);
+    await send(0x0203);
+    await send(0x020c);
+    await send(0x032f, [0x01, 0x00]);
+    await send(0x0309, [0x01, 0x00, 0x02, 0xa0]);
+    log("初始化完成");
 
-    log("TK5 initialization complete");
-  } catch(e) {
-    setStatus("连接失败：" + e.message);
-    log("ERROR: " + e.message);
+    // 自动同步全部 + 自动测血氧 + 自动测血压
+    setTimeout(() => hist("09"), 500);
+    setTimeout(() => measure(2), 2000);
+    setTimeout(() => measure(1), 9000);
+  } catch (e) {
+    status("失败: " + e.message);
+    log("ERR " + e.message);
   }
 }
 
-function disconnect(){
-  try{if(device?.gatt?.connected) device.gatt.disconnect()}catch(e){log(e.message)}
+function disconnect() {
+  try { if (device?.gatt?.connected) device.gatt.disconnect(); } catch (_) {}
 }
 
-async function measure(mode){
-  if(!c1){log("ERROR: 请先连接");return}
-  currentMeasureMode=mode;
-  if(mode<0){
-    await sendYCBT(0x032f,[0x00,0x00]);
-    $("measureTip").textContent="";
-    log("MEASUREMENT STOP");
+async function measure(mode) {
+  if (!c1) return;
+  measureMode = mode;
+  if (mode < 0) {
+    await send(0x032f, [0x00, 0x00]);
     return;
   }
-  await sendYCBT(0x032f,[0x01,mode]);
-  const names={0:"心率",1:"血压",2:"血氧",10:"HRV"};
-  $("measureTip").textContent=`正在测量${names[mode]||""}，请保持静止…`;
-  log(`MEASUREMENT START mode=0x${mode.toString(16).padStart(2,"0")}`);
+  await send(0x032f, [0x01, mode]);
+  log("测 mode=" + mode);
 }
 
-async function queryHistory(keyHex){
-  if(!c1){log("ERROR: 请先连接");return}
-  if(historyQueryRunning){log("WARN: 已有查询进行中");return}
-  historyQueryRunning=true;
-  currentHistoryKey=keyHex;
-  currentHistoryFrameType=null;
-  historyChunks=[];
-  setHistoryButtonsDisabled(true);
-  setStatus("历史查询中 · "+keyHex);
-  await sendYCBT(0x0500|parseInt(keyHex,16));
-  log("HISTORY START key="+keyHex);
-  historyUnlockTimer=setTimeout(()=>{
-    if(historyQueryRunning){
-      log("WARN: 历史查询超时");
-      historyQueryRunning=false;
-      currentHistoryKey=currentHistoryFrameType=null;
-      historyChunks=[];
-      setHistoryButtonsDisabled(false);
-      setStatus("已连接 · "+(device?.name||"TK5")+"（查询超时）");
+async function hist(key) {
+  if (!c1 || histBusy) return;
+  histBusy = true;
+  histType = null;
+  histChunks = [];
+  document.querySelectorAll("[data-h]").forEach(b => b.disabled = true);
+  status("同步中…");
+  await send(0x0500 | parseInt(key, 16));
+  histTimer = setTimeout(() => {
+    if (histBusy) {
+      histBusy = false; histType = null; histChunks = [];
+      document.querySelectorAll("[data-h]").forEach(b => b.disabled = false);
+      status("已连接 · " + (device?.name || "TK5"));
+      log("历史超时");
     }
-  },12000);
+  }, 12000);
 }
 
-function downloadText(filename,text,mime){
-  const blob=new Blob([text],{type:mime});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  a.href=url;a.download=filename;
-  document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
-}
-function makeCSV(){
-  const rows=[["time","type","data"]];
-  for(const r of records) rows.push([r.time,r.type,JSON.stringify(r.data)]);
-  return rows.map(row=>row.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
-}
+$("btnConnect").onclick = connect;
+$("btnDisconnect").onclick = disconnect;
+document.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => measure(+b.dataset.mode));
+document.querySelectorAll("[data-h]").forEach(b => b.onclick = () => hist(b.dataset.h));
+$("btnCopy").onclick = async () => { try { await navigator.clipboard.writeText(logs.join("\n")); log("已复制"); } catch(e){} };
+$("btnClearLog").onclick = () => { logs = []; $("log").textContent = ""; };
+$("btnClearRec").onclick = () => {
+  if (confirm("清空本地记录？")) { records = []; localStorage.removeItem("tk5Records"); renderHist(); }
+};
+$("btnJson").onclick = () => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(records,null,2)],{type:"application/json"}));
+  a.download = "tk5.json"; a.click();
+};
 
-/* 绑定 */
-$("connect").addEventListener("click",connect);
-$("disconnect").addEventListener("click",disconnect);
-document.querySelectorAll("[data-mode]").forEach(b=>b.addEventListener("click",()=>measure(Number(b.dataset.mode))));
-document.querySelectorAll("[data-h]").forEach(b=>b.addEventListener("click",()=>queryHistory(b.dataset.h)));
-$("copy").addEventListener("click",async()=>{
-  try{await navigator.clipboard.writeText(logs.join("\n"));log("日志已复制")}catch(e){log(e.message)}
-});
-$("clear").addEventListener("click",()=>{logs=[];$("log").textContent=""});
-$("clearRecords").addEventListener("click",()=>{
-  if(!confirm("确定清空本机数据？戒指数据不会删除。")) return;
-  records=[]; localStorage.removeItem("tk5Records");
-  renderHistory(); renderTrend(); log("本地记录已清空");
-});
-$("json").addEventListener("click",()=>downloadText("tk5-health.json",JSON.stringify(records,null,2),"application/json;charset=utf-8"));
-$("csv").addEventListener("click",()=>downloadText("tk5-health.csv",makeCSV(),"text/csv;charset=utf-8"));
-
-renderHistory();
-renderTrend();
-log("TK5 Health v0.7.2 loaded");
-log("请使用 Bluefy（iOS）或 Chrome（Android）打开");
+renderHist();
+log("TK5 Health v1.0");
 </script>
 </body>
 </html>
