@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>TK5 Health</title>
+<style>
+:root{
+  --bg:#071018;
+  --panel:#0d1822;
+  --panel2:#101f2b;
+  --gold:#d6b56a;
+  --gold2:#9c7d38;
+  --cyan:#67d9df;
+  --cyan2:#2e7379;
+  --text:#edf5f7;
+  --muted:#8ea3ad;
+  --line:#715f35;
+  --line2:#29404b;
+  --danger:#ff7777;
+  --ok:#72d7ae;
+}
+*{
+  box-sizing:border-box;
+}
+html{
+  background:#050a0e;
+}
+body{
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(
+      circle at 20% 0%,
+      #183140 0%,
+      #071018 38%,
+      #050a0e 100%
+    );
+  color:var(--text);
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  padding:
+    max(16px,env(safe-area-inset-top))
+    14px
+    max(40px,env(safe-area-inset-bottom));
+}
+main{
+  width:100%;
+  max-width:760px;
+  margin:0 auto;
+}
+header,
+.card{
+  border:1px solid var(--line);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(17,30,41,.98),
+      rgba(7,15,22,.98)
+    );
+  border-radius:18px;
+  box-shadow:
+    0 14px 35px rgba(0,0,0,.48),
+    inset 0 1px rgba(255,255,255,.045);
+}
+header{
+  padding:18px;
+  margin-bottom:12px;
+}
+h1{
+  margin:0;
+  font-size:25px;
+  line-height:1.2;
+  letter-spacing:.6px;
+}
+h2{
+  font-size:15px;
+  line-height:1.2;
+  margin:0 0 12px;
+  color:var(--gold);
+  letter-spacing:1px;
+}
+.sub{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:6px;
+}
+.status{
+  margin-top:14px;
+  padding:10px 12px;
+  border:1px solid var(--line2);
+  border-radius:11px;
+  color:var(--cyan);
+  background:#07141c;
+  font-size:13px;
+}
+.card{
+  padding:15px;
+  margin:12px 0;
+}
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+}
+.metric{
+  position:relative;
+  overflow:hidden;
+  border:1px solid #35505b;
+  background:
+    linear-gradient(
+      145deg,
+      #142733,
+      #0a151d
+    );
+  border-radius:13px;
+  padding:13px;
+  min-height:112px;
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.035),
+    0 8px 20px rgba(0,0,0,.2);
+}
+.metric::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:1px;
+  background:linear-gradient(
+    90deg,
+    transparent,
+    var(--gold),
+    transparent
+  );
+  opacity:.45;
+}
+.label{
+  font-size:12px;
+  color:var(--muted);
+}
+.value{
+  font-size:30px;
+  font-weight:700;
+  line-height:1;
+  margin:10px 0 5px;
+  color:var(--text);
+}
+.unit{
+  font-size:11px;
+  color:var(--muted);
+}
+.row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px;
+}
+button{
+  border:1px solid #8b7440;
+  border-radius:11px;
+  padding:11px 13px;
+  margin:2px;
+  background:
+    linear-gradient(
+      145deg,
+      #172933,
+      #101d25
+    );
+  color:var(--text);
+  font-size:14px;
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.06),
+    0 4px 12px rgba(0,0,0,.18);
+  -webkit-tap-highlight-color:transparent;
+}
+button:active{
+  transform:translateY(1px);
+  filter:brightness(1.15);
+}
+button.primary{
+  background:
+    linear-gradient(
+      135deg,
+      #806a39,
+      #4f4327
+    );
+  color:#fff;
+}
+button.cyan{
+  border-color:#438d91;
+  background:
+    linear-gradient(
+      135deg,
+      #153b41,
+      #10282e
+    );
+}
+button.danger{
+  border-color:#7b4141;
+  color:#ffdede;
+}
+.small{
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.55;
+}
+.device-line{
+  padding:7px 0;
+  border-bottom:1px solid #1e3038;
+}
+.device-line:last-child{
+  border-bottom:0;
+}
+.history{
+  max-height:340px;
+  overflow:auto;
+  margin-top:12px;
+  border-top:1px solid #1d3038;
+}
+.record{
+  padding:9px 0;
+  border-bottom:1px solid #1d3038;
+  font-size:12px;
+  line-height:1.45;
+}
+.tag{
+  color:var(--gold);
+}
+#log{
+  margin-top:10px;
+  background:#030709;
+  border:1px solid #25343b;
+  color:#9fe9d0;
+  font:
+    11px/1.45
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace;
+  white-space:pre-wrap;
+  word-break:break-all;
+  max-height:320px;
+  overflow:auto;
+  padding:10px;
+  border-radius:10px;
+}
+.badge{
+  display:inline-block;
+  padding:3px 7px;
+  border:1px solid #3b5962;
+  border-radius:999px;
+  color:var(--cyan);
+  font-size:10px;
+  margin-left:5px;
+}
+.warn{
+  color:#d9b66d;
+}
+.ok{
+  color:var(--ok);
+}
+@media(max-width:420px){
+  body{
+    padding-left:10px;
+    padding-right:10px;
+  }
+  header,
+  .card{
+    border-radius:15px;
+  }
+  .grid{
+    gap:7px;
+  }
+  .value{
+    font-size:26px;
+  }
+  button{
+    padding:10px 11px;
+    font-size:13px;
+  }
+}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>TK5 Health</h1>
+  <div class="sub">
+    YCBT 直连 · 无云端 · 无订阅
+    <span class="badge">Web Bluetooth</span>
+  </div>
+  <div id="status" class="status">
+    未连接
+  </div>
+  <div class="row">
+    <button id="connect" class="primary">
+      连接 TK5
+    </button>
+    <button id="disconnect">
+      断开
+    </button>
+  </div>
+</header>
+<!-- =========================
+     实时指标
+========================= -->
+<section class="card">
+  <div class="grid">
+    <div class="metric">
+      <div class="label">
+        ❤️ 实时心率
+      </div>
+      <div id="hr" class="value">
+        --
+      </div>
+      <div class="unit">
+        BPM
+      </div>
+    </div>
+    <div class="metric">
+      <div class="label">
+        🩸 血氧
+      </div>
+      <div id="spo2" class="value">
+        --
+      </div>
+      <div class="unit">
+        SpO₂ %
+      </div>
+    </div>
+    <div class="metric">
+      <div class="label">
+        👣 今日步数
+      </div>
+      <div id="steps" class="value">
+        --
+      </div>
+      <div class="unit">
+        steps
+      </div>
+    </div>
+    <div class="metric">
+      <div class="label">
+        🔋 电量
+      </div>
+      <div id="battery" class="value">
+        --
+      </div>
+      <div class="unit">
+        %
+      </div>
+    </div>
+  </div>
+</section>
+<!-- =========================
+     测量
+========================= -->
+<section class="card">
+  <h2>
+    测量
+  </h2>
+  <div class="row">
+    <button
+      class="cyan"
+      data-mode="0">
+      测心率
+    </button>
+    <button
+      class="cyan"
+      data-mode="2">
+      测血氧
+    </button>
+    <button
+      class="cyan"
+      data-mode="1">
+      测血压
+    </button>
+    <button
+      class="cyan"
+      data-mode="10">
+      测 HRV
+    </button>
+    <button
+      data-mode="-1">
+      停止
+    </button>
+  </div>
+  <div class="small">
+    YCBT 测量模式：
+    00 = HR，
+    01 = BP，
+    02 = SpO₂，
+    0A = HRV。
+    <br>
+    血压、HRV、血氧结果以戒指实际返回为准，不作为医疗诊断。
+  </div>
+</section>
+<!-- =========================
+     历史
+========================= -->
+<section class="card">
+  <h2>
+    历史数据同步
+  </h2>
+  <div class="row">
+    <button data-h="02">
+      活动 / 步数
+    </button>
+    <button data-h="04">
+      睡眠
+    </button>
+    <button data-h="06">
+      历史心率
+    </button>
+    <button data-h="08">
+      血压
+    </button>
+    <button data-h="1a">
+      血氧
+    </button>
+    <button data-h="1e">
+      体温
+    </button>
+    <button data-h="2f">
+      综合
+    </button>
+    <button data-h="33">
+      身体数据
+    </button>
+    <button data-h="09">
+      全部
+    </button>
+  </div>
+  <div class="small">
+    从戒指读取历史记录。
+    本版本不会发送删除历史记录的命令。
+    历史数据暂时保存原始 payload，避免在真实样本不足时误判字段比例。
+  </div>
+  <div id="history" class="history">
+  </div>
+</section>
+<!-- =========================
+     设备
+========================= -->
+<section class="card">
+  <h2>
+    设备
+  </h2>
+  <div id="device">
+    <div class="device-line small">
+      等待连接…
+    </div>
+  </div>
+</section>
+<!-- =========================
+     本地数据
+========================= -->
+<section class="card">
+  <h2>
+    本地数据
+  </h2>
+  <div class="row">
+    <button id="json">
+      导出 JSON
+    </button>
+    <button id="csv">
+      导出 CSV
+    </button>
+    <button id="copy">
+      复制日志
+    </button>
+    <button id="clear">
+      清空日志
+    </button>
+    <button id="clearRecords" class="danger">
+      清空本地记录
+    </button>
+  </div>
+  <div id="log">
+  </div>
+</section>
+</main>
+<script>
+"use strict";
+/* =========================================================
+   UUID
+========================================================= */
+const YCBT_SERVICE =
+  "be940000-7333-be46-b7ae-689e71722bd5";
+const C1_UUID =
+  "be940001-7333-be46-b7ae-689e71722bd5";
+const C3_UUID =
+  "be940003-7333-be46-b7ae-689e71722bd5";
+/* =========================================================
+   全局状态
+========================================================= */
+let device = null;
+let server = null;
+let c1 = null;
+let c3 = null;
+let c1Buffer =
+  new Uint8Array();
+let c3Buffer =
+  new Uint8Array();
+let logs = [];
+let records =
+  JSON.parse(
+    localStorage.getItem(
+      "tk5Records"
+    ) || "[]"
+  );
+let historyQueryRunning =
+  false;
+/* =========================================================
+   UI
+========================================================= */
+const $ = id =>
+  document.getElementById(id);
+function log(text){
+  const now =
+    new Date();
+  const time =
+    now.toLocaleTimeString(
+      "zh-CN",
+      {
+        hour12:false
+      }
+    );
+  const line =
+    "[" +
+    time +
+    "] " +
+    text;
+  logs.push(line);
+  $("log").textContent =
+    logs.join("\n");
+  $("log").scrollTop =
+    $("log").scrollHeight;
+  console.log(line);
+}
+function setStatus(text){
+  $("status").textContent =
+    text;
+}
+/* =========================================================
+   Hex
+========================================================= */
+function hex(data){
+  return Array.from(data)
+    .map(
+      x =>
+        x.toString(16)
+         .padStart(2,"0")
+    )
+    .join(" ");
+}
+/* =========================================================
+   Uint8Array concat
+========================================================= */
+function concatUint8(a,b){
+  const out =
+    new Uint8Array(
+      a.length + b.length
+    );
+  out.set(a,0);
+  out.set(b,a.length);
+  return out;
+}
+/* =========================================================
+   CRC16 / CCITT-FALSE
+========================================================= */
+function crc16(data){
+  let crc = 0xffff;
+  for(
+    let i=0;
+    i<data.length;
+    i++
+  ){
+    crc ^=
+      data[i] << 8;
+    for(
+      let bit=0;
+      bit<8;
+      bit++
+    ){
+      if(
+        crc & 0x8000
+      ){
+        crc =
+          ((crc << 1) ^
+           0x1021) &
+          0xffff;
+      }else{
+        crc =
+          (crc << 1) &
+          0xffff;
+      }
+    }
+  }
+  return crc;
+}
+/* =========================================================
+   YCBT packet
+   [type:u16][length:u16][payload][crc16]
+========================================================= */
+function makePacket(
+  type,
+  payload=[]
+){
+  const totalLength =
+    4 +
+    payload.length +
+    2;
+  const packet =
+    new Uint8Array(
+      totalLength
+    );
+  packet[0] =
+    (type >> 8) & 0xff;
+  packet[1] =
+    type & 0xff;
+  packet[2] =
+    totalLength & 0xff;
+  packet[3] =
+    (totalLength >> 8) & 0xff;
+  packet.set(
+    payload,
+    4
+  );
+  const crc =
+    crc16(
+      packet.slice(
+        0,
+        totalLength - 2
+      )
+    );
+  packet[
+    totalLength - 2
+  ] =
+    crc & 0xff;
+  packet[
+    totalLength - 1
+  ] =
+    (crc >> 8) & 0xff;
+  return packet;
+}
+/* =========================================================
+   当前时间
+========================================================= */
+function makeTimePayload(){
+  const d =
+    new Date();
+  const year =
+    d.getFullYear();
+  /*
+   * YCBT 年/月/日/时/分/秒/星期
+   */
+  return new Uint8Array([
+    year & 0xff,
+    (year >> 8) & 0xff,
+    d.getMonth() + 1,
+    d.getDate(),
+    d.getHours(),
+    d.getMinutes(),
+    d.getSeconds(),
+    d.getDay() === 0
+      ? 6
+      : d.getDay() - 1
+  ]);
+}
+/* =========================================================
+   发送 YCBT 命令
+========================================================= */
+async function sendYCBT(
+  type,
+  payload=[]
+){
+  if(!c1){
+    log(
+      "ERROR: C1 不可用"
+    );
+    return false;
+  }
+  const packet =
+    makePacket(
+      type,
+      payload
+    );
+  log(
+    "TX C1 0x" +
+    type
+      .toString(16)
+      .padStart(4,"0") +
+    " [" +
+    hex(packet) +
+    "]"
+  );
+  try{
+    if(
+      c1.properties
+        .writeWithoutResponse
+    ){
+      await c1
+        .writeValueWithoutResponse(
+          packet
+        );
+    }else{
+      await c1
+        .writeValue(
+          packet
+        );
+    }
+    return true;
+  }catch(error){
+    log(
+      "TX ERROR 0x" +
+      type.toString(16) +
+      ": " +
+      error.message
+    );
+    return false;
+  }
+}
+/* =========================================================
+   YCBT stream parser
+   支持 BLE notification 分包
+========================================================= */
+function consumeStream(
+  kind,
+  data
+){
+  let buffer =
+    kind === "C1"
+      ? c1Buffer
+      : c3Buffer;
+  buffer =
+    concatUint8(
+      buffer,
+      new Uint8Array(data)
+    );
+  while(
+    buffer.length >= 4
+  ){
+    const totalLength =
+      buffer[2] |
+      (buffer[3] << 8);
+    /*
+     * 最小合法 packet:
+     * 4 header + 2 crc
+     */
+    if(
+      totalLength < 6
+    ){
+      log(
+        "WARN " +
+        kind +
+        " 非法长度 " +
+        totalLength +
+        "，丢弃 1 byte"
+      );
+      buffer =
+        buffer.slice(1);
+      continue;
+    }
+    /*
+     * 还没有收到完整 frame
+     */
+    if(
+      buffer.length <
+      totalLength
+    ){
+      break;
+    }
+    const packet =
+      buffer.slice(
+        0,
+        totalLength
+      );
+    buffer =
+      buffer.slice(
+        totalLength
+      );
+    handlePacket(
+      kind,
+      packet
+    );
+  }
+  if(kind === "C1"){
+    c1Buffer =
+      buffer;
+  }else{
+    c3Buffer =
+      buffer;
+  }
+}
+/* =========================================================
+   Packet handler
+========================================================= */
+function handlePacket(
+  kind,
+  packet
+){
+  if(
+    packet.length < 6
+  ){
+    log(
+      "WARN " +
+      kind +
+      " packet 太短"
+    );
+    return;
+  }
+  const type =
+    (packet[0] << 8) |
+    packet[1];
+  const length =
+    packet[2] |
+    (packet[3] << 8);
+  const payload =
+    packet.slice(
+      4,
+      packet.length - 2
+    );
+  const receivedCRC =
+    packet[
+      packet.length - 2
+    ] |
+    (
+      packet[
+        packet.length - 1
+      ] << 8
+    );
+  const calculatedCRC =
+    crc16(
+      packet.slice(
+        0,
+        packet.length - 2
+      )
+    );
+  const crcOK =
+    receivedCRC ===
+    calculatedCRC;
+  log(
+    "RX " +
+    kind +
+    " 0x" +
+    type
+      .toString(16)
+      .padStart(4,"0") +
+    " len=" +
+    length +
+    " crc=" +
+    (
+      crcOK
+        ? "OK"
+        : "BAD"
+    ) +
+    " payload=[" +
+    hex(payload) +
+    "]"
+  );
+  if(!crcOK){
+    log(
+      "WARN CRC mismatch " +
+      "received=0x" +
+      receivedCRC
+        .toString(16) +
+      " calculated=0x" +
+      calculatedCRC
+        .toString(16)
+    );
+  }
+  parseYCBT(
+    type,
+    payload
+  );
+}
+/* =========================================================
+   本地记录
+========================================================= */
+function addRecord(
+  type,
+  data
+){
+  records.unshift({
+    time:
+      new Date().toISOString(),
+    type:
+      type,
+    data:
+      data
+  });
+  /*
+   * 暂时限制 5000 条，
+   * 防止 localStorage 过大。
+   */
+  records =
+    records.slice(
+      0,
+      5000
+    );
+  localStorage.setItem(
+    "tk5Records",
+    JSON.stringify(
+      records
+    )
+  );
+  renderHistory();
+}
+/* =========================================================
+   历史 UI
+========================================================= */
+function renderHistory(){
+  const box =
+    $("history");
+  if(
+    records.length === 0
+  ){
+    box.innerHTML =
+      '<div class="small" style="padding:12px 0;">暂无本地记录</div>';
+    return;
+  }
+  box.innerHTML =
+    records
+      .slice(0,100)
+      .map(
+        record => {
+          return (
+            '<div class="record">' +
+              '<span class="tag">' +
+              escapeHTML(
+                record.type
+              ) +
+              '</span>' +
+              ' · ' +
+              escapeHTML(
+                new Date(
+                  record.time
+                ).toLocaleString()
+              ) +
+              ' · ' +
+              escapeHTML(
+                JSON.stringify(
+                  record.data
+                )
+              ) +
+            '</div>'
+          );
+        }
+      )
+      .join("");
+}
+/* =========================================================
+   HTML escape
+========================================================= */
+function escapeHTML(value){
+  return String(value)
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+}
+/* =========================================================
+   YCBT parser
+========================================================= */
+function parseYCBT(
+  type,
+  p
+){
+  switch(type){
+    /* ----------------------------------
+       0200 Device Info
+    ---------------------------------- */
+    case 0x0200:
+      log(
+        "DEVICE INFO 0200 payload=[" +
+        hex(p) +
+        "]"
+      );
+      /*
+       * 已在你的 TK5 实机验证：
+       * battery 位于 payload[5]
+       */
+      if(
+        p.length > 5
+      ){
+        const battery =
+          p[5];
+        if(
+          battery >= 0 &&
+          battery <= 100
+        ){
+          $("battery")
+            .textContent =
+            battery;
+        }
+      }
+      break;
+    /* ----------------------------------
+       0201 Support Function
+    ---------------------------------- */
+    case 0x0201:
+      log(
+        "SUPPORT FUNCTION payload=[" +
+        hex(p) +
+        "]"
+      );
+      break;
+    /* ----------------------------------
+       0203 Device Name
+    ---------------------------------- */
+    case 0x0203:
+      {
+        let name;
+        try{
+          name =
+            new TextDecoder()
+              .decode(p)
+              .replace(
+                /\0/g,
+                ""
+              );
+        }catch{
+          name =
+            hex(p);
+        }
+        $("device").innerHTML =
+          '<div class="device-line small">' +
+          '设备名：<strong>' +
+          escapeHTML(name) +
+          '</strong>' +
+          '</div>' +
+          '<div class="device-line small">' +
+          'Bluetooth：' +
+          escapeHTML(
+            device?.name ||
+            "TK5"
+          ) +
+          '</div>';
+      }
+      break;
+    /* ----------------------------------
+       021B Chip Scheme
+    ---------------------------------- */
+    case 0x021b:
+      log(
+        "CHIP SCHEME 021B payload=[" +
+        hex(p) +
+        "]"
+      );
+      break;
+    /* ----------------------------------
+       020C Steps
+    ---------------------------------- */
+    case 0x020c:
+      if(
+        p.length >= 2
+      ){
+        /*
+         * 你这枚 TK5 实机已经验证：
+         *
+         * 020C payload:
+         * 49 00 00 03 00 2e 00 ...
+         *
+         * 实际 steps = 73
+         *
+         * 因此这里使用 payload[0:2]
+         */
+        const steps =
+          p[0] |
+          (p[1] << 8);
+        $("steps")
+          .textContent =
+          steps;
+        addRecord(
+          "steps",
+          {
+            value:
+              steps,
+            raw:
+              hex(p)
+          }
+        );
+      }
+      break;
+    /* ----------------------------------
+       0225 Power Stats
+    ---------------------------------- */
+    case 0x0225:
+      log(
+        "POWER STATS [" +
+        hex(p) +
+        "]"
+      );
+      break;
+    /* ----------------------------------
+       0600 Realtime Status
+    ---------------------------------- */
+    case 0x0600:
+      addRecord(
+        "realtime-status",
+        {
+          raw:
+            hex(p)
+        }
+      );
+      break;
+    /* ----------------------------------
+       0601 Realtime HR
+    ---------------------------------- */
+    case 0x0601:
+      if(
+        p.length >= 1
+      ){
+        const hr =
+          p[0];
+        if(
+          hr > 0 &&
+          hr < 250
+        ){
+          $("hr")
+            .textContent =
+            hr;
+          addRecord(
+            "hr",
+            {
+              bpm:
+                hr,
+              raw:
+                hex(p)
+            }
+          );
+        }
+      }
+      break;
+    /* ----------------------------------
+       0602 Realtime SpO2
+    ---------------------------------- */
+    case 0x0602:
+      if(
+        p.length >= 1
+      ){
+        const spo2 =
+          p[0];
+        if(
+          spo2 > 0 &&
+          spo2 <= 100
+        ){
+          $("spo2")
+            .textContent =
+            spo2;
+          addRecord(
+            "spo2",
+            {
+              value:
+                spo2,
+              raw:
+                hex(p)
+            }
+          );
+        }
+      }
+      break;
+    /* ----------------------------------
+       0603 Realtime Vitals
+    ---------------------------------- */
+    case 0x0603:
+      /*
+       * 这里故意不猜 BP 字段比例。
+       * 先保存完整 raw payload。
+       */
+      addRecord(
+        "bp-vitals",
+        {
+          raw:
+            hex(p)
+        }
+      );
+      log(
+        "0603 VITALS raw=[" +
+        hex(p) +
+        "]"
+      );
+      break;
+    /* ----------------------------------
+       040E Device event
+    ---------------------------------- */
+    case 0x040e:
+      addRecord(
+        "device-event",
+        {
+          raw:
+            hex(p)
+        }
+      );
+      break;
+    /* ----------------------------------
+       History data frames
+    ---------------------------------- */
+    case 0x0511:
+    case 0x0513:
+    case 0x0515:
+    case 0x0517:
+    case 0x0518:
+    case 0x0522:
+    case 0x0526:
+    case 0x0530:
+    case 0x0534:
+      addRecord(
+        "history-" +
+        type
+          .toString(16)
+          .toUpperCase(),
+        {
+          raw:
+            hex(p)
+        }
+      );
+      break;
+    /* ----------------------------------
+       History terminal
+    ---------------------------------- */
+    case 0x0580:
+      log(
+        "HISTORY TERMINAL 0580"
+      );
+      /*
+       * 协议要求：
+       * 05 80 {00} ACK
+       *
+       * 如果 payload 有数据，
+       * 原样记录。
+       */
+      addRecord(
+        "history-terminal",
+        {
+          raw:
+            hex(p)
+        }
+      );
+      break;
+    default:
+      /*
+       * 不丢未知 YCBT packet。
+       */
+      log(
+        "UNHANDLED 0x" +
+        type
+          .toString(16)
+          .padStart(4,"0") +
+        " payload=[" +
+        hex(p) +
+        "]"
+      );
+      break;
+  }
+}
+/* =========================================================
+   连接
+========================================================= */
+async function connect(){
+  try{
+    if(
+      !navigator.bluetooth
+    ){
+      throw new Error(
+        "当前浏览器不支持 Web Bluetooth，请使用 Bluefy"
+      );
+    }
+    setStatus(
+      "正在选择 TK5…"
+    );
+    device =
+      await navigator.bluetooth
+        .requestDevice({
+          filters:[
+            {
+              name:
+                "TK5 52F5"
+            }
+          ],
+          optionalServices:[
+            YCBT_SERVICE
+          ]
+        });
+    log(
+      "Selected device: " +
+      (
+        device.name ||
+        "unknown"
+      )
+    );
+    server =
+      await device.gatt.connect();
+    log(
+      "GATT connected"
+    );
+    const service =
+      await server
+        .getPrimaryService(
+          YCBT_SERVICE
+        );
+    c1 =
+      await service
+        .getCharacteristic(
+          C1_UUID
+        );
+    c3 =
+      await service
+        .getCharacteristic(
+          C3_UUID
+        );
+    /*
+     * 必须先注册 listener，
+     * 再开始 notifications。
+     */
+    c1.addEventListener(
+      "characteristicvaluechanged",
+      event => {
+        consumeStream(
+          "C1",
+          event.target
+            .value
+            .buffer
+        );
+      }
+    );
+    c3.addEventListener(
+      "characteristicvaluechanged",
+      event => {
+        consumeStream(
+          "C3",
+          event.target
+            .value
+            .buffer
+        );
+      }
+    );
+    await c1.startNotifications();
+    log(
+      "C1 notifications subscribed"
+    );
+    await c3.startNotifications();
+    log(
+      "C3 notifications subscribed"
+    );
+    device.addEventListener(
+      "gattserverdisconnected",
+      () => {
+        setStatus(
+          "已断开"
+        );
+        log(
+          "GATT disconnected"
+        );
+      }
+    );
+    setStatus(
+      "已连接 · " +
+      (
+        device.name ||
+        "TK5"
+      )
+    );
+    /*
+     * ====================================
+     * 已验证的 TK5 初始化流程
+     * ====================================
+     */
+    /*
+     * 0201 [47 46]
+     * Support Function
+     */
+    await sendYCBT(
+      0x0201,
+      [
+        0x47,
+        0x46
+      ]
+    );
+    /*
+     * 0100
+     * Set Clock
+     */
+    await sendYCBT(
+      0x0100,
+      makeTimePayload()
+    );
+    /*
+     * 021B
+     * Chip Scheme
+     */
+    await sendYCBT(
+      0x021b
+    );
+    /*
+     * 0200
+     * Device Info
+     */
+    await sendYCBT(
+      0x0200
+    );
+    /*
+     * 0203
+     * Device Name
+     */
+    await sendYCBT(
+      0x0203
+    );
+    /*
+     * 020C
+     * Steps
+     */
+    await sendYCBT(
+      0x020c
+    );
+    /*
+     * 032F [01 00]
+     * Start HR measurement
+     */
+    await sendYCBT(
+      0x032f,
+      [
+        0x01,
+        0x00
+      ]
+    );
+    /*
+     * 0309
+     * Start realtime status
+     */
+    await sendYCBT(
+      0x0309,
+      [
+        0x01,
+        0x00,
+        0x02,
+        0xA0
+      ]
+    );
+    log(
+      "TK5 initialization complete"
+    );
+  }catch(error){
+    setStatus(
+      "连接失败：" +
+      error.message
+    );
+    log(
+      "ERROR: " +
+      error.message
+    );
+  }
+}
+/* =========================================================
+   断开
+========================================================= */
+function disconnect(){
+  try{
+    if(
+      device &&
+      device.gatt.connected
+    ){
+      device.gatt.disconnect();
+    }
+  }catch(error){
+    log(
+      "Disconnect error: " +
+      error.message
+    );
+  }
+}
+/* =========================================================
+   Measurement
+========================================================= */
+async function measure(
+  mode
+){
+  if(!c1){
+    log(
+      "ERROR: 请先连接戒指"
+    );
+    return;
+  }
+  /*
+   * Stop
+   */
+  if(
+    mode < 0
+  ){
+    await sendYCBT(
+      0x032f,
+      [
+        0x00,
+        0x00
+      ]
+    );
+    return;
+  }
+  /*
+   * 03 2F
+   *
+   * enable = 01
+   *
+   * mode:
+   * 00 HR
+   * 01 BP
+   * 02 SpO2
+   * 0A HRV
+   */
+  await sendYCBT(
+    0x032f,
+    [
+      0x01,
+      mode
+    ]
+  );
+  log(
+    "Measurement started mode=0x" +
+    mode
+      .toString(16)
+      .padStart(2,"0")
+  );
+}
+/* =========================================================
+   History query
+========================================================= */
+async function queryHistory(
+  keyHex
+){
+  if(!c1){
+    log(
+      "ERROR: 请先连接戒指"
+    );
+    return;
+  }
+  if(
+    historyQueryRunning
+  ){
+    log(
+      "WARN: 已经有历史查询正在进行"
+    );
+    return;
+  }
+  historyQueryRunning =
+    true;
+  try{
+    const key =
+      parseInt(
+        keyHex,
+        16
+      );
+    /*
+     * History query:
+     *
+     * 05 <key>
+     */
+    await sendYCBT(
+      0x0500 | key
+    );
+    log(
+      "History query 05 " +
+      keyHex
+    );
+  }finally{
+    /*
+     * 不等待完整历史流。
+     * 戒指会通过 C1 notification
+     * 异步返回 header/data/terminal。
+     */
+    setTimeout(
+      () => {
+        historyQueryRunning =
+          false;
+      },
+      1500
+    );
+  }
+}
+/* =========================================================
+   Export
+========================================================= */
+function downloadText(
+  filename,
+  text,
+  mime
+){
+  const blob =
+    new Blob(
+      [text],
+      {
+        type:
+          mime
+      }
+    );
+  const url =
+    URL.createObjectURL(
+      blob
+    );
+  const a =
+    document.createElement(
+      "a"
+    );
+  a.href =
+    url;
+  a.download =
+    filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(
+    () => {
+      URL.revokeObjectURL(
+        url
+      );
+    },
+    1000
+  );
+}
+/* =========================================================
+   CSV
+========================================================= */
+function makeCSV(){
+  const rows = [
+    [
+      "time",
+      "type",
+      "data"
+    ]
+  ];
+  for(
+    const record of records
+  ){
+    rows.push([
+      record.time,
+      record.type,
+      JSON.stringify(
+        record.data
+      )
+    ]);
+  }
+  return rows
+    .map(
+      row =>
+        row
+          .map(
+            value => {
+              const text =
+                String(value)
+                  .replace(
+                    /"/g,
+                    '""'
+                  );
+              return '"' +
+                text +
+                '"';
+            }
+          )
+          .join(",")
+    )
+    .join("\n");
+}
+/* =========================================================
+   Buttons
+========================================================= */
+$("connect")
+  .addEventListener(
+    "click",
+    connect
+  );
+$("disconnect")
+  .addEventListener(
+    "click",
+    disconnect
+  );
+document
+  .querySelectorAll(
+    "[data-mode]"
+  )
+  .forEach(
+    button => {
+      button.addEventListener(
+        "click",
+        () => {
+          measure(
+            Number(
+              button.dataset.mode
+            )
+          );
+        }
+      );
+    }
+  );
+document
+  .querySelectorAll(
+    "[data-h]"
+  )
+  .forEach(
+    button => {
+      button.addEventListener(
+        "click",
+        () => {
+          queryHistory(
+            button.dataset.h
+          );
+        }
+      );
+    }
+  );
+$("copy")
+  .addEventListener(
+    "click",
+    async () => {
+      try{
+        await navigator
+          .clipboard
+          .writeText(
+            logs.join("\n")
+          );
+        log(
+          "日志已复制"
+        );
+      }catch(error){
+        log(
+          "复制失败：" +
+          error.message
+        );
+      }
+    }
+  );
+$("clear")
+  .addEventListener(
+    "click",
+    () => {
+      logs = [];
+      $("log")
+        .textContent = "";
+    }
+  );
+$("clearRecords")
+  .addEventListener(
+    "click",
+    () => {
+      if(
+        !confirm(
+          "确定清空本机保存的 TK5 数据？戒指本身的数据不会被删除。"
+        )
+      ){
+        return;
+      }
+      records = [];
+      localStorage.removeItem(
+        "tk5Records"
+      );
+      renderHistory();
+      log(
+        "本地记录已清空"
+      );
+    }
+  );
+$("json")
+  .addEventListener(
+    "click",
+    () => {
+      downloadText(
+        "tk5-health.json",
+        JSON.stringify(
+          records,
+          null,
+          2
+        ),
+        "application/json;charset=utf-8"
+      );
+    }
+  );
+$("csv")
+  .addEventListener(
+    "click",
+    () => {
+      downloadText(
+        "tk5-health.csv",
+        makeCSV(),
+        "text/csv;charset=utf-8"
+      );
+    }
+  );
+/* =========================================================
+   Initial render
+========================================================= */
+renderHistory();
+log(
+  "TK5 Health loaded"
+);
+log(
+  "请使用 Bluefy 打开本页面"
+);
+</script>
+</body>
+</html>
