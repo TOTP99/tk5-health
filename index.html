@@ -2,347 +2,108 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#071018">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>TK5 Health</title>
 <style>
 :root{
-  --bg:#060b10;
-  --panel:#0b151e;
-  --panel2:#101f29;
-  --gold:#d5b46a;
-  --gold-dim:#705d35;
-  --cyan:#67d8df;
-  --cyan-dim:#295f65;
+  --bg:#071018;
+  --panel:#0d1822;
+  --panel2:#101f2b;
+  --gold:#d6b56a;
+  --gold2:#9c7d38;
+  --cyan:#67d9df;
+  --cyan2:#2e7379;
   --text:#edf5f7;
-  --muted:#8da1aa;
-  --line:#29404b;
-  --ok:#73d6ad;
-  --warn:#e0bb68;
+  --muted:#8ea3ad;
+  --line:#715f35;
+  --line2:#29404b;
   --danger:#ff7777;
-  --shadow:rgba(0,0,0,.5);
+  --ok:#72d7ae;
 }
-*{
-  box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
-}
-html{
-  background:var(--bg);
-}
+*{box-sizing:border-box}
+html{background:#050a0e}
 body{
   margin:0;
   min-height:100vh;
+  background:radial-gradient(circle at 20% 0%,#183140 0%,#071018 38%,#050a0e 100%);
   color:var(--text);
-  background:
-    radial-gradient(
-      circle at 18% 0%,
-      #1b3543 0,
-      #0b1720 31%,
-      #060b10 75%
-    );
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "SF Pro Display",
-    "Segoe UI",
-    sans-serif;
-  padding:
-    max(12px,env(safe-area-inset-top))
-    12px
-    max(35px,env(safe-area-inset-bottom));
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  padding:max(16px,env(safe-area-inset-top)) 14px max(40px,env(safe-area-inset-bottom));
 }
-main{
-  width:100%;
-  max-width:820px;
-  margin:auto;
-}
-header,
-.card{
-  position:relative;
-  border:1px solid var(--gold-dim);
-  border-radius:18px;
-  background:
-    linear-gradient(
-      145deg,
-      rgba(18,32,43,.98),
-      rgba(7,14,20,.99)
-    );
-  box-shadow:
-    0 18px 45px var(--shadow),
-    inset 0 1px rgba(255,255,255,.045);
-}
-header{
-  padding:18px;
-  margin-bottom:12px;
-  overflow:hidden;
-}
-header:before,
-.card:before{
-  content:"";
-  position:absolute;
-  top:0;
-  left:12%;
-  right:12%;
-  height:1px;
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      var(--gold),
-      transparent
-    );
-  opacity:.45;
-}
-h1{
-  margin:0;
-  font-size:26px;
-  letter-spacing:.6px;
-}
-h2{
-  margin:0 0 13px;
-  font-size:15px;
-  letter-spacing:1px;
-  color:var(--gold);
-}
-.sub{
-  margin-top:5px;
-  color:var(--muted);
-  font-size:12px;
-}
-.status{
-  margin-top:14px;
-  padding:11px 12px;
+main{width:100%;max-width:760px;margin:0 auto}
+header,.card{
   border:1px solid var(--line);
-  border-radius:11px;
-  background:#061219;
-  color:var(--cyan);
-  font-size:13px;
+  background:linear-gradient(145deg,rgba(17,30,41,.98),rgba(7,15,22,.98));
+  border-radius:18px;
+  box-shadow:0 14px 35px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.045);
 }
-.card{
-  padding:15px;
-  margin:12px 0;
+header{padding:18px;margin-bottom:12px}
+h1{margin:0;font-size:25px;line-height:1.2;letter-spacing:.6px}
+h2{font-size:15px;line-height:1.2;margin:0 0 12px;color:var(--gold);letter-spacing:1px}
+.sub{color:var(--muted);font-size:12px;margin-top:6px}
+.status{
+  margin-top:14px;padding:10px 12px;
+  border:1px solid var(--line2);border-radius:11px;
+  color:var(--cyan);background:#07141c;font-size:13px;
 }
-.grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:9px;
-}
+.card{padding:15px;margin:12px 0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .metric{
-  position:relative;
-  min-height:115px;
-  padding:13px;
-  overflow:hidden;
+  position:relative;overflow:hidden;
   border:1px solid #35505b;
-  border-radius:13px;
-  background:
-    linear-gradient(
-      145deg,
-      #142833,
-      #09141c
-    );
-  box-shadow:
-    inset 0 1px rgba(255,255,255,.035),
-    0 8px 20px rgba(0,0,0,.22);
+  background:linear-gradient(145deg,#142733,#0a151d);
+  border-radius:13px;padding:13px;min-height:112px;
+  box-shadow:inset 0 1px rgba(255,255,255,.035),0 8px 20px rgba(0,0,0,.2);
 }
-.metric:after{
-  content:"";
-  position:absolute;
-  left:10%;
-  right:10%;
-  bottom:0;
-  height:1px;
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      var(--gold),
-      transparent
-    );
-  opacity:.35;
+.metric::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.45;
 }
-.label{
-  color:var(--muted);
-  font-size:12px;
-}
-.value{
-  margin:10px 0 4px;
-  font-size:30px;
-  line-height:1;
-  font-weight:700;
-}
-.unit{
-  color:var(--muted);
-  font-size:11px;
-}
-.row{
-  display:flex;
-  flex-wrap:wrap;
-  gap:5px;
-}
+.label{font-size:12px;color:var(--muted)}
+.value{font-size:30px;font-weight:700;line-height:1;margin:10px 0 5px;color:var(--text)}
+.unit{font-size:11px;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:4px}
 button{
-  min-height:42px;
-  padding:10px 13px;
-  border:1px solid #806b3e;
-  border-radius:11px;
-  background:
-    linear-gradient(
-      145deg,
-      #172832,
-      #0d1a22
-    );
-  color:var(--text);
-  font-size:14px;
-  box-shadow:
-    inset 0 1px rgba(255,255,255,.055),
-    0 4px 13px rgba(0,0,0,.2);
+  border:1px solid #8b7440;border-radius:11px;padding:11px 13px;margin:2px;
+  background:linear-gradient(145deg,#172933,#101d25);
+  color:var(--text);font-size:14px;
+  box-shadow:inset 0 1px rgba(255,255,255,.06),0 4px 12px rgba(0,0,0,.18);
+  -webkit-tap-highlight-color:transparent;
 }
-button:active{
-  transform:translateY(1px);
-  filter:brightness(1.15);
-}
-button.primary{
-  color:#fff;
-  background:
-    linear-gradient(
-      135deg,
-      #826c3d,
-      #4c4025
-    );
-}
-button.cyan{
-  border-color:#397d83;
-  background:
-    linear-gradient(
-      135deg,
-      #15383e,
-      #0c2228
-    );
-}
-button.danger{
-  border-color:#713f3f;
-  color:#ffdada;
-}
-button:disabled{
-  opacity:.45;
-}
-.small{
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.55;
-}
-.device-line{
-  padding:8px 0;
-  border-bottom:1px solid #1c3039;
-}
-.device-line:last-child{
-  border-bottom:0;
+button:active{transform:translateY(1px);filter:brightness(1.15)}
+button:disabled{opacity:.45;pointer-events:none}
+button.primary{background:linear-gradient(135deg,#806a39,#4f4327);color:#fff}
+button.cyan{border-color:#438d91;background:linear-gradient(135deg,#153b41,#10282e)}
+button.danger{border-color:#7b4141;color:#ffdede}
+.small{font-size:12px;color:var(--muted);line-height:1.55}
+.device-line{padding:7px 0;border-bottom:1px solid #1e3038}
+.device-line:last-child{border-bottom:0}
+.history{max-height:380px;overflow:auto;margin-top:12px;border-top:1px solid #1d3038}
+.record{padding:9px 0;border-bottom:1px solid #1d3038;font-size:12px;line-height:1.45}
+.tag{color:var(--gold)}
+.ok{color:var(--ok)}
+.warn{color:#d9b66d}
+#log{
+  margin-top:10px;background:#030709;border:1px solid #25343b;color:#9fe9d0;
+  font:11px/1.45 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+  white-space:pre-wrap;word-break:break-all;max-height:320px;overflow:auto;
+  padding:10px;border-radius:10px;
 }
 .badge{
-  display:inline-block;
-  padding:3px 7px;
-  margin-left:5px;
-  border:1px solid #39565f;
-  border-radius:999px;
-  color:var(--cyan);
-  font-size:10px;
+  display:inline-block;padding:3px 7px;border:1px solid #3b5962;
+  border-radius:999px;color:var(--cyan);font-size:10px;margin-left:5px;
 }
-.good{
-  color:var(--ok);
+.bp-box{
+  margin-top:10px;padding:12px;border:1px solid #35505b;border-radius:12px;
+  background:linear-gradient(145deg,#142733,#0a151d);font-size:14px;
 }
-.warn{
-  color:var(--warn);
-}
-.error{
-  color:var(--danger);
-}
-.history-status{
-  margin-top:12px;
-  padding:10px;
-  border:1px solid var(--line);
-  border-radius:10px;
-  background:#071119;
-  font-size:12px;
-}
-.history{
-  max-height:430px;
-  overflow:auto;
-  margin-top:10px;
-  border-top:1px solid #1d3038;
-}
-.record{
-  padding:9px 0;
-  border-bottom:1px solid #1c2d35;
-  font-size:11px;
-  line-height:1.5;
-  word-break:break-all;
-}
-.record-title{
-  color:var(--gold);
-  font-weight:600;
-}
-.raw{
-  color:#8bbdc1;
-}
-#log{
-  min-height:90px;
-  max-height:370px;
-  overflow:auto;
-  margin-top:10px;
-  padding:10px;
-  border:1px solid #24343b;
-  border-radius:10px;
-  background:#020608;
-  color:#9fe8d0;
-  white-space:pre-wrap;
-  word-break:break-all;
-  font:
-    11px/1.45
-    ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    Monaco,
-    Consolas,
-    monospace;
-}
-.progress{
-  height:5px;
-  margin-top:10px;
-  overflow:hidden;
-  border-radius:99px;
-  background:#0b1a21;
-}
-.progress-bar{
-  width:0%;
-  height:100%;
-  background:
-    linear-gradient(
-      90deg,
-      var(--gold-dim),
-      var(--gold),
-      var(--cyan)
-    );
-  transition:width .25s ease;
-}
-@media(max-width:430px){
-  body{
-    padding-left:9px;
-    padding-right:9px;
-  }
-  .card,
-  header{
-    border-radius:15px;
-  }
-  .grid{
-    gap:7px;
-  }
-  .value{
-    font-size:27px;
-  }
-  button{
-    padding:9px 10px;
-    font-size:13px;
-  }
+.bp-box strong{color:var(--gold);font-size:22px}
+@media(max-width:420px){
+  body{padding-left:10px;padding-right:10px}
+  header,.card{border-radius:15px}
+  .grid{gap:7px}
+  .value{font-size:26px}
+  button{padding:10px 11px;font-size:13px}
 }
 </style>
 </head>
@@ -351,26 +112,19 @@ button:disabled{
 <header>
   <h1>TK5 Health</h1>
   <div class="sub">
-    YCBT Direct BLE · No Cloud · No Subscription
-    <span class="badge">Bluefy</span>
+    YCBT 直连 · 无云端 · 无订阅
+    <span class="badge">Web Bluetooth</span>
+    <span class="badge">v0.5</span>
   </div>
-  <div id="status" class="status">
-    未连接
-  </div>
-  <div class="row" style="margin-top:10px">
-    <button id="connect" class="primary">
-      连接 TK5
-    </button>
-    <button id="disconnect">
-      断开
-    </button>
+  <div id="status" class="status">未连接</div>
+  <div class="row">
+    <button id="connect" class="primary">连接 TK5</button>
+    <button id="disconnect">断开</button>
   </div>
 </header>
-<!-- =====================================================
-     LIVE
-====================================================== -->
+
+<!-- 实时指标 -->
 <section class="card">
-  <h2>实时健康</h2>
   <div class="grid">
     <div class="metric">
       <div class="label">❤️ 实时心率</div>
@@ -393,2450 +147,763 @@ button:disabled{
       <div class="unit">%</div>
     </div>
   </div>
+  <div id="bpBox" class="bp-box" style="display:none">
+    <div class="label">🩺 实时血压 / HRV</div>
+    <div style="margin-top:8px">
+      <span id="bpText">-- / --</span>
+      <span style="margin-left:12px;color:var(--muted)" id="bpHr"></span>
+    </div>
+  </div>
 </section>
-<!-- =====================================================
-     MEASURE
-====================================================== -->
+
+<!-- 测量 -->
 <section class="card">
   <h2>测量</h2>
   <div class="row">
-    <button
-      class="cyan"
-      data-mode="0">
-      测心率
-    </button>
-    <button
-      class="cyan"
-      data-mode="2">
-      测血氧
-    </button>
-    <button
-      class="cyan"
-      data-mode="1">
-      测血压
-    </button>
-    <button
-      class="cyan"
-      data-mode="10">
-      测 HRV
-    </button>
-    <button id="stopMeasure">
-      停止
-    </button>
+    <button class="cyan" data-mode="0">测心率</button>
+    <button class="cyan" data-mode="2">测血氧</button>
+    <button class="cyan" data-mode="1">测血压</button>
+    <button class="cyan" data-mode="10">测 HRV</button>
+    <button data-mode="-1">停止</button>
   </div>
-  <div id="measureStatus"
-       class="history-status">
-    未进行测量
-  </div>
-  <div class="small" style="margin-top:8px">
-    YCBT：
-    00 = HR，
-    01 = BP，
-    02 = SpO₂，
-    0A = HRV。
-    <br>
-    血压、HRV 等结果仅用于健康趋势参考，不作为医疗诊断。
+  <div class="small">
+    模式：00=HR · 01=BP · 02=SpO₂ · 0A=HRV<br>
+    血压、HRV、血氧结果以戒指返回为准，不作为医疗诊断。
   </div>
 </section>
-<!-- =====================================================
-     HISTORY
-====================================================== -->
+
+<!-- 历史 -->
 <section class="card">
-  <h2>历史数据</h2>
-  <div class="row">
-    <button data-history="02">
-      活动
-    </button>
-    <button data-history="04">
-      睡眠
-    </button>
-    <button data-history="06">
-      心率
-    </button>
-    <button data-history="08">
-      血压
-    </button>
-    <button data-history="09">
-      全部
-    </button>
-    <button data-history="1a">
-      血氧
-    </button>
-    <button data-history="1e">
-      体温
-    </button>
-    <button data-history="2f">
-      综合
-    </button>
-    <button data-history="33">
-      身体数据
-    </button>
+  <h2>历史数据同步</h2>
+  <div class="row" id="historyBtns">
+    <button data-h="02">活动 / 步数</button>
+    <button data-h="04">睡眠</button>
+    <button data-h="06">历史心率</button>
+    <button data-h="08">血压</button>
+    <button data-h="1a">血氧</button>
+    <button data-h="1e">体温</button>
+    <button data-h="2f">综合</button>
+    <button data-h="33">身体数据</button>
+    <button data-h="09">全部</button>
   </div>
-  <div id="historyStatus"
-       class="history-status">
-    等待历史查询
+  <div class="small">
+    历史查询会排队，收到 terminal 后才解锁下一个。<br>
+    单独查血氧/体温在本固件上常无响应，请用「全部」获取血氧。<br>
+    本版本不会发送删除历史的命令。
   </div>
-  <div class="progress">
-    <div
-      id="historyProgress"
-      class="progress-bar">
-    </div>
-  </div>
-  <div class="small" style="margin-top:8px">
-    历史数据直接从戒指读取。
-    本程序不会发送删除历史记录的命令。
-  </div>
-  <div id="history"
-       class="history">
-  </div>
+  <div id="history" class="history"></div>
 </section>
-<!-- =====================================================
-     DEVICE
-====================================================== -->
+
+<!-- 设备 -->
 <section class="card">
-  <h2>设备信息</h2>
+  <h2>设备</h2>
   <div id="device">
-    <div class="device-line small">
-      尚未连接
-    </div>
+    <div class="device-line small">等待连接…</div>
   </div>
 </section>
-<!-- =====================================================
-     EXPORT
-====================================================== -->
+
+<!-- 本地数据 -->
 <section class="card">
   <h2>本地数据</h2>
   <div class="row">
-    <button id="exportJSON">
-      JSON
-    </button>
-    <button id="exportCSV">
-      CSV
-    </button>
-    <button id="copyLog">
-      复制日志
-    </button>
-    <button id="clearLog">
-      清空日志
-    </button>
-    <button id="clearRecords"
-            class="danger">
-      清空本地记录
-    </button>
+    <button id="json">导出 JSON</button>
+    <button id="csv">导出 CSV</button>
+    <button id="copy">复制日志</button>
+    <button id="clear">清空日志</button>
+    <button id="clearRecords" class="danger">清空本地记录</button>
   </div>
   <div id="log"></div>
 </section>
 </main>
+
 <script>
 "use strict";
-/* =========================================================
-   CONFIG
-========================================================= */
-const YCBT_SERVICE =
-  "be940000-7333-be46-b7ae-689e71722bd5";
-const C1_UUID =
-  "be940001-7333-be46-b7ae-689e71722bd5";
-const C3_UUID =
-  "be940003-7333-be46-b7ae-689e71722bd5";
-const DEVICE_NAME =
-  "TK5 52F5";
-/*
- * History query key -> response data key
- *
- * Query:
- * 05 02 -> activity
- * 05 04 -> sleep
- * 05 06 -> HR
- * 05 08 -> BP
- * 05 09 -> all
- * 05 1A -> SpO2
- * 05 1E -> temperature
- * 05 2F -> comprehensive
- * 05 33 -> body data
- */
-const HISTORY_DATA_KEYS = {
-  0x02:0x11,
-  0x04:0x13,
-  0x06:0x15,
-  0x08:0x17,
-  0x09:0x18,
-  0x1a:0x22,
-  0x1e:0x26,
-  0x2f:0x30,
-  0x33:0x34
-};
-/* =========================================================
-   STATE
-========================================================= */
+
+/* ========================= UUID ========================= */
+const YCBT_SERVICE = "be940000-7333-be46-b7ae-689e71722bd5";
+const C1_UUID      = "be940001-7333-be46-b7ae-689e71722bd5";
+const C3_UUID      = "be940003-7333-be46-b7ae-689e71722bd5";
+
+/* ========================= 状态 ========================= */
 let device = null;
 let server = null;
 let c1 = null;
 let c3 = null;
-let c1Buffer =
-  new Uint8Array();
-let c3Buffer =
-  new Uint8Array();
+let c1Buffer = new Uint8Array();
+let c3Buffer = new Uint8Array();
 let logs = [];
-let records =
-  loadRecords();
-/*
- * History state machine
- */
-let historySession = {
-  active:false,
-  key:null,
-  dataKey:null,
-  startedAt:0,
-  header:null,
-  dataPackets:0,
-  dataBytes:0,
-  rawBytes:[],
-  terminal:false,
-  timeout:null
-};
-/*
- * Measurement state
- */
-let measurement = {
-  active:false,
-  mode:null,
-  startedAt:0,
-  timer:null
-};
-/* =========================================================
-   DOM
-========================================================= */
-const $ = id =>
-  document.getElementById(id);
-/* =========================================================
-   LOG
-========================================================= */
+let records = JSON.parse(localStorage.getItem("tk5Records") || "[]");
+
+let historyQueryRunning = false;
+let historyUnlockTimer = null;
+let currentHistoryKey = null;
+let currentHistoryFrameType = null;
+let historyChunks = [];
+let currentMeasureMode = -1; // 当前测量模式，用于解析 0603
+
+/* ========================= UI ========================= */
+const $ = id => document.getElementById(id);
+
 function log(text){
-  const time =
-    new Date()
-      .toLocaleTimeString(
-        "zh-CN",
-        {
-          hour12:false
-        }
-      );
-  const line =
-    "[" +
-    time +
-    "] " +
-    text;
+  const time = new Date().toLocaleTimeString("zh-CN",{hour12:false});
+  const line = "[" + time + "] " + text;
   logs.push(line);
-  if(
-    logs.length > 5000
-  ){
-    logs =
-      logs.slice(
-        -5000
-      );
-  }
-  $("log").textContent =
-    logs.join("\n");
-  $("log").scrollTop =
-    $("log").scrollHeight;
+  $("log").textContent = logs.join("\n");
+  $("log").scrollTop = $("log").scrollHeight;
   console.log(line);
 }
-/* =========================================================
-   STATUS
-========================================================= */
+
 function setStatus(text){
-  $("status")
-    .textContent =
-    text;
+  $("status").textContent = text;
 }
-/* =========================================================
-   HEX
-========================================================= */
+
+function setHistoryButtonsDisabled(disabled){
+  document.querySelectorAll("#historyBtns button").forEach(btn => {
+    btn.disabled = disabled;
+  });
+}
+
+/* ========================= 工具 ========================= */
 function hex(data){
-  return Array.from(data)
-    .map(
-      n =>
-        n
-          .toString(16)
-          .padStart(2,"0")
-    )
-    .join(" ");
+  return Array.from(data).map(x => x.toString(16).padStart(2,"0")).join(" ");
 }
-/* =========================================================
-   CONCAT
-========================================================= */
-function concatBytes(a,b){
-  const result =
-    new Uint8Array(
-      a.length +
-      b.length
-    );
-  result.set(
-    a,
-    0
-  );
-  result.set(
-    b,
-    a.length
-  );
-  return result;
+
+function concatUint8(a,b){
+  const out = new Uint8Array(a.length + b.length);
+  out.set(a,0);
+  out.set(b,a.length);
+  return out;
 }
-/* =========================================================
-   CRC16 CCITT-FALSE
-========================================================= */
+
+function escapeHTML(value){
+  return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+/* ========================= 时间戳 ========================= */
+const TK5_EPOCH_OFFSET = 946684800;
+
+function tk5TimestampToDate(b0,b1,b2,b3){
+  const raw = b0 + b1*256 + b2*65536 + b3*16777216;
+  return new Date((raw + TK5_EPOCH_OFFSET) * 1000);
+}
+
+function formatTime(date){
+  return date.toLocaleString("zh-CN",{hour12:false});
+}
+
+/* ========================= 历史解码 ========================= */
+function decodeHRHistory(bytes){
+  const list = [];
+  for(let i=0; i+6<=bytes.length; i+=6){
+    const date = tk5TimestampToDate(bytes[i],bytes[i+1],bytes[i+2],bytes[i+3]);
+    list.push({ time: date.toISOString(), local: formatTime(date), hr: bytes[i+5] });
+  }
+  return list;
+}
+
+function decodeBPHistory(bytes){
+  const list = [];
+  for(let i=0; i+8<=bytes.length; i+=8){
+    const date = tk5TimestampToDate(bytes[i],bytes[i+1],bytes[i+2],bytes[i+3]);
+    list.push({
+      time: date.toISOString(),
+      local: formatTime(date),
+      flag: bytes[i+4],
+      systolic: bytes[i+5],
+      diastolic: bytes[i+6],
+      hr: bytes[i+7]
+    });
+  }
+  return list;
+}
+
+function decodeComprehensiveHistory(bytes){
+  const list = [];
+  for(let i=0; i+20<=bytes.length; i+=20){
+    const date = tk5TimestampToDate(bytes[i],bytes[i+1],bytes[i+2],bytes[i+3]);
+    list.push({
+      time: date.toISOString(),
+      local: formatTime(date),
+      hr: bytes[i+6],
+      systolic: bytes[i+7],
+      diastolic: bytes[i+8],
+      spo2: bytes[i+9],
+      unknown: bytes[i+10],
+      counter: bytes[i+11] | (bytes[i+12] << 8)
+    });
+  }
+  return list;
+}
+
+function decodeBodyDataHistory(bytes){
+  const list = [];
+  for(let i=0; i+28<=bytes.length; i+=28){
+    const date = tk5TimestampToDate(bytes[i],bytes[i+1],bytes[i+2],bytes[i+3]);
+    const buckets = [];
+    for(let j=0; j<10; j++) buckets.push(bytes[i+4+j]);
+    list.push({
+      time: date.toISOString(),
+      local: formatTime(date),
+      buckets,
+      value15: bytes[i+14],
+      note: "buckets/value15 含义未确定"
+    });
+  }
+  return list;
+}
+
+function decodeActivityHistory(bytes){
+  // 0x0511 目前样本较少，先按原始 + 尝试提取时间戳
+  const list = [];
+  if(bytes.length >= 14){
+    const date1 = tk5TimestampToDate(bytes[0],bytes[1],bytes[2],bytes[3]);
+    const date2 = tk5TimestampToDate(bytes[4],bytes[5],bytes[6],bytes[7]);
+    list.push({
+      time: date1.toISOString(),
+      local: formatTime(date1),
+      end: formatTime(date2),
+      raw: hex(bytes),
+      note: "活动记录（格式待更多样本确认）"
+    });
+  } else {
+    list.push({ raw: hex(bytes), note: "活动原始数据" });
+  }
+  return list;
+}
+
+/* ========================= CRC16 ========================= */
 function crc16(data){
-  let crc =
-    0xffff;
-  for(
-    let i=0;
-    i<data.length;
-    i++
-  ){
-    crc ^=
-      data[i] << 8;
-    for(
-      let j=0;
-      j<8;
-      j++
-    ){
-      if(
-        crc & 0x8000
-      ){
-        crc =
-          (
-            (crc << 1) ^
-            0x1021
-          ) & 0xffff;
-      }else{
-        crc =
-          (crc << 1) &
-          0xffff;
-      }
+  let crc = 0xffff;
+  for(let i=0; i<data.length; i++){
+    crc ^= data[i] << 8;
+    for(let bit=0; bit<8; bit++){
+      if(crc & 0x8000) crc = ((crc << 1) ^ 0x1021) & 0xffff;
+      else crc = (crc << 1) & 0xffff;
     }
   }
   return crc;
 }
-/* =========================================================
-   PACKET
-========================================================= */
-function makePacket(
-  type,
-  payload=[]
-){
-  const total =
-    6 +
-    payload.length;
-  const out =
-    new Uint8Array(
-      total
-    );
-  out[0] =
-    (type >> 8) & 0xff;
-  out[1] =
-    type & 0xff;
-  out[2] =
-    total & 0xff;
-  out[3] =
-    (total >> 8) & 0xff;
-  out.set(
-    payload,
-    4
-  );
-  const crc =
-    crc16(
-      out.slice(
-        0,
-        total - 2
-      )
-    );
-  out[
-    total - 2
-  ] =
-    crc & 0xff;
-  out[
-    total - 1
-  ] =
-    (crc >> 8) & 0xff;
-  return out;
+
+/* ========================= 组包 ========================= */
+function makePacket(type, payload=[]){
+  const totalLength = 4 + payload.length + 2;
+  const packet = new Uint8Array(totalLength);
+  packet[0] = (type >> 8) & 0xff;
+  packet[1] = type & 0xff;
+  packet[2] = totalLength & 0xff;
+  packet[3] = (totalLength >> 8) & 0xff;
+  packet.set(payload, 4);
+  const crc = crc16(packet.slice(0, totalLength - 2));
+  packet[totalLength - 2] = crc & 0xff;
+  packet[totalLength - 1] = (crc >> 8) & 0xff;
+  return packet;
 }
-/* =========================================================
-   SEND
-========================================================= */
-async function sendYCBT(
-  type,
-  payload=[]
-){
+
+function makeTimePayload(){
+  const d = new Date();
+  const year = d.getFullYear();
+  return new Uint8Array([
+    year & 0xff, (year >> 8) & 0xff,
+    d.getMonth() + 1, d.getDate(),
+    d.getHours(), d.getMinutes(), d.getSeconds(),
+    d.getDay() === 0 ? 6 : d.getDay() - 1
+  ]);
+}
+
+/* ========================= 发送 ========================= */
+async function sendYCBT(type, payload=[]){
   if(!c1){
-    log(
-      "ERROR: C1 not connected"
-    );
+    log("ERROR: C1 不可用");
     return false;
   }
-  const packet =
-    makePacket(
-      type,
-      payload
-    );
-  log(
-    "TX C1 0x" +
-    type
-      .toString(16)
-      .padStart(4,"0") +
-    " [" +
-    hex(packet) +
-    "]"
-  );
+  const packet = makePacket(type, payload);
+  log("TX C1 0x" + type.toString(16).padStart(4,"0") + " [" + hex(packet) + "]");
   try{
-    /*
-     * iOS Bluefy / Web Bluetooth:
-     * prefer writeWithoutResponse.
-     */
-    if(
-      c1.properties &&
-      c1.properties.writeWithoutResponse &&
-      c1.writeValueWithoutResponse
-    ){
-      await c1
-        .writeValueWithoutResponse(
-          packet
-        );
-    }else{
-      await c1
-        .writeValue(
-          packet
-        );
+    if(c1.properties.writeWithoutResponse){
+      await c1.writeValueWithoutResponse(packet);
+    } else {
+      await c1.writeValue(packet);
     }
     return true;
-  }catch(error){
-    log(
-      "TX ERROR: " +
-      error.message
-    );
+  } catch(error){
+    log("TX ERROR 0x" + type.toString(16) + ": " + error.message);
     return false;
   }
 }
-/* =========================================================
-   CLOCK
-========================================================= */
-function makeClockPayload(){
-  const d =
-    new Date();
-  const year =
-    d.getFullYear();
-  /*
-   * YCBT local clock
-   */
-  return [
-    year & 0xff,
-    (year >> 8) & 0xff,
-    d.getMonth() + 1,
-    d.getDate(),
-    d.getHours(),
-    d.getMinutes(),
-    d.getSeconds(),
-    d.getDay() === 0
-      ? 6
-      : d.getDay() - 1
-  ];
-}
-/* =========================================================
-   STREAM REASSEMBLY
-========================================================= */
-function consumeStream(
-  channel,
-  incoming
-){
-  let buffer =
-    channel === "C1"
-      ? c1Buffer
-      : c3Buffer;
-  buffer =
-    concatBytes(
-      buffer,
-      new Uint8Array(
-        incoming
-      )
-    );
-  while(
-    buffer.length >= 4
-  ){
-    const declaredLength =
-      buffer[2] |
-      (buffer[3] << 8);
-    /*
-     * YCBT frame:
-     * minimum:
-     * 4 header + 2 CRC
-     */
-    if(
-      declaredLength < 6
-    ){
-      log(
-        "WARN " +
-        channel +
-        " invalid frame length=" +
-        declaredLength
-      );
-      buffer =
-        buffer.slice(1);
+
+/* ========================= 流解析 ========================= */
+function consumeStream(kind, data){
+  let buffer = kind === "C1" ? c1Buffer : c3Buffer;
+  buffer = concatUint8(buffer, new Uint8Array(data));
+
+  while(buffer.length >= 4){
+    const totalLength = buffer[2] | (buffer[3] << 8);
+    if(totalLength < 6){
+      log("WARN " + kind + " 非法长度 " + totalLength + "，丢弃 1 byte");
+      buffer = buffer.slice(1);
       continue;
     }
-    /*
-     * Wait for complete frame.
-     */
-    if(
-      buffer.length <
-      declaredLength
-    ){
-      break;
-    }
-    const packet =
-      buffer.slice(
-        0,
-        declaredLength
-      );
-    buffer =
-      buffer.slice(
-        declaredLength
-      );
-    handlePacket(
-      channel,
-      packet
-    );
+    if(buffer.length < totalLength) break;
+
+    const packet = buffer.slice(0, totalLength);
+    buffer = buffer.slice(totalLength);
+    handlePacket(kind, packet);
   }
-  if(
-    channel === "C1"
-  ){
-    c1Buffer =
-      buffer;
-  }else{
-    c3Buffer =
-      buffer;
-  }
+
+  if(kind === "C1") c1Buffer = buffer;
+  else c3Buffer = buffer;
 }
-/* =========================================================
-   PACKET HANDLER
-========================================================= */
-function handlePacket(
-  channel,
-  packet
-){
-  if(
-    packet.length < 6
-  ){
+
+/* ========================= Packet 处理 ========================= */
+function handlePacket(kind, packet){
+  if(packet.length < 6){
+    log("WARN " + kind + " packet 太短");
     return;
   }
-  const type =
-    (packet[0] << 8) |
-    packet[1];
-  const declaredLength =
-    packet[2] |
-    (packet[3] << 8);
-  const payload =
-    packet.slice(
-      4,
-      packet.length - 2
-    );
-  const rxCRC =
-    packet[
-      packet.length - 2
-    ] |
-    (
-      packet[
-        packet.length - 1
-      ] << 8
-    );
-  const calcCRC =
-    crc16(
-      packet.slice(
-        0,
-        packet.length - 2
-      )
-    );
-  const crcOK =
-    rxCRC ===
-    calcCRC;
-  log(
-    "RX " +
-    channel +
-    " 0x" +
-    type
-      .toString(16)
-      .padStart(4,"0") +
-    " len=" +
-    declaredLength +
-    " crc=" +
-    (
-      crcOK
-        ? "OK"
-        : "BAD"
-    ) +
-    " payload=[" +
-    hex(payload) +
-    "]"
-  );
+  const type = (packet[0] << 8) | packet[1];
+  const length = packet[2] | (packet[3] << 8);
+  const payload = packet.slice(4, packet.length - 2);
+  const receivedCRC = packet[packet.length-2] | (packet[packet.length-1] << 8);
+  const calculatedCRC = crc16(packet.slice(0, packet.length - 2));
+  const crcOK = receivedCRC === calculatedCRC;
+
+  log("RX " + kind + " 0x" + type.toString(16).padStart(4,"0") +
+      " len=" + length + " crc=" + (crcOK ? "OK" : "BAD") +
+      " payload=[" + hex(payload) + "]");
+
   if(!crcOK){
-    log(
-      "WARN CRC mismatch " +
-      "rx=0x" +
-      rxCRC.toString(16) +
-      " calc=0x" +
-      calcCRC.toString(16)
-    );
+    log("WARN CRC mismatch received=0x" + receivedCRC.toString(16) +
+        " calculated=0x" + calculatedCRC.toString(16));
   }
-  parsePacket(
+  parseYCBT(type, payload);
+}
+
+/* ========================= 本地记录 ========================= */
+function addRecord(type, data){
+  records.unshift({
+    time: new Date().toISOString(),
     type,
-    payload
-  );
+    data
+  });
+  records = records.slice(0, 5000);
+  localStorage.setItem("tk5Records", JSON.stringify(records));
+  renderHistory();
 }
-/* =========================================================
-   PARSER
-========================================================= */
-function parsePacket(
-  type,
-  p
-){
+
+function renderHistory(){
+  const box = $("history");
+  if(records.length === 0){
+    box.innerHTML = '<div class="small" style="padding:12px 0;">暂无本地记录</div>';
+    return;
+  }
+  box.innerHTML = records.slice(0, 80).map(record => {
+    let detail = "";
+    const d = record.data;
+
+    if(record.type === "history-bp-decoded" && d.decoded){
+      detail = d.decoded.map(r =>
+        `${r.local} → ${r.systolic}/${r.diastolic} HR${r.hr}`
+      ).join(" · ");
+    } else if(record.type === "history-all-decoded" && d.decoded){
+      detail = d.decoded.map(r =>
+        `${r.local} HR${r.hr||"-"} ${r.systolic||"-"}/${r.diastolic||"-"} SpO₂${r.spo2||"-"}`
+      ).join(" · ");
+    } else if(record.type === "history-hr-decoded" && d.decoded){
+      detail = d.decoded.map(r => `${r.local} ${r.hr}bpm`).join(" · ");
+    } else if(record.type === "bp"){
+      detail = `${d.systolic}/${d.diastolic} HR${d.hr}`;
+    } else if(record.type === "hr"){
+      detail = d.bpm + " bpm";
+    } else if(record.type === "spo2"){
+      detail = d.value + "%";
+    } else if(record.type === "steps"){
+      detail = d.value + " 步";
+    } else {
+      detail = JSON.stringify(d);
+    }
+
+    return '<div class="record">' +
+      '<span class="tag">' + escapeHTML(record.type) + '</span>' +
+      ' · ' + escapeHTML(new Date(record.time).toLocaleString("zh-CN")) +
+      ' · ' + escapeHTML(detail) +
+      '</div>';
+  }).join("");
+}
+
+/* ========================= YCBT 解析 ========================= */
+function parseYCBT(type, p){
   switch(type){
-    /* ==========================================
-       DEVICE INFO
-    ========================================== */
-    case 0x0200:
-      parseDeviceInfo(p);
+
+    case 0x0200: // Device Info
+      log("DEVICE INFO payload=[" + hex(p) + "]");
+      // 尝试多种可能位置
+      if(p.length > 5 && p[5] >= 0 && p[5] <= 100){
+        $("battery").textContent = p[5];
+      } else if(p.length === 1 && p[0] !== 0xfe){
+        // 有些固件只回一个字节
+        if(p[0] >= 0 && p[0] <= 100) $("battery").textContent = p[0];
+      }
       break;
-    /* ==========================================
-       SUPPORT
-    ========================================== */
+
     case 0x0201:
-      log(
-        "Support Function [" +
-        hex(p) +
-        "]"
-      );
+      log("SUPPORT FUNCTION [" + hex(p) + "]");
       break;
-    /* ==========================================
-       DEVICE NAME
-    ========================================== */
-    case 0x0203:
-      parseDeviceName(p);
+
+    case 0x0203: // Device Name
+      {
+        let name;
+        try{ name = new TextDecoder().decode(p).replace(/\0/g,""); }
+        catch{ name = hex(p); }
+        $("device").innerHTML =
+          '<div class="device-line small">设备名：<strong>' + escapeHTML(name || "TK5") + '</strong></div>' +
+          '<div class="device-line small">Bluetooth：' + escapeHTML(device?.name || "TK5") + '</div>';
+      }
       break;
-    /* ==========================================
-       CHIP
-    ========================================== */
+
     case 0x021b:
-      log(
-        "Chip Scheme [" +
-        hex(p) +
-        "]"
-      );
+      log("CHIP SCHEME [" + hex(p) + "]");
       break;
-    /* ==========================================
-       STEPS
-    ========================================== */
-    case 0x020c:
-      parseSteps(p);
+
+    case 0x020c: // Steps
+      if(p.length >= 2){
+        const steps = p[0] | (p[1] << 8);
+        $("steps").textContent = steps;
+        addRecord("steps", { value: steps, raw: hex(p) });
+        log("Steps = " + steps);
+      }
       break;
-    /* ==========================================
-       POWER
-    ========================================== */
-    case 0x0225:
-      log(
-        "Power Stats [" +
-        hex(p) +
-        "]"
-      );
-      break;
-    /* ==========================================
-       MEASUREMENT RESPONSE
-    ========================================== */
-    case 0x032f:
-      parseMeasurementCommandResponse(p);
-      break;
-    /* ==========================================
-       REALTIME STATUS
-    ========================================== */
+
     case 0x0600:
-      parseRealtimeStatus(p);
+      addRecord("realtime-status", { raw: hex(p) });
       break;
-    /* ==========================================
-       REALTIME HR
-    ========================================== */
-    case 0x0601:
-      parseRealtimeHR(p);
-      break;
-    /* ==========================================
-       REALTIME SPO2
-    ========================================== */
-    case 0x0602:
-      parseRealtimeSpO2(p);
-      break;
-    /* ==========================================
-       REALTIME VITALS
-    ========================================== */
-    case 0x0603:
-      parseRealtimeVitals(p);
-      break;
-    /* ==========================================
-       WEARING
-    ========================================== */
-    case 0x0613:
-      log(
-        "Wearing status [" +
-        hex(p) +
-        "]"
-      );
-      break;
-    /* ==========================================
-       BATTERY PUSH
-    ========================================== */
-    case 0x0615:
-      if(
-        p.length
-      ){
-        updateBattery(
-          p[0]
-        );
+
+    case 0x0601: // Realtime HR
+      if(p.length >= 1){
+        const hr = p[0];
+        if(hr > 0 && hr < 250){
+          $("hr").textContent = hr;
+          addRecord("hr", { bpm: hr, raw: hex(p) });
+        }
       }
       break;
-    /* ==========================================
-       DEVICE EVENT
-    ========================================== */
+
+    case 0x0602: // Realtime SpO2
+      if(p.length >= 1){
+        const spo2 = p[0];
+        if(spo2 > 0 && spo2 <= 100){
+          $("spo2").textContent = spo2;
+          addRecord("spo2", { value: spo2, raw: hex(p) });
+        }
+      }
+      break;
+
+    case 0x0603: // Realtime Vitals (BP / HRV)
+      {
+        $("bpBox").style.display = "block";
+        if(currentMeasureMode === 1 && p.length >= 3){
+          // 血压模式：前三字节 SYS / DIA / HR
+          const sys = p[0];
+          const dia = p[1];
+          const hr  = p[2];
+          $("bpText").innerHTML = `<strong>${sys}</strong> / <strong>${dia}</strong>`;
+          $("bpHr").textContent = "HR " + hr;
+          addRecord("bp", { systolic: sys, diastolic: dia, hr, raw: hex(p) });
+          log("BP = " + sys + "/" + dia + " HR=" + hr);
+        } else if(currentMeasureMode === 0x0a){
+          // HRV 模式：目前观察到数值在第 4 字节附近
+          const val = p[3] || p[0];
+          $("bpText").innerHTML = `<strong>HRV</strong> ${val}`;
+          $("bpHr").textContent = "";
+          addRecord("hrv", { value: val, raw: hex(p) });
+          log("HRV raw value = " + val);
+        } else {
+          $("bpText").textContent = "raw: " + hex(p).slice(0, 30);
+          $("bpHr").textContent = "";
+          addRecord("vitals-raw", { raw: hex(p) });
+        }
+      }
+      break;
+
     case 0x040e:
-      log(
-        "Device Event [" +
-        hex(p) +
-        "]"
-      );
-      addRecord(
-        "device-event",
-        {
-          raw:
-            hex(p)
-        }
-      );
+      addRecord("device-event", { raw: hex(p) });
+      log("Device Event [" + hex(p) + "]");
       break;
-    /* ==========================================
-       HISTORY HEADER / STATUS / DATA
-    ========================================== */
+
+    // 历史数据帧
+    case 0x0511:
+    case 0x0513:
+    case 0x0515:
+    case 0x0517:
+    case 0x0518:
+    case 0x0522:
+    case 0x0526:
+    case 0x0530:
+    case 0x0534:
+      if(currentHistoryFrameType === null) currentHistoryFrameType = type;
+      historyChunks.push(p);
+      addRecord("history-" + type.toString(16).toUpperCase(), { raw: hex(p) });
+      break;
+
+    // 历史终端
+    case 0x0580:
+      log("HISTORY TERMINAL 0580");
+      {
+        let summary = { raw: hex(p) };
+        if(p.length >= 6){
+          summary.numRecords = p[0] | (p[1] << 8);
+          summary.totalBytes = p[2] | (p[3] << 8);
+        }
+        const fullBuffer = historyChunks.reduce(concatUint8, new Uint8Array());
+
+        if(currentHistoryFrameType === 0x0515){
+          summary.decoded = decodeHRHistory(fullBuffer);
+          addRecord("history-hr-decoded", summary);
+          log("历史心率解码 " + (summary.decoded?.length || 0) + " 条");
+        } else if(currentHistoryFrameType === 0x0517){
+          summary.decoded = decodeBPHistory(fullBuffer);
+          addRecord("history-bp-decoded", summary);
+          log("历史血压解码 " + (summary.decoded?.length || 0) + " 条");
+        } else if(currentHistoryFrameType === 0x0518){
+          summary.decoded = decodeComprehensiveHistory(fullBuffer);
+          addRecord("history-all-decoded", summary);
+          log("综合历史解码 " + (summary.decoded?.length || 0) + " 条");
+        } else if(currentHistoryFrameType === 0x0534){
+          summary.decoded = decodeBodyDataHistory(fullBuffer);
+          addRecord("history-bodydata-decoded", summary);
+        } else if(currentHistoryFrameType === 0x0511){
+          summary.decoded = decodeActivityHistory(fullBuffer);
+          addRecord("history-activity-decoded", summary);
+        } else {
+          addRecord("history-terminal", summary);
+        }
+      }
+      // 解锁
+      if(historyUnlockTimer){
+        clearTimeout(historyUnlockTimer);
+        historyUnlockTimer = null;
+      }
+      historyQueryRunning = false;
+      currentHistoryKey = null;
+      currentHistoryFrameType = null;
+      historyChunks = [];
+      setHistoryButtonsDisabled(false);
+      setStatus("已连接 · " + (device?.name || "TK5"));
+      break;
+
     default:
-      if(
-        isHistoryPacket(
-          type
-        )
-      ){
-        parseHistoryPacket(
-          type,
-          p
-        );
-      }else{
-        log(
-          "UNHANDLED 0x" +
-          type
-            .toString(16)
-            .padStart(4,"0") +
-          " payload=[" +
-          hex(p) +
-          "]"
-        );
+      // 历史查询的即时状态回复
+      if((type & 0xff00) === 0x0500){
+        log("HISTORY STATUS 0x" + type.toString(16) + " [" + hex(p) + "]");
+        if(p.length >= 1 && p[0] === 0xfc){
+          log("历史查询返回错误码 0xFC（可能不支持或无数据）");
+        }
+      } else {
+        log("UNHANDLED 0x" + type.toString(16).padStart(4,"0") + " payload=[" + hex(p) + "]");
       }
       break;
   }
 }
-/* =========================================================
-   DEVICE INFO
-========================================================= */
-function parseDeviceInfo(p){
-  log(
-    "DEVICE INFO [" +
-    hex(p) +
-    "]"
-  );
-  /*
-   * Your actual TK5:
-   * battery observed at payload[5].
-   */
-  if(
-    p.length > 5
-  ){
-    const battery =
-      p[5];
-    if(
-      battery >= 0 &&
-      battery <= 100
-    ){
-      updateBattery(
-        battery
-      );
-    }
-  }
-}
-/* =========================================================
-   DEVICE NAME
-========================================================= */
-function parseDeviceName(p){
-  let name =
-    "";
-  try{
-    name =
-      new TextDecoder()
-        .decode(p)
-        .replace(
-          /\0/g,
-          ""
-        )
-        .trim();
-  }catch{
-    name =
-      hex(p);
-  }
-  if(!name){
-    name =
-      hex(p);
-  }
-  $("device").innerHTML =
-    '<div class="device-line">' +
-      '<span class="small">设备名：</span>' +
-      '<strong>' +
-      escapeHTML(name) +
-      '</strong>' +
-    '</div>' +
-    '<div class="device-line">' +
-      '<span class="small">Bluetooth：</span>' +
-      escapeHTML(
-        device?.name ||
-        DEVICE_NAME
-      ) +
-    '</div>';
-}
-/* =========================================================
-   STEPS
-========================================================= */
-function parseSteps(p){
-  if(
-    p.length < 2
-  ){
-    return;
-  }
-  /*
-   * Verified with your ring:
-   *
-   * 49 00 ...
-   * => 73 steps
-   */
-  const steps =
-    p[0] |
-    (p[1] << 8);
-  $("steps")
-    .textContent =
-    steps;
-  addRecord(
-    "steps",
-    {
-      value:
-        steps,
-      raw:
-        hex(p)
-    }
-  );
-  log(
-    "Steps = " +
-    steps
-  );
-}
-/* =========================================================
-   BATTERY
-========================================================= */
-function updateBattery(
-  value
-){
-  if(
-    value < 0 ||
-    value > 100
-  ){
-    return;
-  }
-  $("battery")
-    .textContent =
-    value;
-  addRecord(
-    "battery",
-    {
-      value:
-        value
-    }
-  );
-}
-/* =========================================================
-   REALTIME HR
-========================================================= */
-function parseRealtimeHR(p){
-  if(
-    p.length < 1
-  ){
-    return;
-  }
-  const hr =
-    p[0];
-  if(
-    hr > 0 &&
-    hr < 250
-  ){
-    $("hr")
-      .textContent =
-      hr;
-    addRecord(
-      "hr",
-      {
-        bpm:
-          hr,
-        raw:
-          hex(p)
-      }
-    );
-    updateMeasurementStatus(
-      "HR",
-      hr +
-      " BPM"
-    );
-  }
-}
-/* =========================================================
-   REALTIME SPO2
-========================================================= */
-function parseRealtimeSpO2(p){
-  if(
-    p.length < 1
-  ){
-    return;
-  }
-  const spo2 =
-    p[0];
-  if(
-    spo2 > 0 &&
-    spo2 <= 100
-  ){
-    $("spo2")
-      .textContent =
-      spo2;
-    addRecord(
-      "spo2",
-      {
-        value:
-          spo2,
-        raw:
-          hex(p)
-      }
-    );
-    updateMeasurementStatus(
-      "SpO₂",
-      spo2 +
-      "%"
-    );
-  }
-}
-/* =========================================================
-   REALTIME STATUS
-========================================================= */
-function parseRealtimeStatus(p){
-  log(
-    "Realtime Status [" +
-    hex(p) +
-    "]"
-  );
-  addRecord(
-    "realtime-status",
-    {
-      raw:
-        hex(p)
-    }
-  );
-}
-/* =========================================================
-   REALTIME VITALS
-========================================================= */
-function parseRealtimeVitals(p){
-  /*
-   * IMPORTANT:
-   *
-   * Do NOT assume these values are mmHg,
-   * HRV, stress, etc. yet.
-   *
-   * We preserve all bytes so the actual
-   * TK5 can be decoded from samples.
-   */
-  const candidate16 = [];
-  const candidate32 = [];
-  for(
-    let i=0;
-    i+1<p.length;
-    i+=2
-  ){
-    candidate16.push(
-      p[i] |
-      (p[i+1] << 8)
-    );
-  }
-  for(
-    let i=0;
-    i+3<p.length;
-    i+=4
-  ){
-    candidate32.push(
-      (
-        p[i] |
-        (p[i+1] << 8) |
-        (p[i+2] << 16) |
-        (p[i+3] << 24)
-      ) >>> 0
-    );
-  }
-  log(
-    "0603 VITALS raw=[" +
-    hex(p) +
-    "] " +
-    "u16=[" +
-    candidate16.join(",") +
-    "]"
-  );
-  addRecord(
-    "vitals-0603",
-    {
-      raw:
-        hex(p),
-      u16:
-        candidate16,
-      u32:
-        candidate32
-    }
-  );
-  updateMeasurementStatus(
-    "BP/HRV",
-    "收到 0603 原始数据"
-  );
-}
-/* =========================================================
-   MEASUREMENT COMMAND RESPONSE
-========================================================= */
-function parseMeasurementCommandResponse(
-  p
-){
-  log(
-    "Measurement command status [" +
-    hex(p) +
-    "]"
-  );
-  if(
-    p.length &&
-    p[0] === 0
-  ){
-    log(
-      "Measurement command accepted"
-    );
-  }
-}
-/* =========================================================
-   HISTORY PACKETS
-========================================================= */
-function isHistoryPacket(
-  type
-){
-  return (
-    HISTORY_DATA_KEYS[
-      historySession.key
-    ] === type
-    ||
-    type === 0x0580
-    ||
-    (
-      type >= 0x0500 &&
-      type <= 0x0534
-    )
-  );
-}
-/* =========================================================
-   HISTORY PARSER
-========================================================= */
-function parseHistoryPacket(
-  type,
-  p
-){
-  /*
-   * If no active session,
-   * still log the packet instead
-   * of silently throwing it away.
-   */
-  if(
-    !historySession.active
-  ){
-    log(
-      "History packet without active session: " +
-      "0x" +
-      type
-        .toString(16)
-        .padStart(4,"0") +
-      " [" +
-      hex(p) +
-      "]"
-    );
-    return;
-  }
-  const key =
-    historySession.key;
-  const expectedDataKey =
-    HISTORY_DATA_KEYS[key];
-  /* =========================================
-     QUERY RESPONSE / STATUS
-  ========================================= */
-  if(
-    type ===
-    (
-      0x0500 |
-      key
-    )
-  ){
-    parseHistoryQueryResponse(
-      key,
-      p
-    );
-    return;
-  }
-  /* =========================================
-     DATA
-  ========================================= */
-  if(
-    type === expectedDataKey
-  ){
-    historySession
-      .dataPackets++;
-    historySession
-      .dataBytes +=
-      p.length;
-    for(
-      const byte of p
-    ){
-      historySession
-        .rawBytes
-        .push(byte);
-    }
-    log(
-      "HISTORY DATA key=" +
-      keyToHex(key) +
-      " packet#" +
-      historySession.dataPackets +
-      " bytes=" +
-      p.length +
-      " total=" +
-      historySession.dataBytes
-    );
-    addRecord(
-      "history-data",
-      {
-        queryKey:
-          keyToHex(key),
-        dataType:
-          keyToHex(expectedDataKey),
-        packet:
-          historySession.dataPackets,
-        raw:
-          hex(p)
-      }
-    );
-    updateHistoryProgress();
-    return;
-  }
-  /* =========================================
-     TERMINAL
-  ========================================= */
-  if(
-    type === 0x0580
-  ){
-    handleHistoryTerminal(
-      p
-    );
-    return;
-  }
-  /*
-   * Unknown history-related packet.
-   */
-  log(
-    "HISTORY UNKNOWN type=0x" +
-    type
-      .toString(16)
-      .padStart(4,"0") +
-    " [" +
-    hex(p) +
-    "]"
-  );
-}
-/* =========================================================
-   HISTORY QUERY RESPONSE
-========================================================= */
-function parseHistoryQueryResponse(
-  key,
-  p
-){
-  /*
-   * Your current ring returns:
-   *
-   * 0509 [00 00]
-   * 0508 [00 00]
-   * 0504 [00 00]
-   *
-   * These are now treated as a status response,
-   * not an "unhandled" packet.
-   */
-  if(
-    p.length === 2 &&
-    p[0] === 0 &&
-    p[1] === 0
-  ){
-    log(
-      "HISTORY STATUS key=" +
-      keyToHex(key) +
-      " => 00 00"
-    );
-    setHistoryStatus(
-      "设备返回 00 00：当前没有继续的数据流，等待确认"
-    );
-    /*
-     * IMPORTANT:
-     *
-     * Do NOT immediately retry.
-     * Do NOT leave the session locked forever.
-     *
-     * Some TK5 firmware returns 00 00
-     * when there are no records or when
-     * the selected record group is empty.
-     */
-    scheduleHistoryResolve(
-      key,
-      4000
-    );
-    return;
-  }
-  /*
-   * Single status byte, e.g.
-   *
-   * 052F [FC]
-   */
-  if(
-    p.length === 1
-  ){
-    const status =
-      p[0];
-    log(
-      "HISTORY STATUS key=" +
-      keyToHex(key) +
-      " code=0x" +
-      status
-        .toString(16)
-        .padStart(2,"0")
-    );
-    if(
-      status === 0xfc
-    ){
-      setHistoryStatus(
-        "设备返回 FC：该历史类型当前不可用/无数据"
-      );
-    }else{
-      setHistoryStatus(
-        "设备状态：0x" +
-        status
-          .toString(16)
-          .padStart(2,"0")
-      );
-    }
-    scheduleHistoryResolve(
-      key,
-      2500
-    );
-    return;
-  }
-  /*
-   * Standard history header:
-   *
-   * recordCount:u16
-   * totalPackets:u32
-   * totalBytes:u32
-   *
-   * little endian
-   */
-  if(
-    p.length >= 10
-  ){
-    const recordCount =
-      p[0] |
-      (p[1] << 8);
-    const totalPackets =
-      readU32LE(
-        p,
-        2
-      );
-    const totalBytes =
-      readU32LE(
-        p,
-        6
-      );
-    historySession.header = {
-      recordCount:
-        recordCount,
-      totalPackets:
-        totalPackets,
-      totalBytes:
-        totalBytes
-    };
-    log(
-      "HISTORY HEADER key=" +
-      keyToHex(key) +
-      " records=" +
-      recordCount +
-      " packets=" +
-      totalPackets +
-      " bytes=" +
-      totalBytes
-    );
-    setHistoryStatus(
-      "历史数据：" +
-      recordCount +
-      " 条，" +
-      totalBytes +
-      " bytes"
-    );
-    updateHistoryProgress();
-    return;
-  }
-  /*
-   * Any other query response is retained.
-   */
-  log(
-    "HISTORY QUERY RESPONSE key=" +
-    keyToHex(key) +
-    " [" +
-    hex(p) +
-    "]"
-  );
-}
-/* =========================================================
-   HISTORY TERMINAL
-========================================================= */
-async function handleHistoryTerminal(
-  p
-){
-  if(
-    historySession.terminal
-  ){
-    return;
-  }
-  historySession.terminal =
-    true;
-  log(
-    "HISTORY TERMINAL 0580 [" +
-    hex(p) +
-    "]"
-  );
-  setHistoryStatus(
-    "收到历史 terminal，正在 ACK…"
-  );
-  /*
-   * Protocol:
-   *
-   * 05 80 00
-   *
-   * The actual YCBT frame is:
-   *
-   * type=0x0580
-   * payload=[00]
-   */
-  const sent =
-    await sendYCBT(
-      0x0580,
-      [0x00]
-    );
-  if(sent){
-    log(
-      "HISTORY TERMINAL ACK sent: 05 80 [00]"
-    );
-  }
-  setHistoryStatus(
-    "历史同步完成："
-    +
-    historySession.dataPackets
-    +
-    " packets / "
-    +
-    historySession.dataBytes
-    +
-    " bytes"
-  );
-  finishHistorySession(
-    true
-  );
-}
-/* =========================================================
-   HISTORY START
-========================================================= */
-async function queryHistory(
-  keyHex
-){
-  const key =
-    parseInt(
-      keyHex,
-      16
-    );
-  if(
-    !HISTORY_DATA_KEYS[key]
-  ){
-    log(
-      "ERROR unsupported history key=" +
-      keyHex
-    );
-    return;
-  }
-  /*
-   * One history session at a time.
-   */
-  if(
-    historySession.active
-  ){
-    log(
-      "WARN: history session already active " +
-      "key=" +
-      keyToHex(
-        historySession.key
-      )
-    );
-    setHistoryStatus(
-      "已有历史同步进行中，请等待完成"
-    );
-    return;
-  }
-  resetHistorySession();
-  historySession.active =
-    true;
-  historySession.key =
-    key;
-  historySession.dataKey =
-    HISTORY_DATA_KEYS[key];
-  historySession.startedAt =
-    Date.now();
-  setHistoryStatus(
-    "正在读取历史 " +
-    keyToHex(key) +
-    "…"
-  );
-  $("historyProgress")
-    .style.width =
-    "0%";
-  log(
-    "HISTORY START key=" +
-    keyToHex(key)
-  );
-  const sent =
-    await sendYCBT(
-      0x0500 | key
-    );
-  if(!sent){
-    finishHistorySession(
-      false
-    );
-    return;
-  }
-  /*
-   * Give the ring enough time.
-   *
-   * We use a long timeout because
-   * sleep/all-history can be much larger.
-   */
-  historySession.timeout =
-    setTimeout(
-      () => {
-        if(
-          !historySession.active
-        ){
-          return;
-        }
-        log(
-          "WARN: history timeout key=" +
-          keyToHex(key) +
-          " packets=" +
-          historySession.dataPackets +
-          " bytes=" +
-          historySession.dataBytes
-        );
-        setHistoryStatus(
-          "历史查询超时，已释放查询锁"
-        );
-        finishHistorySession(
-          false
-        );
-      },
-      30000
-    );
-}
-/* =========================================================
-   HISTORY DELAYED RESOLVE
-========================================================= */
-function scheduleHistoryResolve(
-  key,
-  delay
-){
-  /*
-   * Do not resolve if data starts arriving.
-   */
-  setTimeout(
-    () => {
-      if(
-        !historySession.active
-      ){
-        return;
-      }
-      if(
-        historySession.key !==
-        key
-      ){
-        return;
-      }
-      if(
-        historySession.dataPackets > 0
-      ){
-        return;
-      }
-      /*
-       * No data and no terminal:
-       * this firmware appears to have returned
-       * an empty/status response.
-       */
-      setHistoryStatus(
-        "设备未返回历史数据"
-      );
-      log(
-        "HISTORY END key=" +
-        keyToHex(key) +
-        " without data"
-      );
-      finishHistorySession(
-        false
-      );
-    },
-    delay
-  );
-}
-/* =========================================================
-   HISTORY RESET
-========================================================= */
-function resetHistorySession(){
-  if(
-    historySession.timeout
-  ){
-    clearTimeout(
-      historySession.timeout
-    );
-  }
-  historySession = {
-    active:false,
-    key:null,
-    dataKey:null,
-    startedAt:0,
-    header:null,
-    dataPackets:0,
-    dataBytes:0,
-    rawBytes:[],
-    terminal:false,
-    timeout:null
-  };
-}
-/* =========================================================
-   HISTORY FINISH
-========================================================= */
-function finishHistorySession(
-  success
-){
-  if(
-    historySession.timeout
-  ){
-    clearTimeout(
-      historySession.timeout
-    );
-  }
-  /*
-   * Save one summary record.
-   */
-  if(
-    historySession.key !== null
-  ){
-    addRecord(
-      "history-session",
-      {
-        key:
-          keyToHex(
-            historySession.key
-          ),
-        success:
-          success,
-        packets:
-          historySession.dataPackets,
-        bytes:
-          historySession.dataBytes,
-        header:
-          historySession.header
-      }
-    );
-  }
-  $("historyProgress")
-    .style.width =
-    success
-      ? "100%"
-      : "0%";
-  const old =
-    historySession;
-  resetHistorySession();
-  /*
-   * Keep final status.
-   */
-  if(success){
-    setHistoryStatus(
-      "完成 · " +
-      old.dataPackets +
-      " packets · " +
-      old.dataBytes +
-      " bytes"
-    );
-  }
-}
-/* =========================================================
-   HISTORY PROGRESS
-========================================================= */
-function updateHistoryProgress(){
-  if(
-    !historySession.active
-  ){
-    return;
-  }
-  const header =
-    historySession.header;
-  if(
-    !header
-  ){
-    return;
-  }
-  let percent =
-    0;
-  if(
-    header.totalBytes > 0
-  ){
-    percent =
-      Math.min(
-        100,
-        (
-          historySession.dataBytes /
-          header.totalBytes
-        ) * 100
-      );
-  }else if(
-    header.totalPackets > 0
-  ){
-    percent =
-      Math.min(
-        100,
-        (
-          historySession.dataPackets /
-          header.totalPackets
-        ) * 100
-      );
-  }
-  $("historyProgress")
-    .style.width =
-    percent.toFixed(1) +
-    "%";
-}
-/* =========================================================
-   READ UINT32
-========================================================= */
-function readU32LE(
-  p,
-  offset
-){
-  if(
-    offset + 4 >
-    p.length
-  ){
-    return 0;
-  }
-  return (
-    p[offset] |
-    (p[offset+1] << 8) |
-    (p[offset+2] << 16) |
-    (p[offset+3] << 24)
-  ) >>> 0;
-}
-/* =========================================================
-   KEY
-========================================================= */
-function keyToHex(
-  n
-){
-  return n
-    .toString(16)
-    .padStart(2,"0")
-    .toUpperCase();
-}
-/* =========================================================
-   MEASUREMENT
-========================================================= */
-async function startMeasurement(
-  mode
-){
-  if(!c1){
-    log(
-      "ERROR: 请先连接戒指"
-    );
-    return;
-  }
-  stopMeasurementTimer();
-  const names = {
-    0:"HR",
-    1:"BP",
-    2:"SpO₂",
-    10:"HRV"
-  };
-  measurement.active =
-    true;
-  measurement.mode =
-    mode;
-  measurement.startedAt =
-    Date.now();
-  const name =
-    names[mode] ||
-    "0x" +
-    mode.toString(16);
-  $("measureStatus")
-    .textContent =
-    "正在测量 " +
-    name +
-    "…";
-  log(
-    "MEASUREMENT START mode=0x" +
-    mode
-      .toString(16)
-      .padStart(2,"0")
-  );
-  const ok =
-    await sendYCBT(
-      0x032f,
-      [
-        0x01,
-        mode
-      ]
-    );
-  if(!ok){
-    stopMeasurementTimer();
-    return;
-  }
-  /*
-   * Some measurements need time.
-   * Automatically stop after 90 seconds.
-   */
-  measurement.timer =
-    setTimeout(
-      () => {
-        log(
-          "Measurement timeout; sending stop"
-        );
-        stopMeasurement();
-      },
-      90000
-    );
-}
-/* =========================================================
-   STOP MEASUREMENT
-========================================================= */
-async function stopMeasurement(){
-  stopMeasurementTimer();
-  if(!c1){
-    measurement.active =
-      false;
-    return;
-  }
-  const mode =
-    measurement.mode;
-  log(
-    "MEASUREMENT STOP"
-  );
-  await sendYCBT(
-    0x032f,
-    [
-      0x00,
-      0x00
-    ]
-  );
-  measurement.active =
-    false;
-  measurement.mode =
-    null;
-  $("measureStatus")
-    .textContent =
-    "测量已停止";
-}
-/* =========================================================
-   TIMER
-========================================================= */
-function stopMeasurementTimer(){
-  if(
-    measurement.timer
-  ){
-    clearTimeout(
-      measurement.timer
-    );
-  }
-  measurement.timer =
-    null;
-}
-/* =========================================================
-   MEASUREMENT STATUS
-========================================================= */
-function updateMeasurementStatus(
-  type,
-  value
-){
-  if(
-    measurement.active
-  ){
-    $("measureStatus")
-      .textContent =
-      type +
-      "： " +
-      value;
-  }
-}
-/* =========================================================
-   CONNECT
-========================================================= */
+
+/* ========================= 连接 ========================= */
 async function connect(){
   try{
-    if(
-      !navigator.bluetooth
-    ){
-      throw new Error(
-        "当前浏览器不支持 Web Bluetooth，请使用 Bluefy"
-      );
+    if(!navigator.bluetooth){
+      throw new Error("当前浏览器不支持 Web Bluetooth，请使用 Bluefy 或 Chrome");
     }
-    setStatus(
-      "正在选择 TK5…"
-    );
-    /*
-     * Exact device name.
-     *
-     * optionalServices is required because
-     * the service is not a standard service.
-     */
-    device =
-      await navigator.bluetooth
-        .requestDevice({
-          filters:[
-            {
-              name:
-                DEVICE_NAME
-            }
-          ],
-          optionalServices:[
-            YCBT_SERVICE
-          ]
-        });
-    log(
-      "Selected: " +
-      (
-        device.name ||
-        "unknown"
-      )
-    );
-    server =
-      await device.gatt.connect();
-    log(
-      "GATT connected"
-    );
-    const service =
-      await server
-        .getPrimaryService(
-          YCBT_SERVICE
-        );
-    c1 =
-      await service
-        .getCharacteristic(
-          C1_UUID
-        );
-    c3 =
-      await service
-        .getCharacteristic(
-          C3_UUID
-        );
-    c1Buffer =
-      new Uint8Array();
-    c3Buffer =
-      new Uint8Array();
-    c1.addEventListener(
-      "characteristicvaluechanged",
-      event => {
-        consumeStream(
-          "C1",
-          event.target
-            .value
-            .buffer
-        );
-      }
-    );
-    c3.addEventListener(
-      "characteristicvaluechanged",
-      event => {
-        consumeStream(
-          "C3",
-          event.target
-            .value
-            .buffer
-        );
-      }
-    );
-    await c1
-      .startNotifications();
-    log(
-      "C1 notifications subscribed"
-    );
-    await c3
-      .startNotifications();
-    log(
-      "C3 notifications subscribed"
-    );
-    device.addEventListener(
-      "gattserverdisconnected",
-      onDisconnected
-    );
-    setStatus(
-      "已连接 · " +
-      (
-        device.name ||
-        DEVICE_NAME
-      )
-    );
-    $("device").innerHTML =
-      '<div class="device-line">' +
-        '<span class="small">Bluetooth：</span>' +
-        escapeHTML(
-          device.name ||
-          DEVICE_NAME
-        ) +
-      '</div>' +
-      '<div class="device-line small">' +
-        'YCBT service connected' +
-      '</div>';
-    /*
-     * ========================================
-     * VERIFIED TK5 INITIALIZATION
-     * ========================================
-     */
-    /*
-     * Support function
-     */
-    await sendYCBT(
-      0x0201,
-      [
-        0x47,
-        0x46
-      ]
-    );
-    /*
-     * Set clock
-     */
-    await sendYCBT(
-      0x0100,
-      makeClockPayload()
-    );
-    /*
-     * Chip scheme
-     */
-    await sendYCBT(
-      0x021b
-    );
-    /*
-     * Device info
-     */
-    await sendYCBT(
-      0x0200
-    );
-    /*
-     * Device name
-     */
-    await sendYCBT(
-      0x0203
-    );
-    /*
-     * Steps
-     */
-    await sendYCBT(
-      0x020c
-    );
-    /*
-     * Start realtime status
-     */
-    await sendYCBT(
-      0x0309,
-      [
-        0x01,
-        0x00,
-        0x02,
-        0xA0
-      ]
-    );
-    /*
-     * Start HR
-     */
-    await sendYCBT(
-      0x032f,
-      [
-        0x01,
-        0x00
-      ]
-    );
-    log(
-      "TK5 initialization complete"
-    );
-  }catch(error){
-    log(
-      "CONNECT ERROR: " +
-      error.message
-    );
-    setStatus(
-      "连接失败：" +
-      error.message
-    );
+    setStatus("正在选择 TK5…");
+
+    device = await navigator.bluetooth.requestDevice({
+      filters: [
+        { namePrefix: "TK5" },
+        { namePrefix: "tk5" }
+      ],
+      optionalServices: [YCBT_SERVICE]
+    });
+
+    log("Selected: " + (device.name || "unknown"));
+    server = await device.gatt.connect();
+    log("GATT connected");
+
+    const service = await server.getPrimaryService(YCBT_SERVICE);
+    c1 = await service.getCharacteristic(C1_UUID);
+    c3 = await service.getCharacteristic(C3_UUID);
+
+    c1.addEventListener("characteristicvaluechanged", e => {
+      consumeStream("C1", e.target.value.buffer);
+    });
+    c3.addEventListener("characteristicvaluechanged", e => {
+      consumeStream("C3", e.target.value.buffer);
+    });
+
+    await c1.startNotifications();
+    log("C1 notifications subscribed");
+    await c3.startNotifications();
+    log("C3 notifications subscribed");
+
+    device.addEventListener("gattserverdisconnected", () => {
+      setStatus("已断开");
+      log("GATT disconnected");
+      c1 = null;
+      c3 = null;
+      historyQueryRunning = false;
+      setHistoryButtonsDisabled(false);
+    });
+
+    setStatus("已连接 · " + (device.name || "TK5"));
+
+    // 初始化流程
+    await sendYCBT(0x0201, [0x47, 0x46]);
+    await sendYCBT(0x0100, makeTimePayload());
+    await sendYCBT(0x021b);
+    await sendYCBT(0x0200);
+    await sendYCBT(0x0203);
+    await sendYCBT(0x020c);
+    await sendYCBT(0x032f, [0x01, 0x00]); // 开实时心率
+    await sendYCBT(0x0309, [0x01, 0x00, 0x02, 0xA0]);
+
+    log("TK5 initialization complete");
+  } catch(error){
+    setStatus("连接失败：" + error.message);
+    log("ERROR: " + error.message);
   }
 }
-/* =========================================================
-   DISCONNECT
-========================================================= */
+
 function disconnect(){
   try{
-    stopMeasurementTimer();
-    if(
-      device &&
-      device.gatt &&
-      device.gatt.connected
-    ){
-      device.gatt.disconnect();
-    }else{
-      onDisconnected();
-    }
-  }catch(error){
-    log(
-      "Disconnect error: " +
-      error.message
-    );
+    if(device && device.gatt.connected) device.gatt.disconnect();
+  } catch(error){
+    log("Disconnect error: " + error.message);
   }
 }
-/* =========================================================
-   DISCONNECTED
-========================================================= */
-function onDisconnected(){
-  c1 = null;
-  c3 = null;
-  server = null;
-  stopMeasurementTimer();
-  measurement.active =
-    false;
-  if(
-    historySession.active
-  ){
-    log(
-      "History aborted because GATT disconnected"
-    );
-    resetHistorySession();
-  }
-  setStatus(
-    "已断开"
-  );
-  $("measureStatus")
-    .textContent =
-    "未连接";
-  log(
-    "GATT disconnected"
-  );
-}
-/* =========================================================
-   RECORD STORAGE
-========================================================= */
-function loadRecords(){
-  try{
-    const raw =
-      localStorage.getItem(
-        "tk5Records"
-      );
-    if(!raw){
-      return [];
-    }
-    const parsed =
-      JSON.parse(raw);
-    return Array.isArray(
-      parsed
-    )
-      ? parsed
-      : [];
-  }catch{
-    return [];
-  }
-}
-/* =========================================================
-   ADD RECORD
-========================================================= */
-function addRecord(
-  type,
-  data
-){
-  records.unshift({
-    time:
-      new Date().toISOString(),
-    type:
-      type,
-    data:
-      data
-  });
-  /*
-   * Keep local storage bounded.
-   */
-  if(
-    records.length > 5000
-  ){
-    records =
-      records.slice(
-        0,
-        5000
-      );
-  }
-  try{
-    localStorage.setItem(
-      "tk5Records",
-      JSON.stringify(
-        records
-      )
-    );
-  }catch(error){
-    log(
-      "localStorage error: " +
-      error.message
-    );
-  }
-  renderRecords();
-}
-/* =========================================================
-   RENDER RECORDS
-========================================================= */
-function renderRecords(){
-  const box =
-    $("history");
-  if(
-    records.length === 0
-  ){
-    box.innerHTML =
-      '<div class="small" style="padding:12px 0">' +
-      '暂无本地记录' +
-      '</div>';
+
+/* ========================= 测量 ========================= */
+async function measure(mode){
+  if(!c1){
+    log("ERROR: 请先连接戒指");
     return;
   }
-  box.innerHTML =
-    records
-      .slice(
-        0,
-        150
-      )
-      .map(
-        record => {
-          return (
-            '<div class="record">' +
-              '<div>' +
-                '<span class="record-title">' +
-                escapeHTML(
-                  record.type
-                ) +
-                '</span>' +
-                ' · ' +
-                escapeHTML(
-                  new Date(
-                    record.time
-                  )
-                  .toLocaleString()
-                ) +
-              '</div>' +
-              '<div class="raw">' +
-              escapeHTML(
-                JSON.stringify(
-                  record.data
-                )
-              ) +
-              '</div>' +
-            '</div>'
-          );
-        }
-      )
-      .join("");
+  currentMeasureMode = mode;
+
+  if(mode < 0){
+    await sendYCBT(0x032f, [0x00, 0x00]);
+    log("MEASUREMENT STOP");
+    return;
+  }
+
+  await sendYCBT(0x032f, [0x01, mode]);
+  log("MEASUREMENT START mode=0x" + mode.toString(16).padStart(2,"0"));
 }
-/* =========================================================
-   ESCAPE
-========================================================= */
-function escapeHTML(
-  value
-){
-  return String(value)
-    .replace(
-      /&/g,
-      "&amp;"
-    )
-    .replace(
-      /</g,
-      "&lt;"
-    )
-    .replace(
-      />/g,
-      "&gt;"
-    )
-    .replace(
-      /"/g,
-      "&quot;"
-    )
-    .replace(
-      /'/g,
-      "&#039;"
-    );
+
+/* ========================= 历史查询 ========================= */
+async function queryHistory(keyHex){
+  if(!c1){
+    log("ERROR: 请先连接戒指");
+    return;
+  }
+  if(historyQueryRunning){
+    log("WARN: 已有历史查询正在进行，请等待完成");
+    return;
+  }
+
+  historyQueryRunning = true;
+  currentHistoryKey = keyHex;
+  currentHistoryFrameType = null;
+  historyChunks = [];
+  setHistoryButtonsDisabled(true);
+  setStatus("历史查询中 · key=" + keyHex);
+
+  const key = parseInt(keyHex, 16);
+  await sendYCBT(0x0500 | key);
+  log("HISTORY START key=" + keyHex);
+
+  // 10 秒超时兜底
+  historyUnlockTimer = setTimeout(() => {
+    if(historyQueryRunning){
+      log("WARN: 历史查询超时 key=" + currentHistoryKey);
+      historyQueryRunning = false;
+      currentHistoryKey = null;
+      currentHistoryFrameType = null;
+      historyChunks = [];
+      setHistoryButtonsDisabled(false);
+      setStatus("已连接 · " + (device?.name || "TK5") + "（上次查询超时）");
+    }
+  }, 10000);
 }
-/* =========================================================
-   DOWNLOAD
-========================================================= */
-function downloadText(
-  filename,
-  text,
-  mime
-){
-  const blob =
-    new Blob(
-      [text],
-      {
-        type:
-          mime
-      }
-    );
-  const url =
-    URL.createObjectURL(
-      blob
-    );
-  const a =
-    document.createElement(
-      "a"
-    );
-  a.href =
-    url;
-  a.download =
-    filename;
-  document.body.appendChild(
-    a
-  );
+
+/* ========================= 导出 ========================= */
+function downloadText(filename, text, mime){
+  const blob = new Blob([text], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
   a.click();
   a.remove();
-  setTimeout(
-    () => {
-      URL.revokeObjectURL(
-        url
-      );
-    },
-    1000
-  );
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-/* =========================================================
-   CSV
-========================================================= */
+
 function makeCSV(){
-  const rows = [
-    [
-      "time",
-      "type",
-      "data"
-    ]
-  ];
-  for(
-    const r of records
-  ){
-    rows.push([
-      r.time,
-      r.type,
-      JSON.stringify(
-        r.data
-      )
-    ]);
+  const rows = [["time","type","data"]];
+  for(const record of records){
+    rows.push([record.time, record.type, JSON.stringify(record.data)]);
   }
-  return rows
-    .map(
-      row =>
-        row
-          .map(
-            value =>
-              '"' +
-              String(value)
-                .replace(
-                  /"/g,
-                  '""'
-                ) +
-              '"'
-          )
-          .join(",")
-    )
-    .join("\n");
+  return rows.map(row =>
+    row.map(v => '"' + String(v).replace(/"/g,'""') + '"').join(",")
+  ).join("\n");
 }
-/* =========================================================
-   BUTTON EVENTS
-========================================================= */
-$("connect")
-  .addEventListener(
-    "click",
-    connect
-  );
-$("disconnect")
-  .addEventListener(
-    "click",
-    disconnect
-  );
-document
-  .querySelectorAll(
-    "[data-mode]"
-  )
-  .forEach(
-    button => {
-      button.addEventListener(
-        "click",
-        () => {
-          startMeasurement(
-            Number(
-              button.dataset.mode
-            )
-          );
-        }
-      );
-    }
-  );
-$("stopMeasure")
-  .addEventListener(
-    "click",
-    stopMeasurement
-  );
-document
-  .querySelectorAll(
-    "[data-history]"
-  )
-  .forEach(
-    button => {
-      button.addEventListener(
-        "click",
-        () => {
-          queryHistory(
-            button.dataset.history
-          );
-        }
-      );
-    }
-  );
-$("copyLog")
-  .addEventListener(
-    "click",
-    async () => {
-      try{
-        await navigator
-          .clipboard
-          .writeText(
-            logs.join("\n")
-          );
-        log(
-          "日志已复制"
-        );
-      }catch(error){
-        log(
-          "复制失败：" +
-          error.message
-        );
-      }
-    }
-  );
-$("clearLog")
-  .addEventListener(
-    "click",
-    () => {
-      logs = [];
-      $("log")
-        .textContent =
-        "";
-    }
-  );
-$("clearRecords")
-  .addEventListener(
-    "click",
-    () => {
-      const ok =
-        confirm(
-          "确定清空本机保存的数据？\n\n不会删除戒指里的历史记录。"
-        );
-      if(!ok){
-        return;
-      }
-      records = [];
-      localStorage.removeItem(
-        "tk5Records"
-      );
-      renderRecords();
-      log(
-        "本地记录已清空"
-      );
-    }
-  );
-$("exportJSON")
-  .addEventListener(
-    "click",
-    () => {
-      downloadText(
-        "tk5-health.json",
-        JSON.stringify(
-          records,
-          null,
-          2
-        ),
-        "application/json;charset=utf-8"
-      );
-    }
-  );
-$("exportCSV")
-  .addEventListener(
-    "click",
-    () => {
-      downloadText(
-        "tk5-health.csv",
-        makeCSV(),
-        "text/csv;charset=utf-8"
-      );
-    }
-  );
-/* =========================================================
-   HISTORY STATUS
-========================================================= */
-function setHistoryStatus(
-  text
-){
-  $("historyStatus")
-    .textContent =
-    text;
-}
-/* =========================================================
-   INITIAL
-========================================================= */
-renderRecords();
-log(
-  "TK5 Health v0.4 loaded"
-);
-log(
-  "Bluefy + Web Bluetooth"
-);
-log(
-  "历史同步状态机已启用"
-);
+
+/* ========================= 按钮绑定 ========================= */
+$("connect").addEventListener("click", connect);
+$("disconnect").addEventListener("click", disconnect);
+
+document.querySelectorAll("[data-mode]").forEach(btn => {
+  btn.addEventListener("click", () => measure(Number(btn.dataset.mode)));
+});
+
+document.querySelectorAll("[data-h]").forEach(btn => {
+  btn.addEventListener("click", () => queryHistory(btn.dataset.h));
+});
+
+$("copy").addEventListener("click", async () => {
+  try{
+    await navigator.clipboard.writeText(logs.join("\n"));
+    log("日志已复制");
+  } catch(e){
+    log("复制失败：" + e.message);
+  }
+});
+
+$("clear").addEventListener("click", () => {
+  logs = [];
+  $("log").textContent = "";
+});
+
+$("clearRecords").addEventListener("click", () => {
+  if(!confirm("确定清空本机保存的 TK5 数据？戒指本身的数据不会被删除。")) return;
+  records = [];
+  localStorage.removeItem("tk5Records");
+  renderHistory();
+  log("本地记录已清空");
+});
+
+$("json").addEventListener("click", () => {
+  downloadText("tk5-health.json", JSON.stringify(records, null, 2), "application/json;charset=utf-8");
+});
+
+$("csv").addEventListener("click", () => {
+  downloadText("tk5-health.csv", makeCSV(), "text/csv;charset=utf-8");
+});
+
+/* ========================= 启动 ========================= */
+renderHistory();
+log("TK5 Health v0.5 loaded");
+log("请使用 Bluefy（iOS）或 Chrome（Android）打开本页面");
 </script>
 </body>
 </html>
