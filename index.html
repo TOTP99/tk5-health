@@ -440,9 +440,15 @@ button.danger{
   <div class="small">
     从戒指读取历史记录。
     本版本不会发送删除历史记录的命令。
-    历史心率、血压已根据真实抓包确认字段格式并解码；
-    睡眠 / 血氧 / 体温 / 综合 / 身体数据暂时仍只保存原始 payload，
-    避免在样本不足时误判字段比例。
+    历史心率、血压、"全部"(综合)已根据真实抓包确认字段格式并解码，
+    "全部"里已经包含血氧数据。
+    身体数据的记录边界(28字节/条)也已锁定，
+    但里面10个小数值和1个较大数值的具体含义还没确认，
+    需要配合一次刻意的运动做对照实验才能确认，先原样解码字段位置。
+    实测中"血氧"和"体温"这两个独立历史查询按钮，这枚戒指两次都没有任何回应
+    （10秒后会自动超时解锁，不影响后续查询），
+    大概率这枚固件的血氧/体温历史不能单独查询，只能从"全部"里拿。
+    睡眠样本还不够，暂时仍只保存原始 payload。
     历史查询会排队等待上一个真正完成（收到 terminal）才发下一个，
     请依次点击，不要连续快速点击多个按钮。
   </div>
@@ -667,6 +673,107 @@ function decodeBPHistory(bytes){
         bytes[i+6],
       hr:
         bytes[i+7]
+    });
+  }
+  return records;
+}
+/* =========================================================
+   "全部" 综合历史解码 (0x0518)
+   已用真实抓包确认：每条记录 20 字节
+   [ts_lo:u16][ts_hi:u16]
+   [reserved:u16]
+   [hr:u8][systolic:u8][diastolic:u8][spo2:u8]
+   [unknown:u8（可能呼吸率/HRV，含义未完全确定）]
+   [counter:u16（可能是步数/卡路里累计，未完全确定）]
+   [reserved:u8][marker:u8（固定值，含义未知）]
+   [reserved:u8 x3]
+   [crc16:u16]
+   注意：血氧(spo2)即使 hr/血压 该条为空(0)时也持续有值，
+   说明血氧是独立连续采样的字段。
+========================================================= */
+function decodeComprehensiveHistory(bytes){
+  const records = [];
+  for(
+    let i = 0;
+    i + 20 <= bytes.length;
+    i += 20
+  ){
+    const date =
+      tk5TimestampToDate(
+        bytes[i],
+        bytes[i+1],
+        bytes[i+2],
+        bytes[i+3]
+      );
+    records.push({
+      time:
+        date.toISOString(),
+      hr:
+        bytes[i+6],
+      systolic:
+        bytes[i+7],
+      diastolic:
+        bytes[i+8],
+      spo2:
+        bytes[i+9],
+      unknown:
+        bytes[i+10],
+      counter:
+        bytes[i+11] |
+        (bytes[i+12] << 8)
+    });
+  }
+  return records;
+}
+/* =========================================================
+   身体数据解码 (0x0534, key 0x33)
+   已用真实抓包确认记录边界：每条记录 28 字节
+   [ts_lo:u16][ts_hi:u16]
+   [buckets: 10 x u8，取值范围观察到都在 0-9]
+   [value15: u8，取值范围较大，观察到 0x0e~0x9e]
+   [reserved: u8 x 11，观察到的样本里全是 0x00]
+   [crc16: u16]
+   注意：这次抓包时 HP 基本静止，没有明显运动，
+   buckets 和 value15 的具体含义还无法可靠判断，
+   先只锁定字段边界，不猜语义。
+   下一步验证思路：在某个约10分钟窗口中间做一段
+   明确的运动（比如刻意走 50~100 步），
+   再同步一次身体数据，看哪个字节跟着变化，
+   用真实对照来确认含义，而不是猜。
+========================================================= */
+function decodeBodyDataHistory(bytes){
+  const records = [];
+  for(
+    let i = 0;
+    i + 28 <= bytes.length;
+    i += 28
+  ){
+    const date =
+      tk5TimestampToDate(
+        bytes[i],
+        bytes[i+1],
+        bytes[i+2],
+        bytes[i+3]
+      );
+    const buckets = [];
+    for(
+      let j = 0;
+      j < 10;
+      j++
+    ){
+      buckets.push(
+        bytes[i+4+j]
+      );
+    }
+    records.push({
+      time:
+        date.toISOString(),
+      buckets:
+        buckets,
+      value15:
+        bytes[i+14],
+      note:
+        "buckets/value15 含义未确定，仅锁定字段边界"
     });
   }
   return records;
@@ -1407,6 +1514,30 @@ function parseYCBT(
             );
           addRecord(
             "history-bp-decoded",
+            summary
+          );
+        }else if(
+          currentHistoryFrameType ===
+            0x0518
+        ){
+          summary.decoded =
+            decodeComprehensiveHistory(
+              fullBuffer
+            );
+          addRecord(
+            "history-all-decoded",
+            summary
+          );
+        }else if(
+          currentHistoryFrameType ===
+            0x0534
+        ){
+          summary.decoded =
+            decodeBodyDataHistory(
+              fullBuffer
+            );
+          addRecord(
+            "history-bodydata-decoded",
             summary
           );
         }else{
