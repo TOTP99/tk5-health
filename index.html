@@ -440,7 +440,11 @@ button.danger{
   <div class="small">
     从戒指读取历史记录。
     本版本不会发送删除历史记录的命令。
-    历史数据暂时保存原始 payload，避免在真实样本不足时误判字段比例。
+    历史心率、血压已根据真实抓包确认字段格式并解码；
+    睡眠 / 血氧 / 体温 / 综合 / 身体数据暂时仍只保存原始 payload，
+    避免在样本不足时误判字段比例。
+    历史查询会排队等待上一个真正完成（收到 terminal）才发下一个，
+    请依次点击，不要连续快速点击多个按钮。
   </div>
   <div id="history" class="history">
   </div>
@@ -517,6 +521,13 @@ let records =
   );
 let historyQueryRunning =
   false;
+let historyUnlockTimer =
+  null;
+let currentHistoryKey =
+  null;
+let currentHistoryFrameType =
+  null;
+let historyChunks = [];
 /* =========================================================
    UI
 ========================================================= */
@@ -571,6 +582,94 @@ function concatUint8(a,b){
   out.set(a,0);
   out.set(b,a.length);
   return out;
+}
+/* =========================================================
+   TK5 历史时间戳
+   已用真实抓包交叉验证：
+   32位小端秒数，基准 epoch = 2000-01-01 00:00:00
+   （原始值 + 946684800 ≈ 抓包时的 unix 时间戳）
+========================================================= */
+const TK5_EPOCH_OFFSET = 946684800;
+function tk5TimestampToDate(
+  b0,
+  b1,
+  b2,
+  b3
+){
+  const raw =
+    b0 +
+    b1 * 256 +
+    b2 * 65536 +
+    b3 * 16777216;
+  return new Date(
+    (raw + TK5_EPOCH_OFFSET) *
+    1000
+  );
+}
+/* =========================================================
+   历史心率解码
+   已用真实抓包确认：
+   每条记录 6 字节
+   [ts_lo:u16][ts_hi:u16][reserved:u8][hr:u8]
+========================================================= */
+function decodeHRHistory(bytes){
+  const records = [];
+  for(
+    let i = 0;
+    i + 6 <= bytes.length;
+    i += 6
+  ){
+    const date =
+      tk5TimestampToDate(
+        bytes[i],
+        bytes[i+1],
+        bytes[i+2],
+        bytes[i+3]
+      );
+    records.push({
+      time:
+        date.toISOString(),
+      hr:
+        bytes[i+5]
+    });
+  }
+  return records;
+}
+/* =========================================================
+   历史血压解码
+   已用真实抓包确认（与同时段历史心率交叉比对吻合）：
+   每条记录 8 字节
+   [ts_lo:u16][ts_hi:u16][flag:u8]
+   [systolic:u8][diastolic:u8][heartRate:u8]
+========================================================= */
+function decodeBPHistory(bytes){
+  const records = [];
+  for(
+    let i = 0;
+    i + 8 <= bytes.length;
+    i += 8
+  ){
+    const date =
+      tk5TimestampToDate(
+        bytes[i],
+        bytes[i+1],
+        bytes[i+2],
+        bytes[i+3]
+      );
+    records.push({
+      time:
+        date.toISOString(),
+      flag:
+        bytes[i+4],
+      systolic:
+        bytes[i+5],
+      diastolic:
+        bytes[i+6],
+      hr:
+        bytes[i+7]
+    });
+  }
+  return records;
 }
 /* =========================================================
    CRC16 / CCITT-FALSE
@@ -1228,6 +1327,18 @@ function parseYCBT(
     case 0x0526:
     case 0x0530:
     case 0x0534:
+      /*
+       * 累积到当前历史查询的缓冲区，
+       * terminal(0580) 到达后统一解码。
+       */
+      if(
+        currentHistoryFrameType ===
+          null
+      ){
+        currentHistoryFrameType =
+          type;
+      }
+      historyChunks.push(p);
       addRecord(
         "history-" +
         type
@@ -1247,19 +1358,86 @@ function parseYCBT(
         "HISTORY TERMINAL 0580"
       );
       /*
-       * 协议要求：
-       * 05 80 {00} ACK
-       *
-       * 如果 payload 有数据，
-       * 原样记录。
+       * terminal payload:
+       * [num_records:u16]
+       * [total_bytes:u16]
+       * [crc16:u16]
+       * （已用真实抓包确认）
        */
-      addRecord(
-        "history-terminal",
-        {
+      {
+        let summary = {
           raw:
             hex(p)
+        };
+        if(
+          p.length >= 6
+        ){
+          summary.numRecords =
+            p[0] |
+            (p[1] << 8);
+          summary.totalBytes =
+            p[2] |
+            (p[3] << 8);
         }
-      );
+        const fullBuffer =
+          historyChunks
+            .reduce(
+              concatUint8,
+              new Uint8Array()
+            );
+        if(
+          currentHistoryFrameType ===
+            0x0515
+        ){
+          summary.decoded =
+            decodeHRHistory(
+              fullBuffer
+            );
+          addRecord(
+            "history-hr-decoded",
+            summary
+          );
+        }else if(
+          currentHistoryFrameType ===
+            0x0517
+        ){
+          summary.decoded =
+            decodeBPHistory(
+              fullBuffer
+            );
+          addRecord(
+            "history-bp-decoded",
+            summary
+          );
+        }else{
+          addRecord(
+            "history-terminal",
+            summary
+          );
+        }
+      }
+      /*
+       * 真正的解锁时机：
+       * 收到 terminal 才解锁，
+       * 而不是固定 1.5s 定时器，
+       * 避免和下一次历史查询打架。
+       */
+      if(
+        historyUnlockTimer
+      ){
+        clearTimeout(
+          historyUnlockTimer
+        );
+        historyUnlockTimer =
+          null;
+      }
+      historyQueryRunning =
+        false;
+      currentHistoryKey =
+        null;
+      currentHistoryFrameType =
+        null;
+      historyChunks = [];
       break;
     default:
       /*
@@ -1566,38 +1744,58 @@ async function queryHistory(
   }
   historyQueryRunning =
     true;
-  try{
-    const key =
-      parseInt(
-        keyHex,
-        16
-      );
-    /*
-     * History query:
-     *
-     * 05 <key>
-     */
-    await sendYCBT(
-      0x0500 | key
+  currentHistoryKey =
+    keyHex;
+  currentHistoryFrameType =
+    null;
+  historyChunks = [];
+  const key =
+    parseInt(
+      keyHex,
+      16
     );
-    log(
-      "History query 05 " +
-      keyHex
-    );
-  }finally{
-    /*
-     * 不等待完整历史流。
-     * 戒指会通过 C1 notification
-     * 异步返回 header/data/terminal。
-     */
+  /*
+   * History query:
+   *
+   * 05 <key>
+   */
+  await sendYCBT(
+    0x0500 | key
+  );
+  log(
+    "History query 05 " +
+    keyHex
+  );
+  /*
+   * 安全兜底：
+   * 正常情况下由 0x0580 terminal
+   * 负责解锁。
+   * 如果戒指对这个 key 根本不回应
+   * （例如不支持的历史类型），
+   * 10 秒后强制解锁，
+   * 避免卡死后续查询。
+   */
+  historyUnlockTimer =
     setTimeout(
       () => {
-        historyQueryRunning =
-          false;
+        if(
+          historyQueryRunning
+        ){
+          log(
+            "WARN 历史查询超时未收到 terminal，强制解锁 key=" +
+            currentHistoryKey
+          );
+          historyQueryRunning =
+            false;
+          currentHistoryKey =
+            null;
+          currentHistoryFrameType =
+            null;
+          historyChunks = [];
+        }
       },
-      1500
+      10000
     );
-  }
 }
 /* =========================================================
    Export
