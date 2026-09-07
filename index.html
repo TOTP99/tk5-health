@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>TK5 Health</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: #f5f5f7;
+      color: #111;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    }
+    .card {
+      max-width: 520px;
+      margin: 20px auto;
+      padding: 24px;
+      background: white;
+      border-radius: 22px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    h1 {
+      margin: 0 0 20px;
+      font-size: 30px;
+    }
+    .status {
+      padding: 14px;
+      margin-bottom: 20px;
+      border-radius: 14px;
+      background: #f0f0f2;
+      line-height: 1.5;
+    }
+    button {
+      width: 100%;
+      padding: 16px;
+      border: 0;
+      border-radius: 14px;
+      background: #111;
+      color: white;
+      font-size: 17px;
+      font-weight: 600;
+    }
+    button:active {
+      opacity: 0.7;
+    }
+    .hr {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 72px;
+      line-height: 1;
+      font-weight: 700;
+    }
+    .unit {
+      margin-top: 10px;
+      text-align: center;
+      color: #666;
+    }
+    .device {
+      margin-top: 24px;
+      padding: 14px;
+      border-radius: 14px;
+      background: #f7f7f8;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .note {
+      margin-top: 20px;
+      color: #777;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+  <h1>TK5 Health</h1>
+  <div class="status" id="status">
+    未连接
+  </div>
+  <button id="connect">
+    连接 TK5 52F5
+  </button>
+  <div class="hr" id="hr">
+    --
+  </div>
+  <div class="unit">
+    BPM · 实时心率
+  </div>
+  <div class="device">
+    <div>设备：<span id="deviceName">--</span></div>
+    <div>状态：<span id="deviceState">未连接</span></div>
+  </div>
+  <div class="note">
+    第一版测试标准 BLE 心率服务。<br>
+    连接后自动监听 Heart Rate Measurement (2A37)。
+    <br><br>
+    后续版本再加入 TK5 的 SpO₂、步数、电量、血压、睡眠等数据。
+  </div>
+</div>
+<script>
+  // -----------------------------
+  // TK5 标准 BLE Heart Rate
+  // -----------------------------
+  const HEART_RATE_SERVICE = "heart_rate";
+  const HEART_RATE_CHARACTERISTIC = "heart_rate_measurement";
+  let device = null;
+  let heartRateCharacteristic = null;
+  // 更新状态
+  function setStatus(text) {
+    document.getElementById("status").textContent = text;
+  }
+  // 解析 BLE Heart Rate Measurement 2A37
+  function parseHeartRate(value) {
+    if (!value || value.byteLength < 2) {
+      return;
+    }
+    const flags = value.getUint8(0);
+    // bit 0:
+    // 0 = UINT8
+    // 1 = UINT16
+    const is16Bit = (flags & 0x01) !== 0;
+    let heartRate;
+    if (is16Bit) {
+      if (value.byteLength < 3) {
+        return;
+      }
+      heartRate = value.getUint16(1, true);
+    } else {
+      heartRate = value.getUint8(1);
+    }
+    document.getElementById("hr").textContent = heartRate;
+  }
+  // BLE 数据变化
+  function handleHeartRate(event) {
+    try {
+      const value = event.target.value;
+      parseHeartRate(value);
+    } catch (error) {
+      console.error("Heart rate parse error:", error);
+    }
+  }
+  // 设备断开
+  function handleDisconnect() {
+    setStatus("设备已断开");
+    document.getElementById("deviceState").textContent = "已断开";
+    document.getElementById("hr").textContent = "--";
+  }
+  // 连接 TK5
+  async function connectTK5() {
+    try {
+      // 检查 Web Bluetooth
+      if (!navigator.bluetooth) {
+        setStatus(
+          "当前浏览器不支持 Web Bluetooth，请使用 Bluefy 打开本网页。"
+        );
+        return;
+      }
+      setStatus("正在搜索 TK5...");
+      document.getElementById("deviceState").textContent =
+        "搜索中";
+      // 搜索设备
+      device = await navigator.bluetooth.requestDevice({
+        filters: [
+          {
+            namePrefix: "TK5"
+          }
+        ],
+        optionalServices: [
+          HEART_RATE_SERVICE
+        ]
+      });
+      // 检查设备名称
+      const name = device.name || "";
+      document.getElementById("deviceName").textContent =
+        name || "未知设备";
+      // 只接受 TK5
+      if (!name.toUpperCase().startsWith("TK5")) {
+        setStatus("找到的设备不是 TK5");
+        return;
+      }
+      setStatus(
+        "已找到 " + name + "，正在连接..."
+      );
+      document.getElementById("deviceState").textContent =
+        "连接中";
+      // 监听断开
+      device.addEventListener(
+        "gattserverdisconnected",
+        handleDisconnect
+      );
+      // 连接 GATT
+      const server = await device.gatt.connect();
+      setStatus("已连接，正在读取心率服务...");
+      // 获取 Heart Rate Service
+      const service =
+        await server.getPrimaryService(
+          HEART_RATE_SERVICE
+        );
+      // 获取 2A37
+      heartRateCharacteristic =
+        await service.getCharacteristic(
+          HEART_RATE_CHARACTERISTIC
+        );
+      // 监听数据
+      heartRateCharacteristic.addEventListener(
+        "characteristicvaluechanged",
+        handleHeartRate
+      );
+      // 开始通知
+      await heartRateCharacteristic.startNotifications();
+      setStatus(
+        "已连接 " + name + " · 正在接收心率"
+      );
+      document.getElementById("deviceState").textContent =
+        "正常";
+    } catch (error) {
+      console.error(error);
+      let message = error.message || String(error);
+      // 用户取消搜索
+      if (
+        message.toLowerCase().includes("cancel") ||
+        message.toLowerCase().includes("chooser")
+      ) {
+        setStatus("已取消连接");
+      } else {
+        setStatus(
+          "连接失败：" + message
+        );
+      }
+      document.getElementById("deviceState").textContent =
+        "连接失败";
+    }
+  }
+  // 点击连接
+  document
+    .getElementById("connect")
+    .addEventListener(
+      "click",
+      connectTK5
+    );
+  // 初始检查
+  if (!navigator.bluetooth) {
+    setStatus(
+      "请使用 Bluefy 打开本网页"
+    );
+  }
+</script>
+</body>
+</html>
