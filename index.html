@@ -124,7 +124,7 @@ button.danger{border-color:#7b4141;color:#ffdede}
   <div class="sub">
     YCBT 直连 · 无云端 · 无订阅
     <span class="badge">Web Bluetooth</span>
-    <span class="badge">v0.7.1</span>
+    <span class="badge">v0.7.2</span>
   </div>
   <div id="status" class="status">未连接</div>
   <div class="row">
@@ -510,27 +510,39 @@ function parseYCBT(type,p){
       }
       break;
     case 0x0603:{
-      if(currentMeasureMode===1 && p.length>=3){
-        // 血压独立显示
-        const sys=p[0], dia=p[1], hr=p[2];
-        $("bpValue").textContent=`${sys} / ${dia}`;
-        $("bpHr").textContent=`心率 ${hr} bpm`;
-        $("measureTip").textContent="血压测量中，请保持静止…";
-        addRecord("bp",{systolic:sys,diastolic:dia,hr});
-        log(`BP = ${sys}/${dia} HR=${hr}`);
-      } else if(currentMeasureMode===0x0a){
-        // HRV 独立显示
-        const val = p[3] ?? p[0] ?? 0;
-        $("hrvValue").textContent = val;
-        // 简单解释尝试（常见 RMSSD 范围参考）
-        let note = "原始值";
-        if(val>=20 && val<=50) note = "可能处于正常波动范围";
-        else if(val>50) note = "数值偏高（需更多样本确认）";
-        else if(val>0 && val<20) note = "数值偏低（需更多样本确认）";
-        $("hrvNote").textContent = note;
-        $("measureTip").textContent="HRV 测量中…";
-        addRecord("hrv",{value:val,raw:hex(p)});
-        log("HRV = "+val);
+      // 更稳健：根据数据包内容自动判断类型，不完全依赖 currentMeasureMode
+      if(p.length >= 3){
+        const b0 = p[0], b1 = p[1], b2 = p[2], b3 = p[3] || 0;
+
+        // 血压特征：前三字节都在合理生理范围（SYS 70-200, DIA 40-130, HR 40-200）
+        const looksLikeBP = b0 >= 70 && b0 <= 200 && b1 >= 40 && b1 <= 130 && b2 >= 40 && b2 <= 200;
+
+        // HRV 特征：前面多为 0，有效值在后面
+        const looksLikeHRV = (b0 === 0 && b1 === 0) || currentMeasureMode === 0x0a || currentMeasureMode === 10;
+
+        if(looksLikeBP || currentMeasureMode === 1){
+          const sys = b0, dia = b1, hr = b2;
+          $("bpValue").textContent = `${sys} / ${dia}`;
+          $("bpHr").textContent = `心率 ${hr} bpm`;
+          $("measureTip").textContent = "血压测量中，请保持静止…";
+          addRecord("bp", {systolic:sys, diastolic:dia, hr});
+          log(`BP = ${sys}/${dia} HR=${hr}`);
+        } else if(looksLikeHRV){
+          const val = b3 || b2 || b0 || 0;
+          $("hrvValue").textContent = val;
+          let note = "原始值";
+          if(val >= 20 && val <= 50) note = "可能处于正常波动范围";
+          else if(val > 50) note = "数值偏高（需更多样本确认）";
+          else if(val > 0 && val < 20) note = "数值偏低（需更多样本确认）";
+          $("hrvNote").textContent = note;
+          $("measureTip").textContent = "HRV 测量中…";
+          addRecord("hrv", {value:val, raw:hex(p)});
+          log("HRV = " + val);
+        } else {
+          // 兜底：把原始数据也显示出来，方便排查
+          $("measureTip").textContent = "收到数据: " + hex(p).slice(0, 24);
+          log("0603 raw = [" + hex(p) + "]");
+        }
       }
       break;
     }
@@ -725,7 +737,7 @@ $("csv").addEventListener("click",()=>downloadText("tk5-health.csv",makeCSV(),"t
 
 renderHistory();
 renderTrend();
-log("TK5 Health v0.7.1 loaded");
+log("TK5 Health v0.7.2 loaded");
 log("请使用 Bluefy（iOS）或 Chrome（Android）打开");
 </script>
 </body>
