@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>TK5 Health</title>
+<title>TK5 Smart Ring</title>
 <style>
 :root{--gold:#d6b56a;--cyan:#67d9df;--text:#edf5f7;--muted:#8ea3ad;--line:#715f35;--line2:#29404b}
 *{box-sizing:border-box}html{background:#050a0e}
 body{margin:0;min-height:100vh;background:radial-gradient(circle at 20% 0%,#183140 0%,#071018 40%,#050a0e 100%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:max(14px,env(safe-area-inset-top)) 12px max(28px,env(safe-area-inset-bottom))}
 main{max-width:720px;margin:0 auto}
 .card{border:1px solid var(--line);background:linear-gradient(145deg,rgba(17,30,41,.98),rgba(7,15,22,.98));border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 10px 28px rgba(0,0,0,.4)}
-h1{margin:0;font-size:22px}h1 span{color:var(--gold);font-size:14px;margin-left:6px}
+h1{margin:0;font-size:18px}h1 span{color:var(--gold);font-size:14px;margin-left:20px}
 .row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 
 .status{margin-top:10px;padding:8px 12px;border:1px solid var(--line2);border-radius:10px;color:var(--cyan);background:#07141c;font-size:13px;display:flex;align-items:center;gap:8px}
@@ -44,8 +44,10 @@ canvas{width:100%!important;height:100px!important;display:block}
 </head>
 <body>
 <main>
+<div id="page1">
 <div class="card">
-  <h1>TK5 Health <span>v1.3.1&nbsp;&nbsp;TP制作🐈</span></h1>
+  <h1>TK5 Smart Ring <span>TP制作🐈</span></h1>
+  <div style="text-align:center;color:var(--muted);font-size:12px;margin-top:4px">🔋 <span id="battery">--</span>%</div>
   <div class="row" style="margin-top:10px">
     <button id="btnConnect" class="p">连接</button>
     <button id="btnDisconnect">断开</button>
@@ -60,20 +62,16 @@ canvas{width:100%!important;height:100px!important;display:block}
     <div class="m" id="card-bp"><div class="l">🩺 血压</div><div id="bp" class="v">-- / --</div><div class="u" id="bpHr"></div><div class="m-progress" id="prog-bp"></div></div>
     <div class="m" id="card-hrv"><div class="l">📈 HRV</div><div id="hrv" class="v">--</div><div class="u"></div><div class="m-progress" id="prog-hrv"></div></div>
     <div class="m"><div class="l">👣 步数</div><div id="steps" class="v">--</div><div class="u">今日</div></div>
-    <div class="m"><div class="l">🔋 电量</div><div id="battery" class="v">--</div><div class="u">%</div></div>
+    <div class="m" id="card-sleep"><div class="l">😴 睡眠</div><div id="sleepMin" class="v">--</div><div class="u">时长</div></div>
   </div>
   <div class="row" style="margin-top:8px">
     <button id="btnBattery">刷新电量/步数</button>
+    <button id="btnCycleMode" class="c" style="margin-left:14px">监视</button>
+    <button id="btnNextPage" class="p">下一页</button>
   </div>
 </div>
 
-<div class="card">
-  <div class="chart-title"><span>📈 近期心率趋势 (BPM)</span><span id="chart-sub">暂无数据</span></div>
-  <div class="chart-box">
-    <canvas id="trendCanvas"></canvas>
-  </div>
-</div>
-
+<div id="panel-control" style="display:none">
 <div class="card">
   <div class="row">
     <button class="c" data-mode="0">测心率</button>
@@ -96,7 +94,9 @@ canvas{width:100%!important;height:100px!important;display:block}
     <button data-h="33">身体数据</button>
   </div>
 </div>
+</div>
 
+<div id="panel-data" style="display:none">
 <div class="card"><div id="history" class="hist"></div></div>
 
 <div class="card">
@@ -107,6 +107,42 @@ canvas{width:100%!important;height:100px!important;display:block}
     <button id="btnClearRec" class="d">清空记录</button>
   </div>
   <div id="log"></div>
+</div>
+</div>
+</div>
+
+<div id="page2" style="display:none">
+<div class="card">
+  <div class="chart-title"><span>📈 近期心率趋势 (BPM)</span><span id="chart-sub">暂无数据</span></div>
+  <div class="chart-box">
+    <canvas id="trendCanvas"></canvas>
+  </div>
+</div>
+
+<div class="card">
+  <div class="chart-title"><span>😴 近期睡眠质量（深睡占比%）</span><span id="sleep-chart-sub">暂无数据</span></div>
+  <div class="chart-box">
+    <canvas id="sleepCanvas"></canvas>
+  </div>
+</div>
+
+<div class="card">
+  <div class="chart-title"><span>🩺 近期血压分析</span><span id="bp-chart-sub">暂无数据</span></div>
+  <div class="chart-box">
+    <canvas id="bpCanvas"></canvas>
+    <div style="display:flex;gap:14px;margin-top:6px;font-size:11px;color:var(--muted)">
+      <span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#d6b56a;margin-right:4px"></i>收缩压</span>
+      <span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#67d9df;margin-right:4px"></i>舒张压</span>
+      <span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-right:4px"></i>超标</span>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="row">
+    <button id="btnPrevPage" style="flex:1">上一页</button>
+  </div>
+</div>
 </div>
 </main>
 
@@ -257,6 +293,8 @@ function add(type, data) {
   localStorage.setItem("tk5Records", JSON.stringify(records));
   renderHist();
   drawTrendChart();
+  drawSleepChart();
+  drawBPChart();
 }
 
 function decodeHR(bytes) {
@@ -281,6 +319,34 @@ function decodeAll(bytes) {
   return r;
 }
 
+// 睡眠历史帧 (0x0513) 结构（经实测比对校验）：
+// 头部20字节: [校验2][总长2][起始时间戳4][结束时间戳4][未知8]
+// 之后每8字节一段: [阶段标记1: 0xf1深睡/0xf2浅睡/0xf3REM][段起始时间戳4][时长秒数2 LE][占位1]
+function decodeSleep(bytes) {
+  if (bytes.length < 28) return null;
+  const start = ts(bytes[4], bytes[5], bytes[6], bytes[7]);
+  const end = ts(bytes[8], bytes[9], bytes[10], bytes[11]);
+  const segments = [];
+  let deepSec = 0, lightSec = 0, remSec = 0;
+  for (let i = 20; i + 8 <= bytes.length; i += 8) {
+    const type = bytes[i];
+    const segStart = ts(bytes[i+1], bytes[i+2], bytes[i+3], bytes[i+4]);
+    const durSec = bytes[i+5] | (bytes[i+6] << 8);
+    segments.push({ type, start: segStart, durSec });
+    if (type === 0xf1) deepSec += durSec;
+    else if (type === 0xf2) lightSec += durSec;
+    else if (type === 0xf3) remSec += durSec;
+  }
+  const totalSec = deepSec + lightSec + remSec;
+  return {
+    start: fmt(start), end: fmt(end),
+    deepMin: Math.round(deepSec / 60), lightMin: Math.round(lightSec / 60), remMin: Math.round(remSec / 60),
+    totalMin: Math.round(totalSec / 60),
+    score: totalSec ? Math.round((deepSec / totalSec) * 100) : 0,
+    segments
+  };
+}
+
 function renderHist() {
   const box = $("history");
   if (!box) return;
@@ -299,6 +365,9 @@ function renderHist() {
       cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>心率 <b>${rec.data}</b></div></div>`);
     } else if (rec.type === "hrv") {
       cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>HRV <b>${rec.data}</b></div></div>`);
+    } else if (rec.type === "sleep" && rec.data) {
+      const d = rec.data;
+      cards.push(`<div class="rc"><div class="t">😴 ${esc(d.start)} ~ ${esc(d.end)}（共${d.totalMin}分钟）</div><div>深睡 <b>${d.deepMin}</b>分 · 浅睡 <b>${d.lightMin}</b>分 · REM <b>${d.remMin}</b>分</div></div>`);
     } else if (rec.type === "raw") {
       const d = rec.data;
       cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} · ${esc(d.label)} · 帧0x${(d.frameType||0).toString(16).padStart(4,"0")} · ${d.bytes}字节</div><div style="font:11px/1.4 ui-monospace,Menlo,Consolas,monospace;word-break:break-all;color:var(--cyan)">${esc(d.hex)}</div></div>`);
@@ -383,6 +452,173 @@ function drawTrendChart() {
   });
 }
 
+function drawBPChart() {
+  const canvas = $("bpCanvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  const width = canvas.clientWidth || 300;
+  const height = 100;
+  const dpr = window.devicePixelRatio || 1;
+
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, width, height);
+
+  let points = [];
+  for (const rec of records) {
+    if (rec.type === "bp" && rec.data) points.push({ sys: rec.data.sys, dia: rec.data.dia });
+    else if (rec.type === "all" && rec.data) {
+      for (const x of rec.data) if (x.sys) points.push({ sys: x.sys, dia: x.dia });
+    }
+  }
+  points = points.reverse().slice(-20);
+
+  const sub = $("bp-chart-sub");
+  if (sub) sub.textContent = points.length ? `共 ${points.length} 个样本` : "暂无数据";
+
+  if (points.length < 2) {
+    ctx.fillStyle = "#8ea3ad";
+    ctx.font = "12px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("数据较少，多测几次即可生成血压分析图", width / 2, height / 2 + 4);
+    return;
+  }
+
+  const SYS_LINE = 120, DIA_LINE = 80;
+  const min = 40, max = 180;
+  const stepX = width / (points.length - 1);
+  const yOf = v => height - ((v - min) / (max - min)) * (height - 20) - 10;
+
+  ctx.save();
+  ctx.setLineDash([4, 4]);
+  ctx.lineWidth = 1;
+
+  ctx.strokeStyle = "rgba(214,181,106,0.6)";
+  ctx.beginPath();
+  ctx.moveTo(0, yOf(SYS_LINE));
+  ctx.lineTo(width, yOf(SYS_LINE));
+  ctx.stroke();
+  ctx.fillStyle = "rgba(214,181,106,0.9)";
+  ctx.font = "9px sans-serif";
+  ctx.textAlign = "left";
+  ctx.setLineDash([]);
+  ctx.fillText("120", 2, yOf(SYS_LINE) - 2);
+
+  ctx.setLineDash([4, 4]);
+  ctx.strokeStyle = "rgba(103,217,223,0.6)";
+  ctx.beginPath();
+  ctx.moveTo(0, yOf(DIA_LINE));
+  ctx.lineTo(width, yOf(DIA_LINE));
+  ctx.stroke();
+  ctx.fillStyle = "rgba(103,217,223,0.9)";
+  ctx.setLineDash([]);
+  ctx.fillText("80", 2, yOf(DIA_LINE) - 2);
+  ctx.restore();
+
+  const drawLine = (key, color) => {
+    ctx.beginPath();
+    points.forEach((pt, i) => {
+      const x = i * stepX;
+      const y = yOf(pt[key]);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  };
+  drawLine("sys", "#d6b56a");
+  drawLine("dia", "#67d9df");
+
+  const drawDots = (key, normalColor, limit) => {
+    points.forEach((pt, i) => {
+      const x = i * stepX;
+      const val = pt[key];
+      const y = yOf(val);
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = val > limit ? "#ef4444" : normalColor;
+      ctx.fill();
+    });
+  };
+  drawDots("sys", "#d6b56a", SYS_LINE);
+  drawDots("dia", "#67d9df", DIA_LINE);
+}
+
+function drawSleepChart() {
+  const canvas = $("sleepCanvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  const width = canvas.clientWidth || 300;
+  const height = 100;
+  const dpr = window.devicePixelRatio || 1;
+
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, width, height);
+
+  let points = [];
+  for (const rec of records) {
+    if (rec.type === "sleep" && typeof rec.data.score === "number") points.push(rec.data.score);
+  }
+  points = points.reverse().slice(-20);
+
+  const sub = $("sleep-chart-sub");
+  if (sub) sub.textContent = points.length ? `共 ${points.length} 个样本` : "暂无数据";
+
+  if (points.length < 2) {
+    ctx.fillStyle = "#8ea3ad";
+    ctx.font = "12px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("同步睡眠历史后生成睡眠质量趋势图", width / 2, height / 2 + 4);
+    return;
+  }
+
+  const min = Math.min(...points) - 5;
+  const max = Math.max(...points) + 5;
+  const stepX = width / (points.length - 1);
+
+  const grad = ctx.createLinearGradient(0, 0, 0, height);
+  grad.addColorStop(0, "rgba(214, 181, 106, 0.25)");
+  grad.addColorStop(1, "rgba(214, 181, 106, 0.0)");
+
+  ctx.beginPath();
+  points.forEach((val, i) => {
+    const x = i * stepX;
+    const y = height - ((val - min) / (max - min || 1)) * (height - 20) - 10;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.lineTo(width, height);
+  ctx.lineTo(0, height);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  ctx.beginPath();
+  points.forEach((val, i) => {
+    const x = i * stepX;
+    const y = height - ((val - min) / (max - min || 1)) * (height - 20) - 10;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = "#d6b56a";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  points.forEach((val, i) => {
+    const x = i * stepX;
+    const y = height - ((val - min) / (max - min || 1)) * (height - 20) - 10;
+    ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = "#67d9df";
+    ctx.fill();
+  });
+}
+
 function handle(type, p) {
   if (histBusy && type !== 0x0580 && type !== histEchoType && !REALTIME_TYPES.has(type)) {
     if (histType === null) histType = type;
@@ -434,6 +670,14 @@ function handle(type, p) {
       if (histReqKey === "06") add("hrHist", decodeHR(buf));
       else if (histReqKey === "08") add("bpHist", decodeBP(buf));
       else if (histReqKey === "09") add("all", decodeAll(buf));
+      else if (histReqKey === "04") {
+        const sleepData = decodeSleep(buf);
+        if (sleepData) {
+          add("sleep", sleepData);
+          const el = $("sleepMin");
+          if (el) el.textContent = `${Math.floor(sleepData.totalMin/60)}h${sleepData.totalMin%60}m`;
+        } else if (buf.length > 0) add("raw", { key: histReqKey, label: HIST_LABELS[histReqKey] || histReqKey, frameType: histType, hex: hex(buf), bytes: buf.length });
+      }
       else if (buf.length > 0) {
         add("raw", { key: histReqKey, label: HIST_LABELS[histReqKey] || histReqKey, frameType: histType, hex: hex(buf), bytes: buf.length });
       }
@@ -616,7 +860,9 @@ document.querySelectorAll("[data-h]").forEach(b => b.onclick = () => hist(b.data
 $("btnCopy").onclick = async () => { try { await navigator.clipboard.writeText(logs.join("\n")); } catch(e){} };
 $("btnClearLog").onclick = () => { logs = []; $("log").textContent = ""; };
 $("btnClearRec").onclick = () => {
-  if (confirm("清空本地记录？")) { records = []; localStorage.removeItem("tk5Records"); renderHist(); drawTrendChart(); }
+  if (confirm("清空本地记录？")) { records = []; localStorage.removeItem("tk5Records"); renderHist(); drawTrendChart();
+  drawSleepChart();
+  drawBPChart(); }
 };
 $("btnJson").onclick = () => {
   const a = document.createElement("a");
@@ -626,6 +872,33 @@ $("btnJson").onclick = () => {
 
 renderHist();
 drawTrendChart();
+  drawSleepChart();
+  drawBPChart();
+
+const MODES = ["监视", "控制", "数据"];
+let panelMode = "监视";
+function updatePanels() {
+  $("panel-control").style.display = panelMode === "控制" ? "" : "none";
+  $("panel-data").style.display = panelMode === "数据" ? "" : "none";
+  $("btnCycleMode").textContent = panelMode;
+}
+$("btnCycleMode").onclick = () => {
+  panelMode = MODES[(MODES.indexOf(panelMode) + 1) % MODES.length];
+  updatePanels();
+};
+updatePanels();
+
+$("btnNextPage").onclick = () => {
+  $("page1").style.display = "none";
+  $("page2").style.display = "";
+  drawTrendChart();
+  drawSleepChart();
+  drawBPChart();
+};
+$("btnPrevPage").onclick = () => {
+  $("page2").style.display = "none";
+  $("page1").style.display = "";
+};
 </script>
 </body>
 </html>
