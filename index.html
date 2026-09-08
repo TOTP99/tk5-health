@@ -394,6 +394,8 @@ function renderHist() {
       cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>心率 <b>${rec.data}</b></div></div>`);
     } else if (rec.type === "hrv") {
       cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>HRV <b>${rec.data}</b></div></div>`);
+    } else if (rec.type === "steps") {
+      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>步数 <b>${rec.data}</b></div></div>`);
     } else if (rec.type === "sleep" && rec.data) {
       const d = rec.data;
       cards.push(`<div class="rc"><div class="t">😴 ${esc(d.start)} ~ ${esc(d.end)}（共${d.totalMin}分钟）</div><div>深睡 <b>${d.deepMin}</b>分 · 浅睡 <b>${d.lightMin}</b>分 · REM <b>${d.remMin}</b>分</div></div>`);
@@ -647,9 +649,20 @@ function handle(type, p) {
         $("battery").textContent = p[0];
       }
       break;
-    case 0x020c:
-      if (p.length >= 2) $("steps").textContent = p[0] | (p[1] << 8);
+    case 0x020c: {
+      if (p.length >= 2) {
+        const steps = p[0] | (p[1] << 8);
+        $("steps").textContent = steps;
+
+        // 步数变化也要落入本地 records，否则刷新页面/导出JSON后只剩当前显示值。
+        // 仅在数值发生变化时记录，避免每次刷新都产生重复记录。
+        const lastStepRec = records.find(r => r.type === "steps");
+        if (!lastStepRec || lastStepRec.data !== steps) {
+          add("steps", steps);
+        }
+      }
       break;
+    }
     case 0x0601:
       if (p[0] > 0 && p[0] < 250) {
         $("hr").textContent = p[0];
