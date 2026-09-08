@@ -17,7 +17,8 @@ h1{margin:0;font-size:22px}h1 span{color:var(--gold);font-size:14px;margin-left:
 .m{border:1px solid #35505b;border-radius:12px;padding:12px;background:linear-gradient(145deg,#142733,#0a151d);min-height:86px}
 .m .l{font-size:12px;color:var(--muted)}.m .v{font-size:24px;font-weight:700;margin:6px 0 2px;line-height:1.1}.m .u{font-size:11px;color:var(--muted)}
 button{border:1px solid #8b7440;border-radius:10px;padding:10px 14px;background:linear-gradient(145deg,#172933,#101d25);color:var(--text);font-size:13px}
-button:active{filter:brightness(1.1)}button:disabled{opacity:.4;pointer-events:none}
+button:active{border-color:#e33;box-shadow:0 0 0 1px #e33;filter:brightness(1.12)}
+button:disabled{opacity:.4;pointer-events:none}
 button.p{background:linear-gradient(135deg,#806a39,#4f4327);color:#fff}
 button.c{border-color:#438d91;background:linear-gradient(135deg,#153b41,#10282e)}
 button.d{border-color:#7b4141;color:#ffdede}
@@ -264,16 +265,26 @@ function handle(type, p) {
       }
       break;
     case 0x0603:
-      if (measureMode === 1 && p.length >= 3) {
+      // 血压与 HRV 共用 0x0603：按帧内容区分，不再依赖 measureMode（避免抢跑后丢数据）
+      // 血压：前 3 字节非零（sys/dia/hr）
+      // HRV：前 3 字节为 0，第 4 字节非零
+      if (p.length >= 3 && p[0] > 0 && p[1] > 0) {
         $("bp").textContent = `${p[0]} / ${p[1]}`;
         $("bpHr").textContent = "HR " + p[2];
         add("bp", { sys: p[0], dia: p[1], hr: p[2] });
         log(`BP ${p[0]}/${p[1]} HR${p[2]}`);
-      } else if (measureMode === 10 || measureMode === 0x0a) {
-        const v = p[3] || p[0] || 0;
+      } else if (p.length >= 4 && p[0] === 0 && p[1] === 0 && p[2] === 0 && p[3] > 0) {
+        const v = p[3];
         $("hrv").textContent = v;
         add("hrv", v);
         log("HRV " + v);
+      } else if (p.length >= 1) {
+        const v = p[3] || p[0] || 0;
+        if (v > 0) {
+          $("hrv").textContent = v;
+          add("hrv", v);
+          log("HRV(fallback) " + v);
+        }
       }
       break;
     case 0x040e:
@@ -363,10 +374,10 @@ async function connect() {
     (async () => {
       await sleep(500);
       await hist("09");
-      await measureAndWait(1, 1, 12000);      // 血压，完成信号 0x040e[01]
-      await measureAndWait(0, null, 6000);    // 心率，设备没有专门的完成信号，固定等6秒
-      await measureAndWait(2, 2, 10000);      // 血氧，完成信号 0x040e[02]
-      await measureAndWait(10, 0x0a, 10000);  // HRV，完成信号 0x040e[0x0a]
+      await measureAndWait(1, 1, 27000);      // 血压，完成信号 0x040e[01]，实测 ~16-17s
+      await measureAndWait(0, null, 20000);   // 心率，无专门完成信号，首条读数常需 9s+
+      await measureAndWait(2, 2, 20000);      // 血氧，完成信号 0x040e[02]
+      await measureAndWait(10, 0x0a, 27000);  // HRV，完成信号 0x040e[0x0a]，实测 ~17s
       // 睡眠(0x04)解码破解后，可在此处加一行 await hist("04")，睡眠数据就会自动一起出现
       log("自动测量流程完成");
     })();
