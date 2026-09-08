@@ -601,9 +601,26 @@ function drawBPChart() {
   drawDots("dia", "#67d9df", DIA_LINE);
 }
 
-// 统一刷新：历史列表 + 三个图表（连接/清空/翻页/新数据到达时调用）
+// 从本地记录中取最新一条睡眠数据，更新顶部与卡片显示
+function updateSleepDisplay() {
+  for (const rec of records) {
+    if (rec.type === "sleep" && rec.data && typeof rec.data.totalMin === "number") {
+      const d = rec.data;
+      const label = `${Math.floor(d.totalMin / 60)}h${d.totalMin % 60}m`;
+      if ($("sleepMin")) $("sleepMin").textContent = label;
+      if ($("sleepTop")) $("sleepTop").textContent = label;
+      return;
+    }
+  }
+  // 没有睡眠记录时保持默认
+  if ($("sleepMin")) $("sleepMin").textContent = "--";
+  if ($("sleepTop")) $("sleepTop").textContent = "--";
+}
+
+// 统一刷新：历史列表 + 三个图表 + 睡眠摘要（连接/清空/翻页/新数据到达时调用）
 function refreshAll() {
   renderHist();
+  updateSleepDisplay();
   drawTrendChart();
   drawSleepChart();
   drawBPChart();
@@ -742,6 +759,21 @@ async function connect() {
       setStatus("正在测量 HRV...");
       await measureAndWait(10, 0x0a, 30000, "hrv");
       isMeasuring = false;
+      setStatus("四项测量完成，1分钟后自动同步步数与睡眠…", "connected");
+
+      // 等待 1 分钟后再同步步数和睡眠历史（给设备内部数据落盘/稳定时间）
+      await sleep(60000);
+      if (!c1 || !device?.gatt?.connected) return;
+
+      setStatus("正在刷新步数与电量…");
+      await send(0x0201, [0x47, 0x46]);
+      await send(0x0200);
+      await send(0x020c);
+      await sleep(800);
+
+      setStatus("正在同步睡眠历史…");
+      await hist("04");
+
       setStatus("已连接 · " + (device?.name || "TK5") + " (自动流程完成)", "connected");
     })();
   } catch (e) {
