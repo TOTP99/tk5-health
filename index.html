@@ -47,6 +47,9 @@ button.d{border-color:#7b4141;color:#ffdede}
     <div class="m"><div class="l">👣 步数</div><div id="steps" class="v">--</div><div class="u">今日</div></div>
     <div class="m"><div class="l">🔋 电量</div><div id="battery" class="v">--</div><div class="u">%</div></div>
   </div>
+  <div class="row" style="margin-top:8px">
+    <button id="btnBattery">刷新电量/步数</button>
+  </div>
 </div>
 
 <div class="card">
@@ -61,6 +64,14 @@ button.d{border-color:#7b4141;color:#ffdede}
     <button data-h="09">同步全部</button>
     <button data-h="08">血压历史</button>
     <button data-h="06">心率历史</button>
+    <button data-h="04">睡眠历史</button>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <button data-h="02">步数历史</button>
+    <button data-h="1a">血氧历史</button>
+    <button data-h="1e">体温历史</button>
+    <button data-h="2f">综合(旧)</button>
+    <button data-h="33">身体数据</button>
   </div>
 </div>
 
@@ -88,8 +99,13 @@ const EPOCH = 946684800;
 let device = null, c1 = null, c3 = null;
 let c1Buf = new Uint8Array(), c3Buf = new Uint8Array();
 let logs = [], records = JSON.parse(localStorage.getItem("tk5Records") || "[]");
-let histBusy = false, histTimer = null, histType = null, histChunks = [];
+let histBusy = false, histTimer = null, histType = null, histChunks = [], histReqKey = null, histEchoType = null;
 let measureMode = -1;
+const REALTIME_TYPES = new Set([0x0600, 0x0601, 0x0602, 0x0603, 0x040e, 0x0200, 0x020c, 0x0203]);
+const HIST_LABELS = {
+  "04": "睡眠历史(原始)", "02": "步数历史(原始)", "1a": "血氧历史(原始)",
+  "1e": "体温历史(原始)", "2f": "综合(旧,0x2f原始)", "33": "身体数据(原始)"
+};
 
 const $ = id => document.getElementById(id);
 
@@ -208,6 +224,9 @@ function renderHist() {
       cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>心率 <b>${rec.data}</b></div></div>`);
     } else if (rec.type === "hrv") {
       cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>HRV <b>${rec.data}</b></div></div>`);
+    } else if (rec.type === "raw") {
+      const d = rec.data;
+      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} · ${esc(d.label)} · 帧0x${(d.frameType||0).toString(16).padStart(4,"0")} · ${d.bytes}字节</div><div style="font:11px/1.4 ui-monospace,Menlo,Consolas,monospace;word-break:break-all;color:var(--cyan)">${esc(d.hex)}</div></div>`);
     }
     if (cards.length >= 40) break;
   }
@@ -215,6 +234,11 @@ function renderHist() {
 }
 
 function handle(type, p) {
+  if (histBusy && type !== 0x0580 && type !== histEchoType && !REALTIME_TYPES.has(type)) {
+    if (histType === null) histType = type;
+    histChunks.push(p);
+    return;
+  }
   switch (type) {
     case 0x0200:
       if (p.length > 5 && p[5] >= 0 && p[5] <= 100) $("battery").textContent = p[5];
@@ -256,27 +280,29 @@ function handle(type, p) {
       if (p[0] === 2) log("血氧完成");
       if (p[0] === 0x0a) log("HRV完成");
       break;
-    case 0x0515: case 0x0517: case 0x0518:
-      if (histType === null) histType = type;
-      histChunks.push(p);
-      break;
     case 0x0580: {
       const buf = histChunks.reduce(cat, new Uint8Array());
-      if (histType === 0x0515) {
+      if (histReqKey === "06") {
         const d = decodeHR(buf);
         add("hrHist", d);
         log("心率历史 " + d.length);
-      } else if (histType === 0x0517) {
+      } else if (histReqKey === "08") {
         const d = decodeBP(buf);
         add("bpHist", d);
         log("血压历史 " + d.length);
-      } else if (histType === 0x0518) {
+      } else if (histReqKey === "09") {
         const d = decodeAll(buf);
         add("all", d);
         log("综合历史 " + d.length);
+      } else if (buf.length > 0) {
+        const label = HIST_LABELS[histReqKey] || `未知历史(key ${histReqKey})`;
+        add("raw", { key: histReqKey, label, frameType: histType, hex: hex(buf), bytes: buf.length });
+        log(`${label} 帧类型0x${(histType||0).toString(16).padStart(4,"0")} ${buf.length}字节 [${hex(buf)}]`);
+      } else {
+        log((HIST_LABELS[histReqKey] || histReqKey) + " 无数据返回");
       }
       clearTimeout(histTimer);
-      histBusy = false; histType = null; histChunks = [];
+      histBusy = false; histType = null; histChunks = []; histReqKey = null; histEchoType = null;
       document.querySelectorAll("[data-h]").forEach(b => b.disabled = false);
       status("已连接 · " + (device?.name || "TK5"));
       break;
@@ -356,21 +382,25 @@ async function hist(key) {
   histBusy = true;
   histType = null;
   histChunks = [];
+  histReqKey = key;
+  histEchoType = 0x0500 | parseInt(key, 16);
   document.querySelectorAll("[data-h]").forEach(b => b.disabled = true);
   status("同步中…");
-  await send(0x0500 | parseInt(key, 16));
+  await send(histEchoType);
   histTimer = setTimeout(() => {
     if (histBusy) {
-      histBusy = false; histType = null; histChunks = [];
+      const label = HIST_LABELS[histReqKey] || histReqKey;
+      log((label || "历史") + " 超时(设备无回应)");
+      histBusy = false; histType = null; histChunks = []; histReqKey = null; histEchoType = null;
       document.querySelectorAll("[data-h]").forEach(b => b.disabled = false);
       status("已连接 · " + (device?.name || "TK5"));
-      log("历史超时");
     }
   }, 12000);
 }
 
 $("btnConnect").onclick = connect;
 $("btnDisconnect").onclick = disconnect;
+$("btnBattery").onclick = () => { send(0x0200); send(0x020c); };
 document.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => measure(+b.dataset.mode));
 document.querySelectorAll("[data-h]").forEach(b => b.onclick = () => hist(b.dataset.h));
 $("btnCopy").onclick = async () => { try { await navigator.clipboard.writeText(logs.join("\n")); log("已复制"); } catch(e){} };
