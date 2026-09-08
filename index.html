@@ -99,8 +99,9 @@ const EPOCH = 946684800;
 let device = null, c1 = null, c3 = null;
 let c1Buf = new Uint8Array(), c3Buf = new Uint8Array();
 let logs = [], records = JSON.parse(localStorage.getItem("tk5Records") || "[]");
-let histBusy = false, histTimer = null, histType = null, histChunks = [], histReqKey = null, histEchoType = null;
-let measureMode = -1;
+let histBusy = false, histTimer = null, histType = null, histChunks = [], histReqKey = null, histEchoType = null, histResolve = null;
+let measureMode = -1, measureResolve = null, measureExpectCode = null;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 const REALTIME_TYPES = new Set([0x0600, 0x0601, 0x0602, 0x0603, 0x040e, 0x0200, 0x020c, 0x0203]);
 const HIST_LABELS = {
   "04": "睡眠历史(原始)", "02": "步数历史(原始)", "1a": "血氧历史(原始)",
@@ -279,6 +280,10 @@ function handle(type, p) {
       if (p[0] === 1) log("血压完成");
       if (p[0] === 2) log("血氧完成");
       if (p[0] === 0x0a) log("HRV完成");
+      if (measureResolve && p[0] === measureExpectCode) {
+        const r = measureResolve; measureResolve = null; measureExpectCode = null;
+        r();
+      }
       break;
     case 0x0580: {
       const buf = histChunks.reduce(cat, new Uint8Array());
@@ -305,6 +310,7 @@ function handle(type, p) {
       histBusy = false; histType = null; histChunks = []; histReqKey = null; histEchoType = null;
       document.querySelectorAll("[data-h]").forEach(b => b.disabled = false);
       status("已连接 · " + (device?.name || "TK5"));
+      if (histResolve) { const r = histResolve; histResolve = null; r(); }
       break;
     }
   }
@@ -352,10 +358,18 @@ async function connect() {
     await send(0x0309, [0x01, 0x00, 0x02, 0xa0]);
     log("初始化完成");
 
-    // 自动同步全部 + 自动测血氧 + 自动测血压
-    setTimeout(() => hist("09"), 500);
-    setTimeout(() => measure(2), 2000);
-    setTimeout(() => measure(1), 9000);
+    // 自动流程：严格按顺序执行，每一步等上一步真正结束(收到完成信号或超时)才发下一条指令，避免指令冲突
+    // 步数已经通过上面的 0x020c 立即显示，这里依次做：同步历史 → 血压 → 心率 → 血氧 → HRV
+    (async () => {
+      await sleep(500);
+      await hist("09");
+      await measureAndWait(1, 1, 12000);      // 血压，完成信号 0x040e[01]
+      await measureAndWait(0, null, 6000);    // 心率，设备没有专门的完成信号，固定等6秒
+      await measureAndWait(2, 2, 10000);      // 血氧，完成信号 0x040e[02]
+      await measureAndWait(10, 0x0a, 10000);  // HRV，完成信号 0x040e[0x0a]
+      // 睡眠(0x04)解码破解后，可在此处加一行 await hist("04")，睡眠数据就会自动一起出现
+      log("自动测量流程完成");
+    })();
   } catch (e) {
     status("失败: " + e.message);
     log("ERR " + e.message);
@@ -377,25 +391,42 @@ async function measure(mode) {
   log("测 mode=" + mode);
 }
 
-async function hist(key) {
-  if (!c1 || histBusy) return;
-  histBusy = true;
-  histType = null;
-  histChunks = [];
-  histReqKey = key;
-  histEchoType = 0x0500 | parseInt(key, 16);
-  document.querySelectorAll("[data-h]").forEach(b => b.disabled = true);
-  status("同步中…");
-  await send(histEchoType);
-  histTimer = setTimeout(() => {
-    if (histBusy) {
-      const label = HIST_LABELS[histReqKey] || histReqKey;
-      log((label || "历史") + " 超时(设备无回应)");
-      histBusy = false; histType = null; histChunks = []; histReqKey = null; histEchoType = null;
-      document.querySelectorAll("[data-h]").forEach(b => b.disabled = false);
-      status("已连接 · " + (device?.name || "TK5"));
-    }
-  }, 12000);
+async function measureAndWait(mode, expectCode, timeoutMs) {
+  await measure(mode);
+  if (expectCode === null) {
+    await sleep(timeoutMs);
+    return;
+  }
+  await Promise.race([
+    new Promise(resolve => { measureExpectCode = expectCode; measureResolve = resolve; }),
+    sleep(timeoutMs)
+  ]);
+  measureResolve = null; measureExpectCode = null;
+}
+
+function hist(key) {
+  return new Promise(async (resolve) => {
+    if (!c1 || histBusy) { resolve(); return; }
+    histBusy = true;
+    histType = null;
+    histChunks = [];
+    histReqKey = key;
+    histEchoType = 0x0500 | parseInt(key, 16);
+    histResolve = resolve;
+    document.querySelectorAll("[data-h]").forEach(b => b.disabled = true);
+    status("同步中…");
+    await send(histEchoType);
+    histTimer = setTimeout(() => {
+      if (histBusy) {
+        const label = HIST_LABELS[histReqKey] || histReqKey;
+        log((label || "历史") + " 超时(设备无回应)");
+        histBusy = false; histType = null; histChunks = []; histReqKey = null; histEchoType = null;
+        document.querySelectorAll("[data-h]").forEach(b => b.disabled = false);
+        status("已连接 · " + (device?.name || "TK5"));
+        if (histResolve) { const r = histResolve; histResolve = null; r(); }
+      }
+    }, 12000);
+  });
 }
 
 $("btnConnect").onclick = connect;
