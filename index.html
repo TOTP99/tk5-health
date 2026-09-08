@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>TK5 Health</title>
+<style>
+:root{--gold:#d6b56a;--cyan:#67d9df;--text:#edf5f7;--muted:#8ea3ad;--line:#715f35;--line2:#29404b}
+*{box-sizing:border-box}html{background:#050a0e}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 20% 0%,#183140 0%,#071018 40%,#050a0e 100%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:max(14px,env(safe-area-inset-top)) 12px max(28px,env(safe-area-inset-bottom))}
+main{max-width:720px;margin:0 auto}
+.card{border:1px solid var(--line);background:linear-gradient(145deg,rgba(17,30,41,.98),rgba(7,15,22,.98));border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 10px 28px rgba(0,0,0,.4)}
+h1{margin:0;font-size:22px}h1 span{color:var(--gold);font-size:14px;margin-left:6px}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+
+.status{margin-top:10px;padding:8px 12px;border:1px solid var(--line2);border-radius:10px;color:var(--cyan);background:#07141c;font-size:13px;display:flex;align-items:center;gap:8px}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#f59e0b;box-shadow:0 0 8px #f59e0b;flex-shrink:0}
+.status.connected .status-dot{background:#10b981;box-shadow:0 0 10px #10b981}
+.status.disconnected .status-dot{background:#ef4444;box-shadow:0 0 8px #ef4444}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.m{border:1px solid #35505b;border-radius:12px;padding:12px;background:linear-gradient(145deg,#142733,#0a151d);min-height:86px;position:relative;overflow:hidden}
+.m .l{font-size:12px;color:var(--muted)}.m .v{font-size:24px;font-weight:700;margin:6px 0 2px;line-height:1.1}.m .u{font-size:11px;color:var(--muted)}
+.m-progress{position:absolute;bottom:0;left:0;height:3px;background:var(--cyan);width:0%;transition:width 0.1s linear}
+
+button{border:1px solid #8b7440;border-radius:10px;padding:10px 14px;background:linear-gradient(145deg,#172933,#101d25);color:var(--text);font-size:13px;transition:border-color .2s, box-shadow .2s}
+button:active{border-color:#e33;box-shadow:0 0 0 1px #e33;filter:brightness(1.12)}
+button:disabled{opacity:.4;pointer-events:none}
+button.p{background:linear-gradient(135deg,#806a39,#4f4327);color:#fff}
+button.c{border-color:#438d91;background:linear-gradient(135deg,#153b41,#10282e)}
+button.d{border-color:#7b4141;color:#ffdede}
+button.glow{border-color:var(--cyan)!important;box-shadow:0 0 10px var(--cyan)!important}
+
+.hist{max-height:340px;overflow:auto;margin-top:6px}
+.rc{background:#0c1820;border:1px solid #2a4550;border-radius:10px;padding:10px 12px;margin-bottom:6px;font-size:13px}
+.rc .t{color:var(--gold);font-size:12px;margin-bottom:3px}
+
+.chart-box{margin-top:10px;background:#030709;border:1px solid #25343b;border-radius:10px;padding:10px}
+.chart-title{font-size:11px;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between}
+/* 修复点：给画布赋予明确的 CSS 宽高，防止部分移动端渲染溢出或隐形 */
+canvas{width:100%!important;height:100px!important;display:block}
+
+#log{margin-top:8px;background:#030709;border:1px solid #25343b;color:#9fe9d0;font:11px/1.4 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto;padding:10px;border-radius:10px}
+</style>
+</head>
+<body>
+<main>
+<div class="card">
+  <h1>TK5 Health <span>v1.3.1</span></h1>
+  <div class="row" style="margin-top:10px">
+    <button id="btnConnect" class="p">连接</button>
+    <button id="btnDisconnect">断开</button>
+  </div>
+  <div id="status" class="status disconnected"><div class="status-dot"></div><span>未连接</span></div>
+</div>
+
+<div class="card">
+  <div class="grid">
+    <div class="m" id="card-hr"><div class="l">❤️ 心率</div><div id="hr" class="v">--</div><div class="u">BPM</div><div class="m-progress" id="prog-hr"></div></div>
+    <div class="m" id="card-spo2"><div class="l">🩸 血氧</div><div id="spo2" class="v">--</div><div class="u">%</div><div class="m-progress" id="prog-spo2"></div></div>
+    <div class="m" id="card-bp"><div class="l">🩺 血压</div><div id="bp" class="v">-- / --</div><div class="u" id="bpHr"></div><div class="m-progress" id="prog-bp"></div></div>
+    <div class="m" id="card-hrv"><div class="l">📈 HRV</div><div id="hrv" class="v">--</div><div class="u"></div><div class="m-progress" id="prog-hrv"></div></div>
+    <div class="m"><div class="l">👣 步数</div><div id="steps" class="v">--</div><div class="u">今日</div></div>
+    <div class="m"><div class="l">🔋 电量</div><div id="battery" class="v">--</div><div class="u">%</div></div>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <button id="btnBattery">刷新电量/步数</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="chart-title"><span>📈 近期心率趋势 (BPM)</span><span id="chart-sub">暂无数据</span></div>
+  <div class="chart-box">
+    <canvas id="trendCanvas"></canvas>
+  </div>
+</div>
+
+<div class="card">
+  <div class="row">
+    <button class="c" data-mode="0">测心率</button>
+    <button class="c" data-mode="2">测血氧</button>
+    <button class="c" data-mode="1">测血压</button>
+    <button class="c" data-mode="10">测HRV</button>
+    <button data-mode="-1">停止</button>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <button data-h="09">同步全部</button>
+    <button data-h="08">血压历史</button>
+    <button data-h="06">心率历史</button>
+    <button data-h="04">睡眠历史</button>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <button data-h="02">步数历史</button>
+    <button data-h="1a">血氧历史</button>
+    <button data-h="1e">体温历史</button>
+    <button data-h="2f">综合(旧)</button>
+    <button data-h="33">身体数据</button>
+  </div>
+</div>
+
+<div class="card"><div id="history" class="hist"></div></div>
+
+<div class="card">
+  <div class="row">
+    <button id="btnCopy">复制日志</button>
+    <button id="btnClearLog">清空日志</button>
+    <button id="btnJson">导出JSON</button>
+    <button id="btnClearRec" class="d">清空记录</button>
+  </div>
+  <div id="log"></div>
+</div>
+</main>
+
+<script>
+"use strict";
+
+const SVC = "be940000-7333-be46-b7ae-689e71722bd5";
+const C1U = "be940001-7333-be46-b7ae-689e71722bd5";
+const C3U = "be940003-7333-be46-b7ae-689e71722bd5";
+const EPOCH = 946684800;
+
+let device = null, c1 = null, c3 = null;
+let c1Buf = new Uint8Array(), c3Buf = new Uint8Array();
+let logs = [], records = JSON.parse(localStorage.getItem("tk5Records") || "[]");
+let histBusy = false, histTimer = null, histType = null, histChunks = [], histReqKey = null, histEchoType = null, histResolve = null;
+let measureMode = -1, measureResolve = null, measureExpectCode = null;
+let isMeasuring = false;
+let activeTimerInterval = null;
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const REALTIME_TYPES = new Set([0x0600, 0x0601, 0x0602, 0x0603, 0x040e, 0x0200, 0x020c, 0x0203]);
+const HIST_LABELS = {
+  "04": "睡眠历史(原始)", "02": "步数历史(原始)", "1a": "血氧历史(原始)",
+  "1e": "体温历史(原始)", "2f": "综合(旧,0x2f原始)", "33": "身体数据(原始)"
+};
+
+const $ = id => document.getElementById(id);
+
+function log(t) {
+  const line = `[${new Date().toLocaleTimeString("zh-CN",{hour12:false})}] ${t}`;
+  logs.push(line);
+  $("log").textContent = logs.join("\n");
+  $("log").scrollTop = $("log").scrollHeight;
+}
+
+function setStatus(text, type = "connected") {
+  const st = $("status");
+  if (!st) return;
+  st.className = `status ${type}`;
+  const span = st.querySelector("span");
+  if (span) span.textContent = text;
+}
+
+function hex(a) { return Array.from(a).map(x => x.toString(16).padStart(2,"0")).join(" "); }
+function cat(a,b) { const o = new Uint8Array(a.length+b.length); o.set(a,0); o.set(b,a.length); return o; }
+function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function ts(b0,b1,b2,b3) {
+  return new Date((b0 + b1*256 + b2*65536 + b3*16777216 + EPOCH) * 1000);
+}
+function fmt(d) { return d.toLocaleString("zh-CN",{hour12:false}); }
+
+function crc16(data) {
+  let c = 0xffff;
+  for (let i = 0; i < data.length; i++) {
+    c ^= data[i] << 8;
+    for (let b = 0; b < 8; b++) c = (c & 0x8000) ? ((c << 1) ^ 0x1021) & 0xffff : (c << 1) & 0xffff;
+  }
+  return c;
+}
+
+function packet(type, payload = []) {
+  const len = 4 + payload.length + 2;
+  const p = new Uint8Array(len);
+  p[0] = (type >> 8) & 0xff; p[1] = type & 0xff;
+  p[2] = len & 0xff; p[3] = (len >> 8) & 0xff;
+  p.set(payload, 4);
+  const c = crc16(p.slice(0, len - 2));
+  p[len-2] = c & 0xff; p[len-1] = (c >> 8) & 0xff;
+  return p;
+}
+
+function timePayload() {
+  const d = new Date(), y = d.getFullYear();
+  return new Uint8Array([y&0xff,(y>>8)&0xff, d.getMonth()+1, d.getDate(), d.getHours(), d.getMinutes(), d.getSeconds(), d.getDay()===0?6:d.getDay()-1]);
+}
+
+async function send(type, payload = []) {
+  if (!c1) return;
+  const p = packet(type, payload);
+  log(`TX 0x${type.toString(16).padStart(4,"0")} [${hex(p)}]`);
+  try {
+    if (c1.properties.writeWithoutResponse) await c1.writeValueWithoutResponse(p);
+    else await c1.writeValue(p);
+  } catch (e) { log("TX ERR " + e.message); }
+}
+
+function feed(kind, data) {
+  let buf = kind === "C1" ? c1Buf : c3Buf;
+  buf = cat(buf, new Uint8Array(data));
+  while (buf.length >= 4) {
+    const total = buf[2] | (buf[3] << 8);
+    if (total < 6) { buf = buf.slice(1); continue; }
+    if (buf.length < total) break;
+    const pkt = buf.slice(0, total);
+    buf = buf.slice(total);
+    const type = (pkt[0] << 8) | pkt[1];
+    const payload = pkt.slice(4, pkt.length - 2);
+    const ok = (pkt[pkt.length-2] | (pkt[pkt.length-1] << 8)) === crc16(pkt.slice(0, pkt.length-2));
+    log(`RX ${kind} 0x${type.toString(16).padStart(4,"0")} ${ok?"OK":"BAD"} [${hex(payload)}]`);
+    handle(type, payload);
+  }
+  if (kind === "C1") c1Buf = buf; else c3Buf = buf;
+}
+
+function add(type, data) {
+  records.unshift({ time: new Date().toISOString(), type, data });
+  records = records.slice(0, 4000);
+  localStorage.setItem("tk5Records", JSON.stringify(records));
+  renderHist();
+  drawTrendChart();
+}
+
+function decodeHR(bytes) {
+  const r = [];
+  for (let i = 0; i + 6 <= bytes.length; i += 6)
+    r.push({ local: fmt(ts(bytes[i],bytes[i+1],bytes[i+2],bytes[i+3])), hr: bytes[i+5] });
+  return r;
+}
+function decodeBP(bytes) {
+  const r = [];
+  for (let i = 0; i + 8 <= bytes.length; i += 8)
+    r.push({ local: fmt(ts(bytes[i],bytes[i+1],bytes[i+2],bytes[i+3])), sys: bytes[i+5], dia: bytes[i+6], hr: bytes[i+7] });
+  return r;
+}
+function decodeAll(bytes) {
+  const r = [];
+  for (let i = 0; i + 20 <= bytes.length; i += 20)
+    r.push({
+      local: fmt(ts(bytes[i],bytes[i+1],bytes[i+2],bytes[i+3])),
+      hr: bytes[i+6], sys: bytes[i+7], dia: bytes[i+8], spo2: bytes[i+9]
+    });
+  return r;
+}
+
+function renderHist() {
+  const box = $("history");
+  if (!box) return;
+  const cards = [];
+  for (const rec of records) {
+    if (rec.type === "all" && rec.data) {
+      for (const x of [...rec.data].reverse()) {
+        if (!x.sys && !x.hr && !x.spo2) continue;
+        cards.push(`<div class="rc"><div class="t">${esc(x.local)}</div><div>${x.sys?`血压 <b>${x.sys}/${x.dia}</b> `:""}${x.hr?`心率 <b>${x.hr}</b> `:""}${x.spo2?`血氧 <b>${x.spo2}</b>%`:""}</div></div>`);
+      }
+    } else if (rec.type === "bp") {
+      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>血压 <b>${rec.data.sys}/${rec.data.dia}</b> 心率 <b>${rec.data.hr}</b></div></div>`);
+    } else if (rec.type === "spo2") {
+      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>血氧 <b>${rec.data}</b>%</div></div>`);
+    } else if (rec.type === "hr") {
+      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>心率 <b>${rec.data}</b></div></div>`);
+    } else if (rec.type === "hrv") {
+      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>HRV <b>${rec.data}</b></div></div>`);
+    } else if (rec.type === "raw") {
+      const d = rec.data;
+      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} · ${esc(d.label)} · 帧0x${(d.frameType||0).toString(16).padStart(4,"0")} · ${d.bytes}字节</div><div style="font:11px/1.4 ui-monospace,Menlo,Consolas,monospace;word-break:break-all;color:var(--cyan)">${esc(d.hex)}</div></div>`);
+    }
+    if (cards.length >= 40) break;
+  }
+  box.innerHTML = cards.length ? cards.join("") : "";
+}
+
+function drawTrendChart() {
+  const canvas = $("trendCanvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  const width = canvas.clientWidth || 300;
+  const height = 100;
+  const dpr = window.devicePixelRatio || 1;
+  
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, width, height);
+
+  let points = [];
+  for (const rec of records) {
+    if (rec.type === "hr") points.push(rec.data);
+    else if (rec.type === "all" && rec.data) {
+      for (const x of rec.data) if (x.hr) points.push(x.hr);
+    }
+  }
+  points = points.reverse().slice(-20);
+
+  const sub = $("chart-sub");
+  if (sub) sub.textContent = points.length ? `共 ${points.length} 个样本` : "暂无数据";
+
+  if (points.length < 2) {
+    ctx.fillStyle = "#8ea3ad";
+    ctx.font = "12px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("数据较少，多测几次即可生成趋势图", width / 2, height / 2 + 4);
+    return;
+  }
+
+  const min = Math.min(...points) - 5;
+  const max = Math.max(...points) + 5;
+  const stepX = width / (points.length - 1);
+
+  const grad = ctx.createLinearGradient(0, 0, 0, height);
+  grad.addColorStop(0, "rgba(103, 217, 223, 0.25)");
+  grad.addColorStop(1, "rgba(103, 217, 223, 0.0)");
+
+  ctx.beginPath();
+  points.forEach((val, i) => {
+    const x = i * stepX;
+    const y = height - ((val - min) / (max - min || 1)) * (height - 20) - 10;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.lineTo(width, height);
+  ctx.lineTo(0, height);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  ctx.beginPath();
+  points.forEach((val, i) => {
+    const x = i * stepX;
+    const y = height - ((val - min) / (max - min || 1)) * (height - 20) - 10;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = "#67d9df";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  points.forEach((val, i) => {
+    const x = i * stepX;
+    const y = height - ((val - min) / (max - min || 1)) * (height - 20) - 10;
+    ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = "#d6b56a";
+    ctx.fill();
+  });
+}
+
+function handle(type, p) {
+  if (histBusy && type !== 0x0580 && type !== histEchoType && !REALTIME_TYPES.has(type)) {
+    if (histType === null) histType = type;
+    histChunks.push(p);
+    return;
+  }
+  switch (type) {
+    case 0x0200:
+      if (p.length > 5 && p[5] >= 0 && p[5] <= 100) {
+        $("battery").textContent = p[5];
+      } else if (p.length === 1 && p[0] <= 100 && p[0] !== 0xfe) {
+        $("battery").textContent = p[0];
+      }
+      break;
+    case 0x020c:
+      if (p.length >= 2) $("steps").textContent = p[0] | (p[1] << 8);
+      break;
+    case 0x0601:
+      if (p[0] > 0 && p[0] < 250) {
+        $("hr").textContent = p[0];
+        add("hr", p[0]);
+      }
+      break;
+    case 0x0602:
+      if (p[0] > 0 && p[0] <= 100) {
+        $("spo2").textContent = p[0];
+        add("spo2", p[0]);
+      }
+      break;
+    case 0x0603:
+      if (p.length >= 3 && p[0] > 0 && p[1] > 0) {
+        $("bp").textContent = `${p[0]} / ${p[1]}`;
+        $("bpHr").textContent = "HR " + p[2];
+        add("bp", { sys: p[0], dia: p[1], hr: p[2] });
+      } else if (p.length >= 4 && p[3] > 0) {
+        const v = p[3];
+        $("hrv").textContent = v;
+        add("hrv", v);
+      }
+      break;
+    case 0x040e:
+      if (measureResolve && p[0] === measureExpectCode) {
+        const r = measureResolve; measureResolve = null; measureExpectCode = null;
+        r();
+      }
+      break;
+    case 0x0580: {
+      const buf = histChunks.reduce(cat, new Uint8Array());
+      if (histReqKey === "06") add("hrHist", decodeHR(buf));
+      else if (histReqKey === "08") add("bpHist", decodeBP(buf));
+      else if (histReqKey === "09") add("all", decodeAll(buf));
+      else if (buf.length > 0) {
+        add("raw", { key: histReqKey, label: HIST_LABELS[histReqKey] || histReqKey, frameType: histType, hex: hex(buf), bytes: buf.length });
+      }
+      clearTimeout(histTimer);
+      histBusy = false; histType = null; histChunks = []; histReqKey = null; histEchoType = null;
+      document.querySelectorAll("[data-h]").forEach(b => b.disabled = false);
+      setStatus("已连接 · " + (device?.name || "TK5"), "connected");
+      if (histResolve) { const r = histResolve; histResolve = null; r(); }
+      break;
+    }
+  }
+}
+
+async function connect() {
+  try {
+    if (!navigator.bluetooth) throw new Error("需要 Bluefy / Chrome");
+    setStatus("选择蓝牙设备中...", "disconnected");
+    if (device?.gatt?.connected) try { device.gatt.disconnect(); } catch (_) {}
+
+    device = await navigator.bluetooth.requestDevice({
+      filters: [{ namePrefix: "TK5" }, { namePrefix: "tk5" }],
+      optionalServices: [SVC]
+    });
+    await device.gatt.connect();
+
+    const svc = await device.gatt.getPrimaryService(SVC);
+    c1 = await svc.getCharacteristic(C1U);
+    c3 = await svc.getCharacteristic(C3U);
+
+    c1.addEventListener("characteristicvaluechanged", e => feed("C1", e.target.value.buffer));
+    c3.addEventListener("characteristicvaluechanged", e => feed("C3", e.target.value.buffer));
+    await c1.startNotifications();
+    await c3.startNotifications();
+
+    device.addEventListener("gattserverdisconnected", () => {
+      setStatus("设备已断开连接", "disconnected");
+      c1 = c3 = null;
+      histBusy = false;
+      isMeasuring = false;
+      clearActiveProgress();
+    });
+
+    setStatus("已连接 · " + (device.name || "TK5"), "connected");
+
+    await send(0x0201, [0x47, 0x46]);
+    await send(0x0100, timePayload());
+    await send(0x021b);
+    await send(0x0200);
+    await send(0x0203);
+    await send(0x020c);
+    await send(0x032f, [0x01, 0x00]);
+    await send(0x0309, [0x01, 0x00, 0x02, 0xa0]);
+
+    (async () => {
+      isMeasuring = true;
+      await sleep(500);
+      await hist("09");
+      setStatus("正在测量血压，请保持静止...");
+      await measureAndWait(1, 1, 30000, "bp");
+      setStatus("正在测量心率...");
+      await measureAndWait(0, null, 25000, "hr");
+      setStatus("正在测量血氧，请确保手环佩戴正确...");
+      await measureAndWait(2, 2, 50000, "spo2");
+      setStatus("正在测量 HRV...");
+      await measureAndWait(10, 0x0a, 30000, "hrv");
+      isMeasuring = false;
+      setStatus("已连接 · " + (device?.name || "TK5") + " (自动流程完成)", "connected");
+    })();
+  } catch (e) {
+    setStatus("连接失败: " + e.message, "disconnected");
+    isMeasuring = false;
+    clearActiveProgress();
+  }
+}
+
+function disconnect() {
+  try { if (device?.gatt?.connected) device.gatt.disconnect(); } catch (_) {}
+}
+
+function startActiveProgress(cardKey, durationMs) {
+  clearActiveProgress();
+  const bar = $(`prog-${cardKey}`);
+  if (!bar) return;
+  let elapsed = 0;
+  const interval = 100;
+  activeTimerInterval = setInterval(() => {
+    elapsed += interval;
+    const percent = Math.min(100, (elapsed / durationMs) * 100);
+    bar.style.width = percent + "%";
+    if (elapsed >= durationMs) clearActiveProgress();
+  }, interval);
+}
+
+function clearActiveProgress() {
+  if (activeTimerInterval) {
+    clearInterval(activeTimerInterval);
+    activeTimerInterval = null;
+  }
+  document.querySelectorAll(".m-progress").forEach(el => el.style.width = "0%");
+}
+
+async function measure(mode) {
+  if (!c1) return;
+  measureMode = mode;
+  if (mode < 0) {
+    clearActiveProgress();
+    await send(0x032f, [0x00, 0x00]);
+    setStatus("已连接 · " + (device?.name || "TK5"), "connected");
+    return;
+  }
+  await send(0x032f, [0x01, mode]);
+}
+
+async function measureAndWait(mode, expectCode, timeoutMs, cardKey) {
+  const modeNames = { 0: "心率", 1: "血压", 2: "血氧", 10: "HRV" };
+  setStatus(`正在测量 ${modeNames[mode] || "项目"}，请保持佩戴...`);
+  startActiveProgress(cardKey, timeoutMs);
+
+  await measure(mode);
+  if (expectCode === null) {
+    await sleep(timeoutMs);
+    clearActiveProgress();
+    return;
+  }
+  await Promise.race([
+    new Promise(resolve => { measureExpectCode = expectCode; measureResolve = resolve; }),
+    sleep(timeoutMs)
+  ]);
+  measureResolve = null; measureExpectCode = null;
+  clearActiveProgress();
+}
+
+function hist(key) {
+  return new Promise(async (resolve) => {
+    if (!c1 || histBusy) { resolve(); return; }
+    histBusy = true;
+    histType = null;
+    histChunks = [];
+    histReqKey = key;
+    histEchoType = 0x0500 | parseInt(key, 16);
+    histResolve = resolve;
+    document.querySelectorAll("[data-h]").forEach(b => b.disabled = true);
+    setStatus("同步历史数据中…");
+    await send(histEchoType);
+    histTimer = setTimeout(() => {
+      if (histBusy) {
+        histBusy = false; histType = null; histChunks = []; histReqKey = null; histEchoType = null;
+        document.querySelectorAll("[data-h]").forEach(b => b.disabled = false);
+        setStatus("已连接 · " + (device?.name || "TK5"), "connected");
+        if (histResolve) { const r = histResolve; histResolve = null; r(); }
+      }
+    }, 12000);
+  });
+}
+
+document.querySelectorAll("[data-mode]").forEach(b => {
+  b.onclick = async () => {
+    if (isMeasuring && +b.dataset.mode !== -1) return;
+    b.classList.add("glow");
+    setTimeout(() => b.classList.remove("glow"), 1000);
+
+    const mode = +b.dataset.mode;
+    if (mode >= 0) {
+      isMeasuring = true;
+      const cardMap = { 0: "hr", 1: "bp", 2: "spo2", 10: "hrv" };
+      const modeNames = { 0: "心率", 1: "血压", 2: "血氧", 10: "HRV" };
+      setStatus(`正在手动测量 ${modeNames[mode]}...`);
+      startActiveProgress(cardMap[mode], 30000);
+      await measure(mode);
+    } else {
+      isMeasuring = false;
+      clearActiveProgress();
+      await measure(mode);
+    }
+  };
+});
+
+$("btnConnect").onclick = connect;
+$("btnDisconnect").onclick = disconnect;
+$("btnBattery").onclick = () => { send(0x0200); send(0x020c); };
+document.querySelectorAll("[data-h]").forEach(b => b.onclick = () => hist(b.dataset.h));
+$("btnCopy").onclick = async () => { try { await navigator.clipboard.writeText(logs.join("\n")); } catch(e){} };
+$("btnClearLog").onclick = () => { logs = []; $("log").textContent = ""; };
+$("btnClearRec").onclick = () => {
+  if (confirm("清空本地记录？")) { records = []; localStorage.removeItem("tk5Records"); renderHist(); drawTrendChart(); }
+};
+$("btnJson").onclick = () => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(records,null,2)],{type:"application/json"}));
+  a.download = "tk5.json"; a.click();
+};
+
+renderHist();
+drawTrendChart();
+</script>
+</body>
+</html>
