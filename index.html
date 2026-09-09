@@ -51,7 +51,6 @@ canvas{width:100%!important;height:100px!important;display:block}
 <div id="page1">
 <div class="card">
   <h1>TK5 Smart Ring <span>TP制作🐈</span></h1>
-  <div style="text-align:center;color:var(--muted);font-size:12px;margin-top:4px">😴 <span id="sleepTop">--</span></div>
   <div class="row" style="margin-top:10px;justify-content:center">
     <button id="btnConnect" class="p">连接</button>
     <button id="btnDisconnect">断开</button>
@@ -71,7 +70,6 @@ canvas{width:100%!important;height:100px!important;display:block}
   </div>
   <div class="row" style="margin-top:8px">
     <button id="btnBattery">刷新电量/步数</button>
-    <button id="btnFind" class="c">找戒指</button>
     <button id="btnCycleMode" class="c" style="margin-left:14px">监视</button>
     <button id="btnNextPage" class="p">下一页</button>
   </div>
@@ -218,11 +216,13 @@ document.addEventListener("click", (e) => {
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 // PulseLoop YCBT: live vitals on C3 (06xx), command replies on C1; 0615 = unprompted battery push
-const REALTIME_TYPES = new Set([0x0600, 0x0601, 0x0602, 0x0603, 0x0615, 0x040e, 0x0200, 0x020c, 0x0203, 0x0201]);
+const REALTIME_TYPES = new Set([0x0600, 0x0601, 0x0602, 0x0603, 0x0615, 0x040e, 0x0200, 0x020c, 0x0203]);
 const HIST_LABELS = {
   "04": "睡眠历史(原始)", "02": "步数历史(原始)", "1a": "血氧历史(原始)",
   "1e": "体温历史(原始)", "2f": "综合(旧,0x2f原始)", "33": "身体数据(原始)"
 };
+const MODE_NAMES = { 0: "心率", 1: "血压", 2: "血氧", 10: "HRV" };
+const MODE_CARD_KEYS = { 0: "hr", 1: "bp", 2: "spo2", 10: "hrv" };
 
 const $ = id => document.getElementById(id);
 
@@ -332,13 +332,9 @@ function decodeAll(bytes) {
   return r;
 }
 
-// 睡眠历史帧 (0x0513) 结构（经实测比对校验）：
-// 每条独立记录以 [标记2: af fa][记录总长2 LE(含本4字节头)] 开头，
-// 紧接20字节记录头: [af fa][总长2][起始时间戳4][结束时间戳4][未知8]
-// 之后每8字节一段: [阶段标记1: 0xf1深睡/0xf2浅睡/0xf3REM][段起始时间戳4][时长秒数2 LE][占位1]
-// 一次同步可能返回多条记录（如中途醒来会把一夜睡眠拆成两条），
-// 必须按每条记录自带的长度字段切分后逐条解码，再合并统计——
-// 之前版本假设整个buf只有一条记录，第二条起会把下一条的头字节当成垃圾段落。
+// 睡眠帧(0x0513)：每条记录以[af fa][记录总长2 LE]开头，20字节记录头[标记4][起始时间戳4][结束时间戳4][未知8]，
+// 之后每8字节一段[阶段标记1(0xf1深/0xf2浅/0xf3REM)][段起始时间戳4][时长秒数2 LE][占位1]；
+// 一次同步可能返回多条记录(中途醒来会拆成多条)，需按每条记录自带长度字段切分后逐条解码再合并统计。
 function decodeSleep(bytes) {
   if (bytes.length < 20) return null;
   let i = 0;
@@ -621,7 +617,7 @@ function handle(type, p) {
   }
   switch (type) {
     case 0x0200:
-      // PulseLoop: battery is payload[5] of 02 00 (0–100). 0xfe = not ready.
+      // 0x0200 在这颗戒指上恒返回0xfe（已证实不可用），仅为兼容可能支持的其他固件保留解析
       if (p.length > 5 && p[5] <= 100) {
         $("battery").textContent = p[5];
       } else if (p.length === 1 && p[0] <= 100) {
@@ -693,17 +689,12 @@ function handle(type, p) {
           add("sleep", sleepData);
           const label = `${Math.floor(sleepData.totalMin/60)}h${sleepData.totalMin%60}m`;
           if ($("sleepMin")) $("sleepMin").textContent = label;
-          if ($("sleepTop")) $("sleepTop").textContent = label;
         } else if (buf.length > 0) add("raw", { key: histReqKey, label: HIST_LABELS[histReqKey] || histReqKey, frameType: histType, hex: hex(buf), bytes: buf.length });
       }
       else if (buf.length > 0) {
         add("raw", { key: histReqKey, label: HIST_LABELS[histReqKey] || histReqKey, frameType: histType, hex: hex(buf), bytes: buf.length });
       }
-      clearTimeout(histTimer);
-      histBusy = false; histType = null; histChunks = []; histReqKey = null; histEchoType = null;
-      document.querySelectorAll("[data-h]").forEach(b => b.disabled = false);
-      setStatus("已连接 · " + (device?.name || "TK5"), "connected");
-      if (histResolve) { const r = histResolve; histResolve = null; r(); }
+      finishHist();
       break;
     }
   }
@@ -730,25 +721,6 @@ async function connect() {
     await c1.startNotifications();
     await c3.startNotifications();
 
-    // 标准GATT电量服务在这颗戒指上不存在(已实测确认)，改为枚举厂商自定义服务下的全部特征值——
-    // UUID呈be940000/0001/0003的模式，中间空缺的be940002很可能就是没订阅过的特征值，可能带电量
-    try {
-      const allChars = await svc.getCharacteristics();
-      for (const ch of allChars) {
-        const props = Object.entries(ch.properties).filter(([,v]) => v).map(([k]) => k).join(",");
-        log(`CHAR ${ch.uuid} [${props}]`);
-        if (ch.uuid === C1U || ch.uuid === C3U) continue; // 已在用的两个跳过
-        if (ch.properties.read) {
-          try {
-            const v = await ch.readValue();
-            log(`  读取值: ${hex(new Uint8Array(v.buffer))}`);
-          } catch (e) { log(`  读取失败: ${e.message}`); }
-        }
-      }
-    } catch (e) {
-      log("枚举特征值失败: " + e.message);
-    }
-
     device.addEventListener("gattserverdisconnected", () => {
       setStatus("设备已断开连接", "disconnected");
       c1 = c3 = null;
@@ -770,18 +742,25 @@ async function connect() {
 
     (async () => {
       isMeasuring = true;
-      await sleep(500);
-      await hist("09");
-      setStatus("正在测量血压，请保持静止...");
-      await measureAndWait(1, 1, 30000, "bp");
-      setStatus("正在测量心率...");
-      await measureAndWait(0, null, 25000, "hr");
-      setStatus("正在测量血氧，请确保手环佩戴正确...");
-      await measureAndWait(2, 2, 50000, "spo2");
-      setStatus("正在测量 HRV...");
-      await measureAndWait(10, 0x0a, 30000, "hrv");
-      isMeasuring = false;
-      setStatus("已连接 · " + (device?.name || "TK5") + " (自动流程完成)", "connected");
+      try {
+        await sleep(500);
+        await hist("09");
+        setStatus("正在测量血压，请保持静止...");
+        await measureAndWait(1, 1, 30000, "bp");
+        setStatus("正在测量心率...");
+        await measureAndWait(0, null, 25000, "hr");
+        setStatus("正在测量血氧，请确保手环佩戴正确...");
+        await measureAndWait(2, 2, 50000, "spo2");
+        setStatus("正在测量 HRV...");
+        await measureAndWait(10, 0x0a, 30000, "hrv");
+        setStatus("已连接 · " + (device?.name || "TK5") + " (自动流程完成)", "connected");
+      } catch (e) {
+        log("自动测量流程出错: " + e.message);
+        setStatus("已连接 · " + (device?.name || "TK5"), "connected");
+      } finally {
+        isMeasuring = false;
+        clearActiveProgress();
+      }
     })();
   } catch (e) {
     setStatus("连接失败: " + e.message, "disconnected");
@@ -828,8 +807,7 @@ async function measure(mode) {
 }
 
 async function measureAndWait(mode, expectCode, timeoutMs, cardKey) {
-  const modeNames = { 0: "心率", 1: "血压", 2: "血氧", 10: "HRV" };
-  setStatus(`正在测量 ${modeNames[mode] || "项目"}，请保持佩戴...`);
+  setStatus(`正在测量 ${MODE_NAMES[mode] || "项目"}，请保持佩戴...`);
   startActiveProgress(cardKey, timeoutMs);
 
   await measure(mode);
@@ -846,6 +824,14 @@ async function measureAndWait(mode, expectCode, timeoutMs, cardKey) {
   clearActiveProgress();
 }
 
+function finishHist() {
+  clearTimeout(histTimer);
+  histBusy = false; histType = null; histChunks = []; histReqKey = null; histEchoType = null;
+  document.querySelectorAll("[data-h]").forEach(b => b.disabled = false);
+  setStatus("已连接 · " + (device?.name || "TK5"), "connected");
+  if (histResolve) { const r = histResolve; histResolve = null; r(); }
+}
+
 function hist(key) {
   return new Promise(async (resolve) => {
     if (!c1 || histBusy) { resolve(); return; }
@@ -858,14 +844,7 @@ function hist(key) {
     document.querySelectorAll("[data-h]").forEach(b => b.disabled = true);
     setStatus("同步历史数据中…");
     await send(histEchoType);
-    histTimer = setTimeout(() => {
-      if (histBusy) {
-        histBusy = false; histType = null; histChunks = []; histReqKey = null; histEchoType = null;
-        document.querySelectorAll("[data-h]").forEach(b => b.disabled = false);
-        setStatus("已连接 · " + (device?.name || "TK5"), "connected");
-        if (histResolve) { const r = histResolve; histResolve = null; r(); }
-      }
-    }, 12000);
+    histTimer = setTimeout(() => { if (histBusy) finishHist(); }, 12000);
   });
 }
 
@@ -876,10 +855,8 @@ document.querySelectorAll("[data-mode]").forEach(b => {
     const mode = +b.dataset.mode;
     if (mode >= 0) {
       isMeasuring = true;
-      const cardMap = { 0: "hr", 1: "bp", 2: "spo2", 10: "hrv" };
-      const modeNames = { 0: "心率", 1: "血压", 2: "血氧", 10: "HRV" };
-      setStatus(`正在手动测量 ${modeNames[mode]}...`);
-      startActiveProgress(cardMap[mode], 30000);
+      setStatus(`正在手动测量 ${MODE_NAMES[mode]}...`);
+      startActiveProgress(MODE_CARD_KEYS[mode], 30000);
       await measure(mode);
     } else {
       isMeasuring = false;
@@ -892,8 +869,6 @@ document.querySelectorAll("[data-mode]").forEach(b => {
 $("btnConnect").onclick = connect;
 $("btnDisconnect").onclick = disconnect;
 $("btnBattery").onclick = () => { send(0x0200); send(0x020c); };
-// PulseLoop: find-device = 03 00 {01, 05, 02}
-$("btnFind").onclick = () => { send(0x0300, [0x01, 0x05, 0x02]); setStatus("正在找戒指…"); };
 document.querySelectorAll("[data-h]").forEach(b => b.onclick = () => hist(b.dataset.h));
 $("btnCopy").onclick = async () => { try { await navigator.clipboard.writeText(logs.join("\n")); } catch(e){} };
 $("btnClearLog").onclick = () => { logs = []; $("log").textContent = ""; };
@@ -910,8 +885,7 @@ setupRangeTabs("trend-range", "trend", drawTrendChart);
 setupRangeTabs("sleep-range", "sleep", drawSleepChart);
 setupRangeTabs("bp-range", "bp", drawBPChart);
 
-// 用本地已保存的记录回填顶部卡片，避免刷新页面后明明有历史数据却显示"--"
-// （只在还没收到过实时数据时补一次，之后的实时事件仍按原逻辑覆盖）
+// 用本地已保存的记录回填顶部卡片，避免刷新页面后明明有历史数据却显示"--"（只在还没收到实时数据时补一次）
 function hydrateFromRecords() {
   for (const rec of records) {
     if (rec.type === "hr" && $("hr").textContent === "--") $("hr").textContent = rec.data;
@@ -923,7 +897,6 @@ function hydrateFromRecords() {
     else if (rec.type === "sleep" && $("sleepMin").textContent === "--") {
       const label = `${Math.floor(rec.data.totalMin/60)}h${rec.data.totalMin%60}m`;
       $("sleepMin").textContent = label;
-      $("sleepTop").textContent = label;
     }
   }
 }
