@@ -71,6 +71,7 @@ canvas{width:100%!important;height:100px!important;display:block}
   </div>
   <div class="row" style="margin-top:8px">
     <button id="btnBattery">刷新电量/步数</button>
+    <button id="btnFind" class="c">找戒指</button>
     <button id="btnCycleMode" class="c" style="margin-left:14px">监视</button>
     <button id="btnNextPage" class="p">下一页</button>
   </div>
@@ -216,7 +217,8 @@ document.addEventListener("click", (e) => {
 });
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-const REALTIME_TYPES = new Set([0x0600, 0x0601, 0x0602, 0x0603, 0x040e, 0x0200, 0x020c, 0x0203]);
+// PulseLoop YCBT: live vitals on C3 (06xx), command replies on C1; 0615 = unprompted battery push
+const REALTIME_TYPES = new Set([0x0600, 0x0601, 0x0602, 0x0603, 0x0615, 0x040e, 0x0200, 0x020c, 0x0203, 0x0201]);
 const HIST_LABELS = {
   "04": "睡眠历史(原始)", "02": "步数历史(原始)", "1a": "血氧历史(原始)",
   "1e": "体温历史(原始)", "2f": "综合(旧,0x2f原始)", "33": "身体数据(原始)"
@@ -353,13 +355,15 @@ function decodeSleep(bytes) {
     if (!start || sStart < start) start = sStart;
     if (!end || sEnd > end) end = sEnd;
     for (let j = i + 20; j + 8 <= segEnd; j += 8) {
-      const type = bytes[j];
+      // PulseLoop: stage = tag & 0x0F (1=深睡, 2=浅睡, 3=REM); 兼容旧 0xf1/0xf2/0xf3
+      const rawTag = bytes[j];
+      const stage = rawTag & 0x0f;
       const segStart = ts(bytes[j+1], bytes[j+2], bytes[j+3], bytes[j+4]);
       const durSec = bytes[j+5] | (bytes[j+6] << 8);
-      segments.push({ type, start: segStart, durSec });
-      if (type === 0xf1) deepSec += durSec;
-      else if (type === 0xf2) lightSec += durSec;
-      else if (type === 0xf3) remSec += durSec;
+      segments.push({ type: rawTag, stage, start: segStart, durSec });
+      if (stage === 1 || rawTag === 0xf1) deepSec += durSec;
+      else if (stage === 2 || rawTag === 0xf2) lightSec += durSec;
+      else if (stage === 3 || rawTag === 0xf3) remSec += durSec;
     }
     sessionCount++;
     i += len;
@@ -617,16 +621,35 @@ function handle(type, p) {
   }
   switch (type) {
     case 0x0200:
-      // p[5] 为无符号字节，恒 >=0；p[0]<=100 时也必然 !==0xfe(254)，故省去两处冗余判断
-      // 注：此命令在实测中恒返回0xfe，从未给出过真实电量——真实电量已改由标准GATT电量服务读取(见connect())
+      // PulseLoop: battery is payload[5] of 02 00 (0–100). 0xfe = not ready.
       if (p.length > 5 && p[5] <= 100) {
         $("battery").textContent = p[5];
       } else if (p.length === 1 && p[0] <= 100) {
         $("battery").textContent = p[0];
+      } else if (p.length > 0 && p[0] === 0xfe) {
+        log("电量 0xfe（戒指未就绪，等 06 15 推送或稍后重试）");
       }
       break;
     case 0x020c:
-      if (p.length >= 2) $("steps").textContent = p[0] | (p[1] << 8);
+      if (p.length >= 2) {
+        const s = p[0] | (p[1] << 8);
+        if (s > 0) $("steps").textContent = s;
+      }
+      break;
+    case 0x0600:
+      // PulseLoop: live activity push — steps in first 2–4 bytes LE
+      if (p.length >= 4) {
+        const s32 = p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
+        if (s32 > 0 && s32 < 200000) $("steps").textContent = s32;
+      } else if (p.length >= 2) {
+        const s = p[0] | (p[1] << 8);
+        if (s > 0 && s < 200000) $("steps").textContent = s;
+      }
+      break;
+    case 0x0615:
+      // PulseLoop: unprompted battery push
+      if (p.length >= 1 && p[0] <= 100) $("battery").textContent = p[0];
+      else if (p.length > 5 && p[5] <= 100) $("battery").textContent = p[5];
       break;
     case 0x0601:
       if (p[0] > 0 && p[0] < 250) {
@@ -658,6 +681,8 @@ function handle(type, p) {
       }
       break;
     case 0x0580: {
+      // PulseLoop: after 05 80 terminal, MUST ACK with 05 80 {00}
+      send(0x0580, [0x00]);
       const buf = histChunks.reduce(cat, new Uint8Array());
       if (histReqKey === "06") add("hrHist", decodeHR(buf));
       else if (histReqKey === "08") add("bpHist", decodeBP(buf));
@@ -692,7 +717,7 @@ async function connect() {
 
     device = await navigator.bluetooth.requestDevice({
       filters: [{ namePrefix: "TK5" }, { namePrefix: "tk5" }],
-      optionalServices: [SVC, "battery_service"]
+      optionalServices: [SVC]
     });
     await device.gatt.connect();
 
@@ -705,21 +730,23 @@ async function connect() {
     await c1.startNotifications();
     await c3.startNotifications();
 
-    // 标准GATT电量服务(0x180f/0x2a19)，与厂商自定义协议是完全独立的服务——
-    // 0x0201/0x0200等自定义帧一直读不到真实电量，很可能官方App其实是走这条标准通道读的
+    // 标准GATT电量服务在这颗戒指上不存在(已实测确认)，改为枚举厂商自定义服务下的全部特征值——
+    // UUID呈be940000/0001/0003的模式，中间空缺的be940002很可能就是没订阅过的特征值，可能带电量
     try {
-      const battSvc = await device.gatt.getPrimaryService("battery_service");
-      const battChar = await battSvc.getCharacteristic("battery_level");
-      const val = await battChar.readValue();
-      $("battery").textContent = val.getUint8(0);
-      if (battChar.properties.notify) {
-        battChar.addEventListener("characteristicvaluechanged", e => {
-          $("battery").textContent = e.target.value.getUint8(0);
-        });
-        await battChar.startNotifications();
+      const allChars = await svc.getCharacteristics();
+      for (const ch of allChars) {
+        const props = Object.entries(ch.properties).filter(([,v]) => v).map(([k]) => k).join(",");
+        log(`CHAR ${ch.uuid} [${props}]`);
+        if (ch.uuid === C1U || ch.uuid === C3U) continue; // 已在用的两个跳过
+        if (ch.properties.read) {
+          try {
+            const v = await ch.readValue();
+            log(`  读取值: ${hex(new Uint8Array(v.buffer))}`);
+          } catch (e) { log(`  读取失败: ${e.message}`); }
+        }
       }
     } catch (e) {
-      log("BATT 标准电量服务不可用: " + e.message);
+      log("枚举特征值失败: " + e.message);
     }
 
     device.addEventListener("gattserverdisconnected", () => {
@@ -865,6 +892,8 @@ document.querySelectorAll("[data-mode]").forEach(b => {
 $("btnConnect").onclick = connect;
 $("btnDisconnect").onclick = disconnect;
 $("btnBattery").onclick = () => { send(0x0200); send(0x020c); };
+// PulseLoop: find-device = 03 00 {01, 05, 02}
+$("btnFind").onclick = () => { send(0x0300, [0x01, 0x05, 0x02]); setStatus("正在找戒指…"); };
 document.querySelectorAll("[data-h]").forEach(b => b.onclick = () => hist(b.dataset.h));
 $("btnCopy").onclick = async () => { try { await navigator.clipboard.writeText(logs.join("\n")); } catch(e){} };
 $("btnClearLog").onclick = () => { logs = []; $("log").textContent = ""; };
