@@ -216,7 +216,7 @@ document.addEventListener("click", (e) => {
 });
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-const REALTIME_TYPES = new Set([0x0600, 0x0601, 0x0602, 0x0603, 0x040e, 0x0200, 0x0201, 0x020c, 0x0203]);
+const REALTIME_TYPES = new Set([0x0600, 0x0601, 0x0602, 0x0603, 0x040e, 0x0200, 0x020c, 0x0203]);
 const HIST_LABELS = {
   "04": "睡眠历史(原始)", "02": "步数历史(原始)", "1a": "血氧历史(原始)",
   "1e": "体温历史(原始)", "2f": "综合(旧,0x2f原始)", "33": "身体数据(原始)"
@@ -394,8 +394,6 @@ function renderHist() {
       cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>心率 <b>${rec.data}</b></div></div>`);
     } else if (rec.type === "hrv") {
       cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>HRV <b>${rec.data}</b></div></div>`);
-    } else if (rec.type === "steps") {
-      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>步数 <b>${rec.data}</b></div></div>`);
     } else if (rec.type === "sleep" && rec.data) {
       const d = rec.data;
       cards.push(`<div class="rc"><div class="t">😴 ${esc(d.start)} ~ ${esc(d.end)}（共${d.totalMin}分钟）</div><div>深睡 <b>${d.deepMin}</b>分 · 浅睡 <b>${d.lightMin}</b>分 · REM <b>${d.remMin}</b>分</div></div>`);
@@ -603,26 +601,9 @@ function drawBPChart() {
   drawDots("dia", "#67d9df", DIA_LINE);
 }
 
-// 从本地记录中取最新一条睡眠数据，更新顶部与卡片显示
-function updateSleepDisplay() {
-  for (const rec of records) {
-    if (rec.type === "sleep" && rec.data && typeof rec.data.totalMin === "number") {
-      const d = rec.data;
-      const label = `${Math.floor(d.totalMin / 60)}h${d.totalMin % 60}m`;
-      if ($("sleepMin")) $("sleepMin").textContent = label;
-      if ($("sleepTop")) $("sleepTop").textContent = label;
-      return;
-    }
-  }
-  // 没有睡眠记录时保持默认
-  if ($("sleepMin")) $("sleepMin").textContent = "--";
-  if ($("sleepTop")) $("sleepTop").textContent = "--";
-}
-
-// 统一刷新：历史列表 + 三个图表 + 睡眠摘要（连接/清空/翻页/新数据到达时调用）
+// 统一刷新：历史列表 + 三个图表（连接/清空/翻页/新数据到达时调用）
 function refreshAll() {
   renderHist();
-  updateSleepDisplay();
   drawTrendChart();
   drawSleepChart();
   drawBPChart();
@@ -635,34 +616,18 @@ function handle(type, p) {
     return;
   }
   switch (type) {
-    case 0x0201:
-      // 候选电量字段：payload[14] 三次抓包(含与官方App截图几乎同一分钟的一次)都精确匹配App显示的电量%，
-      // 而0x0200命令在这台设备上恒返回0xfe从未给过真实值——故改用这里作为电量来源，
-      // 仍需未来电量真的变化(如降10%+)时再抓一次验证是否跟着变
-      if (p.length > 14 && p[14] <= 100) $("battery").textContent = p[14];
-      break;
     case 0x0200:
       // p[5] 为无符号字节，恒 >=0；p[0]<=100 时也必然 !==0xfe(254)，故省去两处冗余判断
+      // 注：此命令在实测中恒返回0xfe，从未给出过真实电量——真实电量已改由标准GATT电量服务读取(见connect())
       if (p.length > 5 && p[5] <= 100) {
         $("battery").textContent = p[5];
       } else if (p.length === 1 && p[0] <= 100) {
         $("battery").textContent = p[0];
       }
       break;
-    case 0x020c: {
-      if (p.length >= 2) {
-        const steps = p[0] | (p[1] << 8);
-        $("steps").textContent = steps;
-
-        // 步数变化也要落入本地 records，否则刷新页面/导出JSON后只剩当前显示值。
-        // 仅在数值发生变化时记录，避免每次刷新都产生重复记录。
-        const lastStepRec = records.find(r => r.type === "steps");
-        if (!lastStepRec || lastStepRec.data !== steps) {
-          add("steps", steps);
-        }
-      }
+    case 0x020c:
+      if (p.length >= 2) $("steps").textContent = p[0] | (p[1] << 8);
       break;
-    }
     case 0x0601:
       if (p[0] > 0 && p[0] < 250) {
         $("hr").textContent = p[0];
@@ -727,7 +692,7 @@ async function connect() {
 
     device = await navigator.bluetooth.requestDevice({
       filters: [{ namePrefix: "TK5" }, { namePrefix: "tk5" }],
-      optionalServices: [SVC]
+      optionalServices: [SVC, "battery_service"]
     });
     await device.gatt.connect();
 
@@ -739,6 +704,23 @@ async function connect() {
     c3.addEventListener("characteristicvaluechanged", e => feed("C3", e.target.value.buffer));
     await c1.startNotifications();
     await c3.startNotifications();
+
+    // 标准GATT电量服务(0x180f/0x2a19)，与厂商自定义协议是完全独立的服务——
+    // 0x0201/0x0200等自定义帧一直读不到真实电量，很可能官方App其实是走这条标准通道读的
+    try {
+      const battSvc = await device.gatt.getPrimaryService("battery_service");
+      const battChar = await battSvc.getCharacteristic("battery_level");
+      const val = await battChar.readValue();
+      $("battery").textContent = val.getUint8(0);
+      if (battChar.properties.notify) {
+        battChar.addEventListener("characteristicvaluechanged", e => {
+          $("battery").textContent = e.target.value.getUint8(0);
+        });
+        await battChar.startNotifications();
+      }
+    } catch (e) {
+      log("BATT 标准电量服务不可用: " + e.message);
+    }
 
     device.addEventListener("gattserverdisconnected", () => {
       setStatus("设备已断开连接", "disconnected");
@@ -772,21 +754,6 @@ async function connect() {
       setStatus("正在测量 HRV...");
       await measureAndWait(10, 0x0a, 30000, "hrv");
       isMeasuring = false;
-      setStatus("四项测量完成，1分钟后自动同步步数与睡眠…", "connected");
-
-      // 等待 1 分钟后再同步步数和睡眠历史（给设备内部数据落盘/稳定时间）
-      await sleep(60000);
-      if (!c1 || !device?.gatt?.connected) return;
-
-      setStatus("正在刷新步数与电量…");
-      await send(0x0201, [0x47, 0x46]);
-      await send(0x0200);
-      await send(0x020c);
-      await sleep(800);
-
-      setStatus("正在同步睡眠历史…");
-      await hist("04");
-
       setStatus("已连接 · " + (device?.name || "TK5") + " (自动流程完成)", "connected");
     })();
   } catch (e) {
@@ -897,7 +864,7 @@ document.querySelectorAll("[data-mode]").forEach(b => {
 
 $("btnConnect").onclick = connect;
 $("btnDisconnect").onclick = disconnect;
-$("btnBattery").onclick = () => { send(0x0201, [0x47, 0x46]); send(0x0200); send(0x020c); };
+$("btnBattery").onclick = () => { send(0x0200); send(0x020c); };
 document.querySelectorAll("[data-h]").forEach(b => b.onclick = () => hist(b.dataset.h));
 $("btnCopy").onclick = async () => { try { await navigator.clipboard.writeText(logs.join("\n")); } catch(e){} };
 $("btnClearLog").onclick = () => { logs = []; $("log").textContent = ""; };
@@ -913,6 +880,25 @@ $("btnJson").onclick = () => {
 setupRangeTabs("trend-range", "trend", drawTrendChart);
 setupRangeTabs("sleep-range", "sleep", drawSleepChart);
 setupRangeTabs("bp-range", "bp", drawBPChart);
+
+// 用本地已保存的记录回填顶部卡片，避免刷新页面后明明有历史数据却显示"--"
+// （只在还没收到过实时数据时补一次，之后的实时事件仍按原逻辑覆盖）
+function hydrateFromRecords() {
+  for (const rec of records) {
+    if (rec.type === "hr" && $("hr").textContent === "--") $("hr").textContent = rec.data;
+    else if (rec.type === "spo2" && $("spo2").textContent === "--") $("spo2").textContent = rec.data;
+    else if (rec.type === "bp" && $("bp").textContent === "-- / --") {
+      $("bp").textContent = `${rec.data.sys} / ${rec.data.dia}`;
+      $("bpHr").textContent = "HR " + rec.data.hr;
+    } else if (rec.type === "hrv" && $("hrv").textContent === "--") $("hrv").textContent = rec.data;
+    else if (rec.type === "sleep" && $("sleepMin").textContent === "--") {
+      const label = `${Math.floor(rec.data.totalMin/60)}h${rec.data.totalMin%60}m`;
+      $("sleepMin").textContent = label;
+      $("sleepTop").textContent = label;
+    }
+  }
+}
+hydrateFromRecords();
 refreshAll();
 
 const MODES = ["监视", "控制", "数据"];
