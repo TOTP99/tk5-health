@@ -12,348 +12,307 @@ main{max-width:720px;margin:0 auto}
 .card{border:1px solid var(--line);background:linear-gradient(145deg,rgba(17,30,41,.98),rgba(7,15,22,.98));border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 10px 28px rgba(0,0,0,.4)}
 h1{margin:0;font-size:18px}h1 span{color:var(--gold);font-size:14px;margin-left:20px}
 .row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-
 .status{margin-top:10px;padding:8px 12px;border:1px solid var(--line2);border-radius:10px;color:var(--cyan);background:#07141c;font-size:13px;display:flex;align-items:center;gap:8px}
 .status-dot{width:8px;height:8px;border-radius:50%;background:#f59e0b;box-shadow:0 0 8px #f59e0b;flex-shrink:0}
 .status.connected .status-dot{background:#10b981;box-shadow:0 0 10px #10b981}
 .status.disconnected .status-dot{background:#ef4444;box-shadow:0 0 8px #ef4444}
-
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .m{border:1px solid #35505b;border-radius:12px;padding:12px;background:linear-gradient(145deg,#142733,#0a151d);min-height:86px;position:relative;overflow:hidden}
 #card-hr,#card-spo2,#card-bp,#card-hrv,#card-sleep,#card-steps,#card-pressure{cursor:pointer}
 .m .l{font-size:12px;color:var(--muted)}.m .v{font-size:24px;font-weight:700;margin:6px 0 2px;line-height:1.1}.m .u{font-size:11px;color:var(--muted)}
-.m-progress{position:absolute;bottom:0;left:0;height:3px;background:var(--cyan);width:0%;transition:width 0.1s linear}
-
-button{border:1px solid #8b7440;border-radius:10px;padding:10px 14px;background:linear-gradient(145deg,#172933,#101d25);color:var(--text);font-size:13px;transition:border-color .2s, box-shadow .2s}
+.m-progress{position:absolute;bottom:0;left:0;height:3px;background:var(--cyan);width:0%;transition:width .1s linear}
+button{border:1px solid #8b7440;border-radius:10px;padding:10px 14px;background:linear-gradient(145deg,#172933,#101d25);color:var(--text);font-size:13px;transition:border-color .2s,box-shadow .2s}
 button:active{filter:brightness(1.12)}
 button:disabled{opacity:.4;pointer-events:none}
 button.p{background:linear-gradient(135deg,#806a39,#4f4327);color:#fff}
 button.c{border-color:#438d91;background:linear-gradient(135deg,#153b41,#10282e)}
 button.d{border-color:#7b4141;color:#ffdede}
 button.glow{border-color:var(--cyan)!important;box-shadow:0 0 10px var(--cyan)!important}
-
 .hist{max-height:340px;overflow:auto;margin-top:6px}
 .rc{background:#0c1820;border:1px solid #2a4550;border-radius:10px;padding:10px 12px;margin-bottom:6px;font-size:13px}
 .rc .t{color:var(--gold);font-size:12px;margin-bottom:3px}
-
-.chart-box{margin-top:10px;background:#030709;border:1px solid #25343b;border-radius:10px;padding:10px}
+.chart-box{margin-top:10px;background:#030709;border:1px solid #25343b;border-radius:10px;padding:10px;min-height:100px}
 .chart-title{font-size:11px;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between}
-.chart-box{min-height:100px}
 canvas{width:100%!important;height:100%!important;display:block;min-height:100px}
-
 .range-tabs{display:flex;gap:4px;margin-top:2px}
 .range-tabs button{flex:1;padding:4px 0;font-size:11px;border-radius:20px}
 .range-tabs button.active{background:linear-gradient(135deg,#806a39,#4f4327);color:#fff;border-color:#8b7440}
-
 #log{margin-top:8px;background:#030709;border:1px solid #25343b;color:#9fe9d0;font:11px/1.4 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto;padding:10px;border-radius:10px}
 </style>
 </head>
 <body>
 <main>
 <div id="page1">
-<div class="card">
-  <h1>TK5 Smart Ring <span>TP制作🐈🎏</span></h1>
-  <div class="row" style="margin-top:10px;justify-content:center">
-    <button id="btnConnect" class="p">连接</button>
-    <button id="btnDisconnect">断开</button>
+  <div class="card">
+    <h1>TK5 Smart Ring <span>TP制作🐈🎏</span></h1>
+    <div class="row" style="margin-top:10px;justify-content:center">
+      <button id="btnConnect" class="p">连接</button>
+      <button id="btnDisconnect">断开</button>
+    </div>
+    <div id="status" class="status disconnected"><div class="status-dot"></div><span>未连接</span></div>
   </div>
-  <div id="status" class="status disconnected"><div class="status-dot"></div><span>未连接</span></div>
+
+  <div class="card">
+    <div class="grid">
+      <div class="m" id="card-hr"><div class="l">❤️ 心率</div><div id="hr" class="v">--</div><div class="u">BPM</div><div class="m-progress" id="prog-hr"></div></div>
+      <div class="m" id="card-spo2"><div class="l">🩸 血氧</div><div id="spo2" class="v">--</div><div class="u">%</div><div class="m-progress" id="prog-spo2"></div></div>
+      <div class="m" id="card-bp"><div class="l">🩺 血压</div><div id="bp" class="v">-- / --</div><div class="u" id="bpHr"></div><div class="m-progress" id="prog-bp"></div></div>
+      <div class="m" id="card-hrv"><div class="l">📈 HRV</div><div id="hrv" class="v">--</div><div class="u"></div><div class="m-progress" id="prog-hrv"></div></div>
+      <div class="m" id="card-steps"><div class="l">👣 步数</div><div id="steps" class="v">--</div><div class="u">今日</div></div>
+      <div class="m" id="card-sleep"><div class="l">😴 睡眠</div><div id="sleepMin" class="v">--</div><div class="u">时长</div></div>
+      <div class="m" id="card-pressure"><div class="l">💆 压力</div><div id="pressureVal" class="v">--</div><div class="u">最新</div></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button id="btnSteps">🔄 步数</button>
+      <button id="btnControl" class="c" style="margin-left:14px">控制</button>
+      <button id="btnData" class="c" style="margin-left:8px">数据</button>
+    </div>
+  </div>
+
+  <div id="panel-control" style="display:none">
+    <div class="card">
+      <div class="row">
+        <button class="c" data-mode="0">测心率</button>
+        <button class="c" data-mode="2">测血氧</button>
+        <button class="c" data-mode="1">测血压</button>
+        <button class="c" data-mode="10">测HRV</button>
+        <button data-mode="-1">停止</button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button data-h="09">同步全部</button>
+        <button data-h="08">血压历史</button>
+        <button data-h="06">心率历史</button>
+        <button data-h="04">睡眠历史</button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button data-h="02">步数历史</button>
+        <button data-h="1a">血氧历史</button>
+        <button data-h="1e">体温历史</button>
+        <button data-h="2f">综合(旧)</button>
+        <button data-h="33">压力历史</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="panel-data" style="display:none">
+    <div class="card"><div id="history" class="hist"></div></div>
+    <div class="card">
+      <div class="row">
+        <button id="btnCopy">复制日志</button>
+        <button id="btnClearLog">清空日志</button>
+        <button id="btnClearRec" class="d">清空记录</button>
+      </div>
+      <div id="log"></div>
+    </div>
+  </div>
 </div>
 
-<div class="card">
-  <div class="grid">
-    <div class="m" id="card-hr"><div class="l">❤️ 心率</div><div id="hr" class="v">--</div><div class="u">BPM</div><div class="m-progress" id="prog-hr"></div></div>
-    <div class="m" id="card-spo2"><div class="l">🩸 血氧</div><div id="spo2" class="v">--</div><div class="u">%</div><div class="m-progress" id="prog-spo2"></div></div>
-    <div class="m" id="card-bp"><div class="l">🩺 血压</div><div id="bp" class="v">-- / --</div><div class="u" id="bpHr"></div><div class="m-progress" id="prog-bp"></div></div>
-    <div class="m" id="card-hrv"><div class="l">📈 HRV</div><div id="hrv" class="v">--</div><div class="u"></div><div class="m-progress" id="prog-hrv"></div></div>
-    <div class="m" id="card-steps"><div class="l">👣 步数</div><div id="steps" class="v">--</div><div class="u">今日</div></div>
-    <div class="m" id="card-sleep"><div class="l">😴 睡眠</div><div id="sleepMin" class="v">--</div><div class="u">时长</div></div>
-    <div class="m" id="card-pressure"><div class="l">💆 压力</div><div id="pressureVal" class="v">--</div><div class="u">最新</div></div>
-  </div>
-  <div class="row" style="margin-top:8px">
-    <button id="btnSteps">🔄 步数</button>
-    <button id="btnControl" class="c" style="margin-left:14px">控制</button>
-    <button id="btnData" class="c" style="margin-left:8px">数据</button>
-  </div>
-</div>
-
-<div id="panel-control" style="display:none">
-<div class="card">
-  <div class="row">
-    <button class="c" data-mode="0">测心率</button>
-    <button class="c" data-mode="2">测血氧</button>
-    <button class="c" data-mode="1">测血压</button>
-    <button class="c" data-mode="10">测HRV</button>
-    <button data-mode="-1">停止</button>
-  </div>
-  <div class="row" style="margin-top:8px">
-    <button data-h="09">同步全部</button>
-    <button data-h="08">血压历史</button>
-    <button data-h="06">心率历史</button>
-    <button data-h="04">睡眠历史</button>
-  </div>
-  <div class="row" style="margin-top:8px">
-    <button data-h="02">步数历史</button>
-    <button data-h="1a">血氧历史</button>
-    <button data-h="1e">体温历史</button>
-    <button data-h="2f">综合(旧)</button>
-    <button data-h="33">压力历史</button>
-  </div>
-</div>
-</div>
-
-<div id="panel-data" style="display:none">
-<div class="card"><div id="history" class="hist"></div></div>
-
-<div class="card">
-  <div class="row">
-    <button id="btnCopy">复制日志</button>
-    <button id="btnClearLog">清空日志</button>
-    <button id="btnClearRec" class="d">清空记录</button>
-  </div>
-  <div id="log"></div>
-</div>
-</div>
-</div>
-
+<!-- Detail pages -->
 <div id="pageHR" style="display:none">
-<div class="card">
-  <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
-  <div class="chart-title"><span>❤️ 心率</span><span id="chart-sub">暂无数据</span></div>
-  <div class="range-tabs" id="trend-range">
-    <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
+  <div class="card">
+    <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
+    <div class="chart-title"><span>❤️ 心率</span><span id="chart-sub">暂无数据</span></div>
+    <div class="range-tabs" id="trend-range">
+      <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
+    </div>
+    <div class="chart-box"><canvas id="trendCanvas"></canvas></div>
+    <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
+      <div><div style="font-size:20px;font-weight:700" id="hr-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
+      <div><div style="font-size:20px;font-weight:700;color:#67d9df" id="hr-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
+      <div><div style="font-size:20px;font-weight:700;color:#d6b56a" id="hr-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
+    </div>
   </div>
-  <div class="chart-box">
-    <canvas id="trendCanvas"></canvas>
-  </div>
-  <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
-    <div><div style="font-size:20px;font-weight:700" id="hr-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
-    <div><div style="font-size:20px;font-weight:700;color:#67d9df" id="hr-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
-    <div><div style="font-size:20px;font-weight:700;color:#d6b56a" id="hr-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
-  </div>
-</div>
 </div>
 
 <div id="pageSpO2" style="display:none">
-<div class="card">
-  <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
-  <div class="chart-title"><span>🩸 血氧</span><span id="spo2-chart-sub">暂无数据</span></div>
-  <div class="range-tabs" id="spo2-range">
-    <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
+  <div class="card">
+    <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
+    <div class="chart-title"><span>🩸 血氧</span><span id="spo2-chart-sub">暂无数据</span></div>
+    <div class="range-tabs" id="spo2-range">
+      <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
+    </div>
+    <div class="chart-box"><canvas id="spo2Canvas"></canvas></div>
+    <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
+      <div><div style="font-size:20px;font-weight:700" id="spo2-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
+      <div><div style="font-size:20px;font-weight:700;color:#67d9df" id="spo2-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
+      <div><div style="font-size:20px;font-weight:700;color:#d6b56a" id="spo2-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
+    </div>
   </div>
-  <div class="chart-box">
-    <canvas id="spo2Canvas"></canvas>
-  </div>
-  <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
-    <div><div style="font-size:20px;font-weight:700" id="spo2-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
-    <div><div style="font-size:20px;font-weight:700;color:#67d9df" id="spo2-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
-    <div><div style="font-size:20px;font-weight:700;color:#d6b56a" id="spo2-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
-  </div>
-</div>
 </div>
 
 <div id="pageHRV" style="display:none">
-<div class="card">
-  <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
-  <div class="chart-title"><span>📈 HRV</span><span id="hrv-chart-sub">暂无数据</span></div>
-  <div class="range-tabs" id="hrv-range">
-    <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
+  <div class="card">
+    <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
+    <div class="chart-title"><span>📈 HRV</span><span id="hrv-chart-sub">暂无数据</span></div>
+    <div class="range-tabs" id="hrv-range">
+      <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
+    </div>
+    <div class="chart-box"><canvas id="hrvCanvas"></canvas></div>
+    <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
+      <div><div style="font-size:20px;font-weight:700" id="hrv-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
+      <div><div style="font-size:20px;font-weight:700;color:#67d9df" id="hrv-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
+      <div><div style="font-size:20px;font-weight:700;color:#d6b56a" id="hrv-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
+    </div>
   </div>
-  <div class="chart-box">
-    <canvas id="hrvCanvas"></canvas>
-  </div>
-  <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
-    <div><div style="font-size:20px;font-weight:700" id="hrv-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
-    <div><div style="font-size:20px;font-weight:700;color:#67d9df" id="hrv-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
-    <div><div style="font-size:20px;font-weight:700;color:#d6b56a" id="hrv-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
-  </div>
-</div>
 </div>
 
 <div id="pageBP" style="display:none">
-<div class="card">
-  <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
-  <div class="chart-title"><span>🩺 血压</span><span id="bp-chart-sub">暂无数据</span></div>
-  <div class="range-tabs" id="bp-range">
-    <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
+  <div class="card">
+    <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
+    <div class="chart-title"><span>🩺 血压</span><span id="bp-chart-sub">暂无数据</span></div>
+    <div class="range-tabs" id="bp-range">
+      <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
+    </div>
+    <div class="chart-box"><canvas id="bpCanvas"></canvas></div>
+    <div style="display:flex;gap:14px;margin-top:6px;font-size:11px;color:var(--muted)">
+      <span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f0b46b;margin-right:4px"></i>收缩压</span>
+      <span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#c9772e;margin-right:4px"></i>舒张压</span>
+    </div>
+    <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
+      <div><div style="font-size:20px;font-weight:700" id="bp-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
+      <div><div style="font-size:20px;font-weight:700;color:#67d9df" id="bp-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
+      <div><div style="font-size:20px;font-weight:700;color:#d6b56a" id="bp-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
+    </div>
   </div>
-  <div class="chart-box">
-    <canvas id="bpCanvas"></canvas>
-  </div>
-  <div style="display:flex;gap:14px;margin-top:6px;font-size:11px;color:var(--muted)">
-    <span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f0b46b;margin-right:4px"></i>收缩压</span>
-    <span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#c9772e;margin-right:4px"></i>舒张压</span>
-  </div>
-  <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
-    <div><div style="font-size:20px;font-weight:700" id="bp-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
-    <div><div style="font-size:20px;font-weight:700;color:#67d9df" id="bp-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
-    <div><div style="font-size:20px;font-weight:700;color:#d6b56a" id="bp-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
-  </div>
-</div>
 </div>
 
 <div id="pageSleep" style="display:none">
-<div class="card">
-  <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
-  <div class="chart-title"><span>😴 睡眠</span><span id="sleep-chart-sub">暂无数据</span></div>
-  <div class="range-tabs" id="sleep-range">
-    <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
+  <div class="card">
+    <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
+    <div class="chart-title"><span>😴 睡眠</span><span id="sleep-chart-sub">暂无数据</span></div>
+    <div class="range-tabs" id="sleep-range">
+      <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
+    </div>
+    <div class="row" id="hypnoDateNav" style="justify-content:center;align-items:center;gap:16px;margin:6px 0">
+      <button id="hypnoDatePrev" class="c" style="padding:2px 12px">‹</button>
+      <span id="hypnoDateLabel" style="font-size:13px;color:var(--cyan)">--</span>
+      <button id="hypnoDateNext" class="c" style="padding:2px 12px">›</button>
+    </div>
+    <div class="chart-box" style="height:120px;position:relative">
+      <canvas id="sleepCanvas"></canvas>
+      <canvas id="hypnoCanvas" style="position:absolute;left:0;top:0"></canvas>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:2px" id="hypnoTimeRow">
+      <span id="hypno-start">--</span><span id="hypno-end">--</span>
+    </div>
+    <div style="display:flex;justify-content:space-around;margin-top:14px;text-align:center">
+      <div><div style="font-size:18px;font-weight:700;color:#5b4fd6" id="hypno-deep">--</div><div style="font-size:11px;color:var(--muted)">深睡</div></div>
+      <div><div style="font-size:18px;font-weight:700;color:#b9a6f2" id="hypno-light">--</div><div style="font-size:11px;color:var(--muted)">浅睡</div></div>
+      <div><div style="font-size:18px;font-weight:700;color:#e8834a" id="hypno-rem">--</div><div style="font-size:11px;color:var(--muted)">REM</div></div>
+    </div>
+    <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
+      <div><div style="font-size:18px;font-weight:700" id="hypno-total">--</div><div style="font-size:11px;color:var(--muted)">睡眠时长</div></div>
+      <div><div style="font-size:18px;font-weight:700;color:#d6b56a" id="hypno-awake">--</div><div style="font-size:11px;color:var(--muted)">清醒次数</div></div>
+    </div>
+    <div style="margin-top:14px;font-size:12px;color:var(--muted)" id="hypno-analysis"></div>
   </div>
-  <div class="row" id="hypnoDateNav" style="justify-content:center;align-items:center;gap:16px;margin:6px 0">
-    <button id="hypnoDatePrev" class="c" style="padding:2px 12px">‹</button>
-    <span id="hypnoDateLabel" style="font-size:13px;color:var(--cyan)">--</span>
-    <button id="hypnoDateNext" class="c" style="padding:2px 12px">›</button>
-  </div>
-  <div class="chart-box" style="height:120px;position:relative">
-    <canvas id="sleepCanvas"></canvas>
-    <canvas id="hypnoCanvas" style="position:absolute;left:0;top:0"></canvas>
-  </div>
-  <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:2px" id="hypnoTimeRow">
-    <span id="hypno-start">--</span><span id="hypno-end">--</span>
-  </div>
-  <div style="display:flex;justify-content:space-around;margin-top:14px;text-align:center" id="hypnoStatsRow1">
-    <div><div style="font-size:18px;font-weight:700;color:#5b4fd6" id="hypno-deep">--</div><div style="font-size:11px;color:var(--muted)">深睡</div></div>
-    <div><div style="font-size:18px;font-weight:700;color:#b9a6f2" id="hypno-light">--</div><div style="font-size:11px;color:var(--muted)">浅睡</div></div>
-    <div><div style="font-size:18px;font-weight:700;color:#e8834a" id="hypno-rem">--</div><div style="font-size:11px;color:var(--muted)">REM</div></div>
-  </div>
-  <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center" id="hypnoStatsRow2">
-    <div><div style="font-size:18px;font-weight:700" id="hypno-total">--</div><div style="font-size:11px;color:var(--muted)">睡眠时长</div></div>
-    <div><div style="font-size:18px;font-weight:700;color:#d6b56a" id="hypno-awake">--</div><div style="font-size:11px;color:var(--muted)">清醒次数</div></div>
-  </div>
-  <div style="margin-top:14px;font-size:12px;color:var(--muted)" id="hypno-analysis"></div>
-</div>
 </div>
 
 <div id="pagePressure" style="display:none">
-<div class="card">
-  <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
-  <div class="chart-title"><span>💆 压力</span><span id="pressure-chart-sub">暂无数据</span></div>
-  <div class="range-tabs" id="pressure-range">
-    <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
+  <div class="card">
+    <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
+    <div class="chart-title"><span>💆 压力</span><span id="pressure-chart-sub">暂无数据</span></div>
+    <div class="range-tabs" id="pressure-range">
+      <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
+    </div>
+    <div class="row" id="pressureDateNav" style="justify-content:center;align-items:center;gap:16px;margin:6px 0">
+      <button id="pressureDatePrev" class="c" style="padding:2px 12px">‹</button>
+      <span id="pressureDateLabel" style="font-size:13px;color:var(--cyan)">--</span>
+      <button id="pressureDateNext" class="c" style="padding:2px 12px">›</button>
+    </div>
+    <div class="chart-box"><canvas id="pressureCanvas"></canvas></div>
+    <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
+      <div><div style="font-size:20px;font-weight:700" id="pressure-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
+      <div><div style="font-size:20px;font-weight:700;color:#67d9df" id="pressure-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
+      <div><div style="font-size:20px;font-weight:700;color:#d6b56a" id="pressure-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
+    </div>
+    <div style="margin-top:14px;font-size:12px">
+      <div style="color:var(--muted);margin-bottom:6px">📈 压力参考值</div>
+      <div style="display:flex;justify-content:space-between;padding:3px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#67d9df;margin-right:6px"></i>&lt;=25</span><span style="color:#67d9df">轻松</span></div>
+      <div style="display:flex;justify-content:space-between;padding:3px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3b8ef0;margin-right:6px"></i>26-50</span><span style="color:#3b8ef0">正常</span></div>
+      <div style="display:flex;justify-content:space-between;padding:3px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#d6b56a;margin-right:6px"></i>51-80</span><span style="color:#d6b56a">中等</span></div>
+      <div style="display:flex;justify-content:space-between;padding:3px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-right:6px"></i>81-100</span><span style="color:#ef4444">偏高</span></div>
+    </div>
   </div>
-  <div class="row" id="pressureDateNav" style="justify-content:center;align-items:center;gap:16px;margin:6px 0">
-    <button id="pressureDatePrev" class="c" style="padding:2px 12px">‹</button>
-    <span id="pressureDateLabel" style="font-size:13px;color:var(--cyan)">--</span>
-    <button id="pressureDateNext" class="c" style="padding:2px 12px">›</button>
-  </div>
-  <div class="chart-box">
-    <canvas id="pressureCanvas"></canvas>
-  </div>
-  <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
-    <div><div style="font-size:20px;font-weight:700" id="pressure-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
-    <div><div style="font-size:20px;font-weight:700;color:#67d9df" id="pressure-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
-    <div><div style="font-size:20px;font-weight:700;color:#d6b56a" id="pressure-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
-  </div>
-  <div style="margin-top:14px;font-size:12px">
-    <div style="color:var(--muted);margin-bottom:6px">📈 压力参考值</div>
-    <div style="display:flex;justify-content:space-between;padding:3px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#67d9df;margin-right:6px"></i>&lt;=25</span><span style="color:#67d9df">轻松</span></div>
-    <div style="display:flex;justify-content:space-between;padding:3px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3b8ef0;margin-right:6px"></i>26-50</span><span style="color:#3b8ef0">正常</span></div>
-    <div style="display:flex;justify-content:space-between;padding:3px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#d6b56a;margin-right:6px"></i>51-80</span><span style="color:#d6b56a">中等</span></div>
-    <div style="display:flex;justify-content:space-between;padding:3px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-right:6px"></i>81-100</span><span style="color:#ef4444">偏高</span></div>
-  </div>
-</div>
 </div>
 
 <div id="pageSteps" style="display:none">
-<div class="card">
-  <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
-  <div class="chart-title"><span>👣 步数</span><span id="steps-chart-sub">暂无数据</span></div>
-  <div class="range-tabs" id="steps-range">
-    <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
+  <div class="card">
+    <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
+    <div class="chart-title"><span>👣 步数</span><span id="steps-chart-sub">暂无数据</span></div>
+    <div class="range-tabs" id="steps-range">
+      <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
+    </div>
+    <div class="row" id="stepsDateNav" style="justify-content:center;align-items:center;gap:16px;margin:6px 0">
+      <button id="stepsDatePrev" class="c" style="padding:2px 12px">‹</button>
+      <span id="stepsDateLabel" style="font-size:13px;color:var(--cyan)">--</span>
+      <button id="stepsDateNext" class="c" style="padding:2px 12px">›</button>
+    </div>
+    <div class="chart-box" style="height:120px"><canvas id="stepsCanvas"></canvas></div>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:2px;padding:0 2px" id="stepsHourLabels">
+      <span>0</span><span>6</span><span>12</span><span>18</span><span>23</span>
+    </div>
+    <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
+      <div><div style="font-size:20px;font-weight:700" id="steps-total">--</div><div style="font-size:11px;color:var(--muted)">合计</div></div>
+      <div><div style="font-size:20px;font-weight:700" id="steps-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
+      <div><div style="font-size:20px;font-weight:700;color:#67d9df" id="steps-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
+      <div><div style="font-size:20px;font-weight:700;color:#d6b56a" id="steps-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
+    </div>
   </div>
-  <div class="row" id="stepsDateNav" style="justify-content:center;align-items:center;gap:16px;margin:6px 0">
-    <button id="stepsDatePrev" class="c" style="padding:2px 12px">‹</button>
-    <span id="stepsDateLabel" style="font-size:13px;color:var(--cyan)">--</span>
-    <button id="stepsDateNext" class="c" style="padding:2px 12px">›</button>
-  </div>
-  <div class="chart-box" style="height:120px">
-    <canvas id="stepsCanvas"></canvas>
-  </div>
-  <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:2px;padding:0 2px" id="stepsHourLabels">
-    <span>0</span><span>6</span><span>12</span><span>18</span><span>23</span>
-  </div>
-  <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
-    <div><div style="font-size:20px;font-weight:700" id="steps-total">--</div><div style="font-size:11px;color:var(--muted)">合计</div></div>
-    <div><div style="font-size:20px;font-weight:700" id="steps-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
-    <div><div style="font-size:20px;font-weight:700;color:#67d9df" id="steps-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
-    <div><div style="font-size:20px;font-weight:700;color:#d6b56a" id="steps-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
-  </div>
-</div>
 </div>
 </main>
 
 <script>
 "use strict";
 
+/* ========== Constants ========== */
 const SVC = "be940000-7333-be46-b7ae-689e71722bd5";
 const C1U = "be940001-7333-be46-b7ae-689e71722bd5";
 const C3U = "be940003-7333-be46-b7ae-689e71722bd5";
-const EPOCH = 946684800;
+const EPOCH = 946684800; // 2000-01-01 UTC
+const REALTIME = new Set([0x0600, 0x0601, 0x0602, 0x0603, 0x0615, 0x040e, 0x0200, 0x020c, 0x0203]);
+const HIST_LABEL = {
+  "04": "睡眠历史", "02": "步数历史", "1a": "血氧历史",
+  "1e": "体温历史", "2f": "综合(旧)", "33": "压力历史"
+};
+const MODE_NAME = { 0: "心率", 1: "血压", 2: "血氧", 10: "HRV" };
+const MODE_CARD = { 0: "hr", 1: "bp", 2: "spo2", 10: "hrv" };
+const RANGE_DAYS = { day: 1, week: 7, month: 30, year: 365 };
+const PAGES = ["page1", "pageHR", "pageSpO2", "pageHRV", "pageBP", "pageSleep", "pagePressure", "pageSteps"];
 
+/* ========== State ========== */
 let device = null, c1 = null, c3 = null;
 let c1Buf = new Uint8Array(), c3Buf = new Uint8Array();
 let logs = [], records = JSON.parse(localStorage.getItem("tk5Records") || "[]");
 let histBusy = false, histTimer = null, histType = null, histChunks = [], histReqKey = null, histEchoType = null, histResolve = null;
-let measureResolve = null, measureExpectCode = null;
-let isMeasuring = false;
-let activeTimerInterval = null;
-
-// 音效生成器 (使用 Web Audio API 动态合成短促清脆的点击音，免去外部音频文件加载)
+let measureResolve = null, measureExpectCode = null, isMeasuring = false, activeTimer = null;
+let chartRange = { trend: "week", sleep: "week", bp: "week", pressure: "day", spo2: "week", hrv: "week", steps: "day" };
+let pressureDate = startOfDay(new Date());
+let hypnoDate = startOfDay(new Date());
+let stepsDate = startOfDay(new Date());
 let audioCtx = null;
-function playClickSound() {
-  try {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.05);
-    
-    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-    
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.05);
-  } catch (e) {
-    // 忽略音频策略限制
-  }
+
+/* ========== Utils ========== */
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const hex = a => Array.from(a).map(x => x.toString(16).padStart(2, "0")).join(" ");
+const cat = (a, b) => { const o = new Uint8Array(a.length + b.length); o.set(a, 0); o.set(b, a.length); return o; };
+const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function ts(b0, b1, b2, b3) { return new Date((b0 + b1 * 256 + b2 * 65536 + b3 * 16777216 + EPOCH) * 1000); }
+function fmt(d) { return d.toLocaleString("zh-CN", { hour12: false }); }
+function startOfDay(d) { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
+function sameDay(a, b) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
+function dateLabel(d) { return `${d.getMonth() + 1}/${String(d.getDate()).padStart(2, "0")}`; }
+function filterByRange(list, range) {
+  const cutoff = Date.now() - (RANGE_DAYS[range] || 7) * 86400000;
+  return list.filter(r => new Date(r.time).getTime() >= cutoff);
 }
 
-// 统一为所有按钮绑定点击光晕与音效
-document.addEventListener("click", (e) => {
-  const btn = e.target.closest("button");
-  if (btn) {
-    playClickSound();
-    btn.classList.add("glow");
-    setTimeout(() => btn.classList.remove("glow"), 400);
-  }
-});
-
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-// PulseLoop YCBT: live vitals on C3 (06xx), command replies on C1; 0615 = unprompted battery push
-const REALTIME_TYPES = new Set([0x0600, 0x0601, 0x0602, 0x0603, 0x0615, 0x040e, 0x0200, 0x020c, 0x0203]);
-const HIST_LABELS = {
-  "04": "睡眠历史(原始)", "02": "步数历史", "1a": "血氧历史(原始)",
-  "1e": "体温历史(原始)", "2f": "综合(旧,0x2f原始)", "33": "压力历史"
-};
-const MODE_NAMES = { 0: "心率", 1: "血压", 2: "血氧", 10: "HRV" };
-const MODE_CARD_KEYS = { 0: "hr", 1: "bp", 2: "spo2", 10: "hrv" };
-
-const $ = id => document.getElementById(id);
-
 function log(t) {
-  const line = `[${new Date().toLocaleTimeString("zh-CN",{hour12:false})}] ${t}`;
+  const line = `[${new Date().toLocaleTimeString("zh-CN", { hour12: false })}] ${t}`;
   logs.push(line);
-  $("log").textContent = logs.join("\n");
-  $("log").scrollTop = $("log").scrollHeight;
+  const el = $("log");
+  if (el) { el.textContent = logs.join("\n"); el.scrollTop = el.scrollHeight; }
 }
 
 function setStatus(text, type = "connected") {
@@ -364,15 +323,25 @@ function setStatus(text, type = "connected") {
   if (span) span.textContent = text;
 }
 
-function hex(a) { return Array.from(a).map(x => x.toString(16).padStart(2,"0")).join(" "); }
-function cat(a,b) { const o = new Uint8Array(a.length+b.length); o.set(a,0); o.set(b,a.length); return o; }
-function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-
-function ts(b0,b1,b2,b3) {
-  return new Date((b0 + b1*256 + b2*65536 + b3*16777216 + EPOCH) * 1000);
+function playClick() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.05);
+    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.05);
+  } catch (_) {}
 }
-function fmt(d) { return d.toLocaleString("zh-CN",{hour12:false}); }
 
+/* ========== Protocol ========== */
 function crc16(data) {
   let c = 0xffff;
   for (let i = 0; i < data.length; i++) {
@@ -389,19 +358,22 @@ function packet(type, payload = []) {
   p[2] = len & 0xff; p[3] = (len >> 8) & 0xff;
   p.set(payload, 4);
   const c = crc16(p.slice(0, len - 2));
-  p[len-2] = c & 0xff; p[len-1] = (c >> 8) & 0xff;
+  p[len - 2] = c & 0xff; p[len - 1] = (c >> 8) & 0xff;
   return p;
 }
 
 function timePayload() {
   const d = new Date(), y = d.getFullYear();
-  return new Uint8Array([y&0xff,(y>>8)&0xff, d.getMonth()+1, d.getDate(), d.getHours(), d.getMinutes(), d.getSeconds(), d.getDay()===0?6:d.getDay()-1]);
+  return new Uint8Array([
+    y & 0xff, (y >> 8) & 0xff, d.getMonth() + 1, d.getDate(),
+    d.getHours(), d.getMinutes(), d.getSeconds(), d.getDay() === 0 ? 6 : d.getDay() - 1
+  ]);
 }
 
 async function send(type, payload = []) {
   if (!c1) return;
   const p = packet(type, payload);
-  log(`TX 0x${type.toString(16).padStart(4,"0")} [${hex(p)}]`);
+  log(`TX 0x${type.toString(16).padStart(4, "0")} [${hex(p)}]`);
   try {
     if (c1.properties.writeWithoutResponse) await c1.writeValueWithoutResponse(p);
     else await c1.writeValue(p);
@@ -419,98 +391,90 @@ function feed(kind, data) {
     buf = buf.slice(total);
     const type = (pkt[0] << 8) | pkt[1];
     const payload = pkt.slice(4, pkt.length - 2);
-    const ok = (pkt[pkt.length-2] | (pkt[pkt.length-1] << 8)) === crc16(pkt.slice(0, pkt.length-2));
-    log(`RX ${kind} 0x${type.toString(16).padStart(4,"0")} ${ok?"OK":"BAD"} [${hex(payload)}]`);
+    const ok = (pkt[pkt.length - 2] | (pkt[pkt.length - 1] << 8)) === crc16(pkt.slice(0, pkt.length - 2));
+    log(`RX ${kind} 0x${type.toString(16).padStart(4, "0")} ${ok ? "OK" : "BAD"} [${hex(payload)}]`);
     handle(type, payload);
   }
   if (kind === "C1") c1Buf = buf; else c3Buf = buf;
 }
 
-function add(type, data) {
-  records.unshift({ time: new Date().toISOString(), type, data });
-  records = records.slice(0, 4000);
-  localStorage.setItem("tk5Records", JSON.stringify(records));
-  refreshAll();
-}
-
+/* ========== Decode ========== */
 function decodeHR(bytes) {
   const r = [];
   for (let i = 0; i + 6 <= bytes.length; i += 6)
-    r.push({ local: fmt(ts(bytes[i],bytes[i+1],bytes[i+2],bytes[i+3])), hr: bytes[i+5] });
+    r.push({ local: fmt(ts(bytes[i], bytes[i + 1], bytes[i + 2], bytes[i + 3])), hr: bytes[i + 5] });
   return r;
 }
+
 function decodeBP(bytes) {
   const r = [];
   for (let i = 0; i + 8 <= bytes.length; i += 8)
-    r.push({ local: fmt(ts(bytes[i],bytes[i+1],bytes[i+2],bytes[i+3])), sys: bytes[i+5], dia: bytes[i+6], hr: bytes[i+7] });
-  return r;
-}
-function decodeAll(bytes) {
-  const r = [];
-  for (let i = 0; i + 20 <= bytes.length; i += 20)
     r.push({
-      local: fmt(ts(bytes[i],bytes[i+1],bytes[i+2],bytes[i+3])),
-      hr: bytes[i+6], sys: bytes[i+7], dia: bytes[i+8], spo2: bytes[i+9]
+      local: fmt(ts(bytes[i], bytes[i + 1], bytes[i + 2], bytes[i + 3])),
+      sys: bytes[i + 5], dia: bytes[i + 6], hr: bytes[i + 7]
     });
   return r;
 }
 
-// 压力历史帧(0x33/0x0534)：每条记录固定28字节 [时间戳4][数据11][补零11][CRC2]，每小时一条整点采样；
-// 压力值 = 数据段第10字节(索引9) + 24，已用官方App同日数据逐点核对(5/5条对上4条，1条差1，判断为App端平滑导致)
+function decodeAll(bytes) {
+  const r = [];
+  for (let i = 0; i + 20 <= bytes.length; i += 20)
+    r.push({
+      local: fmt(ts(bytes[i], bytes[i + 1], bytes[i + 2], bytes[i + 3])),
+      hr: bytes[i + 6], sys: bytes[i + 7], dia: bytes[i + 8], spo2: bytes[i + 9]
+    });
+  return r;
+}
+
+// 压力 0x33：28字节/条，压力值 = data[13] + 24
 function decodePressure(bytes) {
   const r = [];
   for (let i = 0; i + 28 <= bytes.length; i += 28) {
-    const d = ts(bytes[i],bytes[i+1],bytes[i+2],bytes[i+3]);
-    r.push({ local: fmt(d), t: d.getTime(), pressure: bytes[i+13] + 24 });
+    const d = ts(bytes[i], bytes[i + 1], bytes[i + 2], bytes[i + 3]);
+    r.push({ local: fmt(d), t: d.getTime(), pressure: bytes[i + 13] + 24 });
   }
   return r;
 }
 
-// 步数历史(0x0502)：常见为每条 10 字节 [时间戳4 LE][步数2 LE][距离2 LE][卡路里2 LE]，多为整点/时段桶；
-// 也兼容 12 字节记录（末尾 2 字节填充）。解码后按小时聚合，供日视图柱状图使用。
+// 步数 0x02：10或12字节/条
 function decodeSteps(bytes) {
   const r = [];
   if (!bytes || bytes.length < 10) return r;
-  // 优先按 10 字节切；若总长更像 12 的倍数则按 12
   const stride = (bytes.length % 12 === 0 && bytes.length % 10 !== 0) ? 12 : 10;
   for (let i = 0; i + 10 <= bytes.length; i += stride) {
     const d = ts(bytes[i], bytes[i + 1], bytes[i + 2], bytes[i + 3]);
     const steps = bytes[i + 4] | (bytes[i + 5] << 8);
-    const distance = bytes[i + 6] | (bytes[i + 7] << 8);
-    const calories = bytes[i + 8] | (bytes[i + 9] << 8);
-    // 过滤明显异常（时间戳不合理或步数过大）
     if (steps > 20000) continue;
     const t = d.getTime();
     if (t < Date.now() - 400 * 86400000 || t > Date.now() + 86400000) continue;
-    r.push({ local: fmt(d), t, steps, distance, calories, hour: d.getHours() });
+    r.push({
+      local: fmt(d), t, steps,
+      distance: bytes[i + 6] | (bytes[i + 7] << 8),
+      calories: bytes[i + 8] | (bytes[i + 9] << 8),
+      hour: d.getHours()
+    });
   }
   return r;
 }
 
-// 睡眠帧(0x0513)：每条记录以[af fa][记录总长2 LE]开头，20字节记录头[标记4][起始时间戳4][结束时间戳4][未知8]，
-// 之后每8字节一段[阶段标记1(0xf1深/0xf2浅/0xf3REM)][段起始时间戳4][时长秒数2 LE][占位1]；
-// 一次同步可能返回多条记录(中途醒来会拆成多条)，需按每条记录自带长度字段切分后逐条解码再合并统计。
+// 睡眠 0x04：变长记录，阶段 tag & 0x0F (1深/2浅/3REM)
 function decodeSleep(bytes) {
   if (bytes.length < 20) return null;
-  let i = 0;
-  let start = null, end = null;
+  let i = 0, start = null, end = null, deepSec = 0, lightSec = 0, remSec = 0, sessionCount = 0;
   const segments = [];
-  let deepSec = 0, lightSec = 0, remSec = 0;
-  let sessionCount = 0;
   while (i + 20 <= bytes.length) {
-    const len = bytes[i+2] | (bytes[i+3] << 8);
-    if (len < 20) break; // 长度字段异常，安全退出，保留已解出的部分
+    const len = bytes[i + 2] | (bytes[i + 3] << 8);
+    if (len < 20) break;
     const segEnd = Math.min(i + len, bytes.length);
-    const sStart = ts(bytes[i+4], bytes[i+5], bytes[i+6], bytes[i+7]);
-    const sEnd = ts(bytes[i+8], bytes[i+9], bytes[i+10], bytes[i+11]);
+    const sStart = ts(bytes[i + 4], bytes[i + 5], bytes[i + 6], bytes[i + 7]);
+    const sEnd = ts(bytes[i + 8], bytes[i + 9], bytes[i + 10], bytes[i + 11]);
     if (!start || sStart < start) start = sStart;
     if (!end || sEnd > end) end = sEnd;
     for (let j = i + 20; j + 8 <= segEnd; j += 8) {
-      // PulseLoop: stage = tag & 0x0F (1=深睡, 2=浅睡, 3=REM); 兼容旧 0xf1/0xf2/0xf3
       const rawTag = bytes[j];
       const stage = rawTag & 0x0f;
-      const segStart = ts(bytes[j+1], bytes[j+2], bytes[j+3], bytes[j+4]);
-      const durSec = bytes[j+5] | (bytes[j+6] << 8);
+      const segStart = ts(bytes[j + 1], bytes[j + 2], bytes[j + 3], bytes[j + 4]);
+      const durSec = bytes[j + 5] | (bytes[j + 6] << 8);
       segments.push({ type: rawTag, stage, start: segStart, durSec });
       if (stage === 1 || rawTag === 0xf1) deepSec += durSec;
       else if (stage === 2 || rawTag === 0xf2) lightSec += durSec;
@@ -526,9 +490,16 @@ function decodeSleep(bytes) {
     deepMin: Math.round(deepSec / 60), lightMin: Math.round(lightSec / 60), remMin: Math.round(remSec / 60),
     totalMin: Math.round(totalSec / 60),
     score: totalSec ? Math.round((deepSec / totalSec) * 100) : 0,
-    sessionCount,
-    segments
+    sessionCount, segments
   };
+}
+
+/* ========== Records ========== */
+function add(type, data) {
+  records.unshift({ time: new Date().toISOString(), type, data });
+  records = records.slice(0, 4000);
+  localStorage.setItem("tk5Records", JSON.stringify(records));
+  refreshAll();
 }
 
 function renderHist() {
@@ -539,7 +510,7 @@ function renderHist() {
     if (rec.type === "all" && rec.data) {
       for (const x of [...rec.data].reverse()) {
         if (!x.sys && !x.hr && !x.spo2) continue;
-        cards.push(`<div class="rc"><div class="t">${esc(x.local)}</div><div>${x.sys?`血压 <b>${x.sys}/${x.dia}</b> `:""}${x.hr?`心率 <b>${x.hr}</b> `:""}${x.spo2?`血氧 <b>${x.spo2}</b>%`:""}</div></div>`);
+        cards.push(`<div class="rc"><div class="t">${esc(x.local)}</div><div>${x.sys ? `血压 <b>${x.sys}/${x.dia}</b> ` : ""}${x.hr ? `心率 <b>${x.hr}</b> ` : ""}${x.spo2 ? `血氧 <b>${x.spo2}</b>%` : ""}</div></div>`);
       }
     } else if (rec.type === "bp") {
       cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>血压 <b>${rec.data.sys}/${rec.data.dia}</b> 心率 <b>${rec.data.hr}</b></div></div>`);
@@ -560,387 +531,256 @@ function renderHist() {
         cards.push(`<div class="rc"><div class="t">${esc(x.local)}</div><div>步数 <b>${x.steps}</b>${x.distance ? ` · 距离 <b>${x.distance}</b>m` : ""}${x.calories ? ` · 卡路里 <b>${x.calories}</b>` : ""}</div></div>`);
     } else if (rec.type === "raw") {
       const d = rec.data;
-      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} · ${esc(d.label)} · 帧0x${(d.frameType||0).toString(16).padStart(4,"0")} · ${d.bytes}字节</div><div style="font:11px/1.4 ui-monospace,Menlo,Consolas,monospace;word-break:break-all;color:var(--cyan)">${esc(d.hex)}</div></div>`);
+      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} · ${esc(d.label)} · 帧0x${(d.frameType || 0).toString(16).padStart(4, "0")} · ${d.bytes}字节</div><div style="font:11px/1.4 ui-monospace,Menlo,Consolas,monospace;word-break:break-all;color:var(--cyan)">${esc(d.hex)}</div></div>`);
     }
     if (cards.length >= 40) break;
   }
   box.innerHTML = cards.length ? cards.join("") : "";
 }
 
-// ---- 图表通用工具（三个趋势图共用，避免重复的画布初始化/空状态代码）----
-
-const RANGE_DAYS = { day: 1, week: 7, month: 30, year: 365 };
-// 三个图表各自独立记住当前选中的时间范围
-const chartRange = { trend: "week", sleep: "week", bp: "week", pressure: "day", spo2: "week", hrv: "week", steps: "day" };
-
-// 压力/睡眠详情页的日期导航状态（默认今天，用‹›切换查看历史某一天）
-function startOfDay(d) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
-function sameDay(a, b) { return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
-function dateLabel(d) { return `${d.getMonth()+1}/${String(d.getDate()).padStart(2,"0")}`; }
-let pressureDate = startOfDay(new Date());
-let hypnoDate = startOfDay(new Date());
-let stepsDate = startOfDay(new Date());
-
-// 按“年/月/周/日”过滤记录：只保留 time 落在最近 N 天内的
-function filterByRange(list, range) {
-  const cutoff = Date.now() - (RANGE_DAYS[range] || 7) * 86400000;
-  return list.filter(r => new Date(r.time).getTime() >= cutoff);
-}
-
-// 绑定一组范围选择按钮：点击后更新对应图表的range并重绘
-function setupRangeTabs(containerId, chartKey, redraw) {
-  const el = $(containerId);
-  if (!el) return;
-  el.querySelectorAll("button").forEach(btn => {
-    btn.onclick = () => {
-      chartRange[chartKey] = btn.dataset.range;
-      el.querySelectorAll("button").forEach(b => b.classList.toggle("active", b === btn));
-      redraw();
-    };
-  });
-}
-
-// 按DPR初始化画布并清空，返回绘图上下文与逻辑宽高
-function initCanvas(canvasId) {
-  const canvas = $(canvasId);
+/* ========== Charts ========== */
+function initCanvas(id) {
+  const canvas = $(id);
   if (!canvas) return null;
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
-  const width = canvas.clientWidth || 300;
-  const height = canvas.clientHeight || 100;
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width = width * dpr;
-  canvas.height = height * dpr;
+  const w = canvas.clientWidth || 300, h = canvas.clientHeight || 100, dpr = window.devicePixelRatio || 1;
+  canvas.width = w * dpr; canvas.height = h * dpr;
   ctx.scale(dpr, dpr);
-  ctx.clearRect(0, 0, width, height);
-  return { ctx, width, height };
+  ctx.clearRect(0, 0, w, h);
+  return { ctx, width: w, height: h };
 }
 
-function drawEmptyState(ctx, width, height, msg) {
+function drawEmpty(ctx, w, h, msg) {
   ctx.fillStyle = "#8ea3ad";
   ctx.font = "12px sans-serif";
   ctx.textAlign = "center";
-  ctx.fillText(msg, width / 2, height / 2 + 4);
+  ctx.fillText(msg, w / 2, h / 2 + 4);
 }
 
-// 单条曲线的面积图（心率趋势 / 睡眠质量共用）
-function drawAreaChart(ctx, width, height, points, strokeColor, fillColorRgba, dotColor) {
-  const min = Math.min(...points) - 5;
-  const max = Math.max(...points) + 5;
-  const stepX = width / (points.length - 1);
-  const yOf = v => height - ((v - min) / (max - min || 1)) * (height - 20) - 10;
-
-  const grad = ctx.createLinearGradient(0, 0, 0, height);
-  grad.addColorStop(0, fillColorRgba(0.25));
-  grad.addColorStop(1, fillColorRgba(0));
-
+function drawArea(ctx, w, h, points, stroke, fillFn, dot) {
+  const min = Math.min(...points) - 5, max = Math.max(...points) + 5;
+  const stepX = w / (points.length - 1);
+  const yOf = v => h - ((v - min) / (max - min || 1)) * (h - 20) - 10;
+  const grad = ctx.createLinearGradient(0, 0, 0, h);
+  grad.addColorStop(0, fillFn(0.25));
+  grad.addColorStop(1, fillFn(0));
   ctx.beginPath();
-  points.forEach((val, i) => (i === 0 ? ctx.moveTo(i * stepX, yOf(val)) : ctx.lineTo(i * stepX, yOf(val))));
-  ctx.lineTo(width, height);
-  ctx.lineTo(0, height);
-  ctx.closePath();
-  ctx.fillStyle = grad;
-  ctx.fill();
-
+  points.forEach((v, i) => i === 0 ? ctx.moveTo(i * stepX, yOf(v)) : ctx.lineTo(i * stepX, yOf(v)));
+  ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
   ctx.beginPath();
-  points.forEach((val, i) => (i === 0 ? ctx.moveTo(i * stepX, yOf(val)) : ctx.lineTo(i * stepX, yOf(val))));
-  ctx.strokeStyle = strokeColor;
-  ctx.lineWidth = 2;
-  ctx.stroke();
-
-  points.forEach((val, i) => {
-    ctx.beginPath();
-    ctx.arc(i * stepX, yOf(val), 3, 0, Math.PI * 2);
-    ctx.fillStyle = dotColor;
-    ctx.fill();
+  points.forEach((v, i) => i === 0 ? ctx.moveTo(i * stepX, yOf(v)) : ctx.lineTo(i * stepX, yOf(v)));
+  ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.stroke();
+  points.forEach((v, i) => {
+    ctx.beginPath(); ctx.arc(i * stepX, yOf(v), 3, 0, Math.PI * 2);
+    ctx.fillStyle = dot; ctx.fill();
   });
 }
 
-function drawTrendChart() {
-  const c = initCanvas("trendCanvas");
+function collectMetricPoints(type, range, extraFromAll) {
+  let pts = [];
+  for (const rec of filterByRange(records, range)) {
+    if (rec.type === type) pts.push(rec.data);
+    else if (extraFromAll && rec.type === "all" && rec.data)
+      for (const x of rec.data) if (x[extraFromAll]) pts.push(x[extraFromAll]);
+  }
+  return pts.reverse().slice(-20);
+}
+
+function setStats(ids, values) {
+  ids.forEach((id, i) => { const el = $(id); if (el) el.textContent = values[i]; });
+}
+
+function drawMetricChart(opts) {
+  const c = initCanvas(opts.canvas);
   if (!c) return;
   const { ctx, width, height } = c;
-
-  let points = [];
-  for (const rec of filterByRange(records, chartRange.trend)) {
-    if (rec.type === "hr") points.push(rec.data);
-    else if (rec.type === "all" && rec.data) {
-      for (const x of rec.data) if (x.hr) points.push(x.hr);
-    }
-  }
-  points = points.reverse().slice(-20);
-
-  const sub = $("chart-sub");
+  const points = collectMetricPoints(opts.type, chartRange[opts.rangeKey], opts.fromAll);
+  const sub = $(opts.subId);
   if (sub) sub.textContent = points.length ? `共 ${points.length} 个样本` : "暂无数据";
-  const setStat = (id, v) => { const el = $(id); if (el) el.textContent = v; };
   if (points.length < 2) {
-    setStat("hr-avg", "--"); setStat("hr-high", "--"); setStat("hr-low", "--");
-    return drawEmptyState(ctx, width, height, "数据较少，多测几次即可生成趋势图");
+    setStats(opts.statIds, ["--", "--", "--"]);
+    return drawEmpty(ctx, width, height, opts.emptyMsg);
   }
-  setStat("hr-avg", Math.round(points.reduce((a, b) => a + b, 0) / points.length));
-  setStat("hr-high", Math.max(...points));
-  setStat("hr-low", Math.min(...points));
+  const avg = Math.round(points.reduce((a, b) => a + b, 0) / points.length);
+  setStats(opts.statIds, [avg, Math.max(...points), Math.min(...points)]);
+  drawArea(ctx, width, height, points, opts.stroke, opts.fill, opts.dot);
+}
 
-  drawAreaChart(ctx, width, height, points, "#67d9df", a => `rgba(103, 217, 223, ${a})`, "#d6b56a");
+function drawTrendChart() {
+  drawMetricChart({
+    canvas: "trendCanvas", type: "hr", rangeKey: "trend", fromAll: "hr",
+    subId: "chart-sub", statIds: ["hr-avg", "hr-high", "hr-low"],
+    emptyMsg: "数据较少，多测几次即可生成趋势图",
+    stroke: "#67d9df", fill: a => `rgba(103,217,223,${a})`, dot: "#d6b56a"
+  });
+}
+
+function drawSpo2Chart() {
+  drawMetricChart({
+    canvas: "spo2Canvas", type: "spo2", rangeKey: "spo2", fromAll: "spo2",
+    subId: "spo2-chart-sub", statIds: ["spo2-avg", "spo2-high", "spo2-low"],
+    emptyMsg: "数据较少，多测几次即可生成趋势图",
+    stroke: "#e2703a", fill: a => `rgba(226,112,58,${a})`, dot: "#e2703a"
+  });
+}
+
+function drawHRVChart() {
+  drawMetricChart({
+    canvas: "hrvCanvas", type: "hrv", rangeKey: "hrv",
+    subId: "hrv-chart-sub", statIds: ["hrv-avg", "hrv-high", "hrv-low"],
+    emptyMsg: "数据较少，多测几次即可生成趋势图",
+    stroke: "#e8607a", fill: a => `rgba(232,96,122,${a})`, dot: "#e8607a"
+  });
 }
 
 function drawSleepChart() {
   const c = initCanvas("sleepCanvas");
   if (!c) return;
   const { ctx, width, height } = c;
-
   let points = [];
-  for (const rec of filterByRange(records, chartRange.sleep)) {
+  for (const rec of filterByRange(records, chartRange.sleep))
     if (rec.type === "sleep" && typeof rec.data.score === "number") points.push(rec.data.score);
-  }
   points = points.reverse().slice(-20);
-
   const sub = $("sleep-chart-sub");
   if (sub) sub.textContent = points.length ? `共 ${points.length} 个样本` : "暂无数据";
-  if (points.length < 2) return drawEmptyState(ctx, width, height, "同步睡眠历史后生成睡眠质量趋势图");
-
-  drawAreaChart(ctx, width, height, points, "#d6b56a", a => `rgba(214, 181, 106, ${a})`, "#67d9df");
+  if (points.length < 2) return drawEmpty(ctx, width, height, "同步睡眠历史后生成睡眠质量趋势图");
+  drawArea(ctx, width, height, points, "#d6b56a", a => `rgba(214,181,106,${a})`, "#67d9df");
 }
 
 function drawBPChart() {
   const c = initCanvas("bpCanvas");
   if (!c) return;
   const { ctx, width, height } = c;
-
   let points = [];
   for (const rec of filterByRange(records, chartRange.bp)) {
     if (rec.type === "bp" && rec.data) points.push({ sys: rec.data.sys, dia: rec.data.dia });
-    else if (rec.type === "all" && rec.data) {
+    else if (rec.type === "all" && rec.data)
       for (const x of rec.data) if (x.sys) points.push({ sys: x.sys, dia: x.dia });
-    }
   }
   points = points.reverse().slice(-20);
-
   const sub = $("bp-chart-sub");
   if (sub) sub.textContent = points.length ? `共 ${points.length} 个样本` : "暂无数据";
-  const setStat = (id, v) => { const el = $(id); if (el) el.textContent = v; };
   if (points.length < 2) {
-    setStat("bp-avg", "--"); setStat("bp-high", "--"); setStat("bp-low", "--");
-    return drawEmptyState(ctx, width, height, "数据较少，多测几次即可生成血压分析图");
+    setStats(["bp-avg", "bp-high", "bp-low"], ["--", "--", "--"]);
+    return drawEmpty(ctx, width, height, "数据较少，多测几次即可生成血压分析图");
   }
-  const sysVals = points.map(p => p.sys), diaVals = points.map(p => p.dia);
-  setStat("bp-avg", `${Math.round(sysVals.reduce((a,b)=>a+b,0)/sysVals.length)}/${Math.round(diaVals.reduce((a,b)=>a+b,0)/diaVals.length)}`);
-  setStat("bp-high", `${Math.max(...sysVals)}/${Math.max(...diaVals)}`);
-  setStat("bp-low", `${Math.min(...sysVals)}/${Math.min(...diaVals)}`);
-
-  const SYS_LINE = 120, DIA_LINE = 80;
-  const min = 40, max = 180;
+  const sys = points.map(p => p.sys), dia = points.map(p => p.dia);
+  setStats(["bp-avg", "bp-high", "bp-low"], [
+    `${Math.round(sys.reduce((a, b) => a + b, 0) / sys.length)}/${Math.round(dia.reduce((a, b) => a + b, 0) / dia.length)}`,
+    `${Math.max(...sys)}/${Math.max(...dia)}`,
+    `${Math.min(...sys)}/${Math.min(...dia)}`
+  ]);
+  const SYS = 120, DIA = 80, min = 40, max = 180;
   const stepX = width / (points.length - 1);
   const yOf = v => height - ((v - min) / (max - min)) * (height - 20) - 10;
-
   ctx.save();
-  ctx.setLineDash([4, 4]);
-  ctx.lineWidth = 1;
-
+  ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
   ctx.strokeStyle = "rgba(214,181,106,0.6)";
-  ctx.beginPath();
-  ctx.moveTo(0, yOf(SYS_LINE));
-  ctx.lineTo(width, yOf(SYS_LINE));
-  ctx.stroke();
-  ctx.fillStyle = "rgba(214,181,106,0.9)";
-  ctx.font = "9px sans-serif";
-  ctx.textAlign = "left";
-  ctx.setLineDash([]);
-  ctx.fillText("120", 2, yOf(SYS_LINE) - 2);
-
+  ctx.beginPath(); ctx.moveTo(0, yOf(SYS)); ctx.lineTo(width, yOf(SYS)); ctx.stroke();
+  ctx.fillStyle = "rgba(214,181,106,0.9)"; ctx.font = "9px sans-serif"; ctx.textAlign = "left";
+  ctx.setLineDash([]); ctx.fillText("120", 2, yOf(SYS) - 2);
   ctx.setLineDash([4, 4]);
   ctx.strokeStyle = "rgba(103,217,223,0.6)";
-  ctx.beginPath();
-  ctx.moveTo(0, yOf(DIA_LINE));
-  ctx.lineTo(width, yOf(DIA_LINE));
-  ctx.stroke();
-  ctx.fillStyle = "rgba(103,217,223,0.9)";
-  ctx.setLineDash([]);
-  ctx.fillText("80", 2, yOf(DIA_LINE) - 2);
+  ctx.beginPath(); ctx.moveTo(0, yOf(DIA)); ctx.lineTo(width, yOf(DIA)); ctx.stroke();
+  ctx.fillStyle = "rgba(103,217,223,0.9)"; ctx.setLineDash([]); ctx.fillText("80", 2, yOf(DIA) - 2);
   ctx.restore();
-
   const drawLine = (key, color) => {
     ctx.beginPath();
-    points.forEach((pt, i) => {
-      const x = i * stepX, y = yOf(pt[key]);
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    });
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
-    ctx.stroke();
+    points.forEach((pt, i) => { const x = i * stepX, y = yOf(pt[key]); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); });
+    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
   };
-  drawLine("sys", "#d6b56a");
-  drawLine("dia", "#67d9df");
-
-  const drawDots = (key, normalColor, limit) => {
-    points.forEach((pt, i) => {
-      const x = i * stepX, val = pt[key], y = yOf(val);
-      ctx.beginPath();
-      ctx.arc(x, y, 3, 0, Math.PI * 2);
-      ctx.fillStyle = val > limit ? "#ef4444" : normalColor;
-      ctx.fill();
+  drawLine("sys", "#d6b56a"); drawLine("dia", "#67d9df");
+  points.forEach((pt, i) => {
+    const x = i * stepX;
+    [["sys", "#d6b56a", SYS], ["dia", "#67d9df", DIA]].forEach(([k, col, lim]) => {
+      ctx.beginPath(); ctx.arc(x, yOf(pt[k]), 3, 0, Math.PI * 2);
+      ctx.fillStyle = pt[k] > lim ? "#ef4444" : col; ctx.fill();
     });
-  };
-  drawDots("sys", "#d6b56a", SYS_LINE);
-  drawDots("dia", "#67d9df", DIA_LINE);
+  });
 }
 
-function drawSpo2Chart() {
-  const c = initCanvas("spo2Canvas");
-  if (!c) return;
-  const { ctx, width, height } = c;
-
-  let points = [];
-  for (const rec of filterByRange(records, chartRange.spo2)) {
-    if (rec.type === "spo2") points.push(rec.data);
-    else if (rec.type === "all" && rec.data) for (const x of rec.data) if (x.spo2) points.push(x.spo2);
-  }
-  points = points.reverse().slice(-20);
-
-  const sub = $("spo2-chart-sub");
-  if (sub) sub.textContent = points.length ? `共 ${points.length} 个样本` : "暂无数据";
-  const setStat = (id, v) => { const el = $(id); if (el) el.textContent = v; };
-  if (points.length < 2) {
-    setStat("spo2-avg", "--"); setStat("spo2-high", "--"); setStat("spo2-low", "--");
-    return drawEmptyState(ctx, width, height, "数据较少，多测几次即可生成趋势图");
-  }
-  setStat("spo2-avg", Math.round(points.reduce((a, b) => a + b, 0) / points.length));
-  setStat("spo2-high", Math.max(...points));
-  setStat("spo2-low", Math.min(...points));
-
-  drawAreaChart(ctx, width, height, points, "#e2703a", a => `rgba(226, 112, 58, ${a})`, "#e2703a");
-}
-
-function drawHRVChart() {
-  const c = initCanvas("hrvCanvas");
-  if (!c) return;
-  const { ctx, width, height } = c;
-
-  let points = [];
-  for (const rec of filterByRange(records, chartRange.hrv)) {
-    if (rec.type === "hrv") points.push(rec.data);
-  }
-  points = points.reverse().slice(-20);
-
-  const sub = $("hrv-chart-sub");
-  if (sub) sub.textContent = points.length ? `共 ${points.length} 个样本` : "暂无数据";
-  const setStat = (id, v) => { const el = $(id); if (el) el.textContent = v; };
-  if (points.length < 2) {
-    setStat("hrv-avg", "--"); setStat("hrv-high", "--"); setStat("hrv-low", "--");
-    return drawEmptyState(ctx, width, height, "数据较少，多测几次即可生成趋势图");
-  }
-  setStat("hrv-avg", Math.round(points.reduce((a, b) => a + b, 0) / points.length));
-  setStat("hrv-high", Math.max(...points));
-  setStat("hrv-low", Math.min(...points));
-
-  drawAreaChart(ctx, width, height, points, "#e8607a", a => `rgba(232, 96, 122, ${a})`, "#e8607a");
-}
-
-// 压力柱状图：日视图按0-23整点分桶(压力本身就是整点采样)，周/月/年视图取范围内最近样本
 function drawPressureChart() {
   const c = initCanvas("pressureCanvas");
   if (!c) return;
   const { ctx, width, height } = c;
-
   if ($("pressureDateLabel")) $("pressureDateLabel").textContent = dateLabel(pressureDate);
   if ($("pressureDateNav")) $("pressureDateNav").style.display = chartRange.pressure === "day" ? "" : "none";
-
   let raw = [];
   if (chartRange.pressure === "day") {
-    for (const rec of records) {
-      if (rec.type === "pressure" && rec.data) {
+    for (const rec of records)
+      if (rec.type === "pressure" && rec.data)
         for (const x of rec.data) if (sameDay(new Date(x.t), pressureDate)) raw.push(x);
-      }
-    }
   } else {
-    for (const rec of filterByRange(records, chartRange.pressure)) {
+    for (const rec of filterByRange(records, chartRange.pressure))
       if (rec.type === "pressure" && rec.data) for (const x of rec.data) raw.push(x);
-    }
   }
-
   const sub = $("pressure-chart-sub");
   if (sub) sub.textContent = raw.length ? `共 ${raw.length} 个样本` : "暂无数据";
-
-  const avgEl = $("pressure-avg"), hiEl = $("pressure-high"), loEl = $("pressure-low");
   if (!raw.length) {
-    if (avgEl) avgEl.textContent = "--";
-    if (hiEl) hiEl.textContent = "--";
-    if (loEl) loEl.textContent = "--";
-    return drawEmptyState(ctx, width, height, "同步压力历史后生成趋势图");
+    setStats(["pressure-avg", "pressure-high", "pressure-low"], ["--", "--", "--"]);
+    return drawEmpty(ctx, width, height, "同步压力历史后生成趋势图");
   }
-
   const values = raw.map(x => x.pressure);
-  if (avgEl) avgEl.textContent = Math.round(values.reduce((a, b) => a + b, 0) / values.length);
-  if (hiEl) hiEl.textContent = Math.max(...values);
-  if (loEl) loEl.textContent = Math.min(...values);
-
+  setStats(["pressure-avg", "pressure-high", "pressure-low"], [
+    Math.round(values.reduce((a, b) => a + b, 0) / values.length),
+    Math.max(...values), Math.min(...values)
+  ]);
   let bars;
   if (chartRange.pressure === "day") {
     bars = new Array(24).fill(null);
     for (const x of raw) bars[new Date(x.t).getHours()] = x.pressure;
-  } else {
-    bars = raw.slice(-24).map(x => x.pressure);
-  }
-
-  const max = 100; // 压力是0-100分值，固定量程与官方App一致
+  } else bars = raw.slice(-24).map(x => x.pressure);
   const barW = width / bars.length;
   bars.forEach((v, i) => {
-    if (v === null) return;
-    const h = (v / max) * (height - 10);
+    if (v == null) return;
+    const h = (v / 100) * (height - 10);
     ctx.fillStyle = "#67d9df";
     ctx.fillRect(i * barW + barW * 0.2, height - h, barW * 0.6, h);
   });
 }
 
-// 睡眠阶段图：用最近一次同步到的睡眠记录的segments画三档柱子(REM最高/浅睡居中/深睡最低)，
-// 简化版——官方App是平滑连接的波形图，这里用离散柱子近似同样的"高低起伏"视觉效果，不追求像素级还原
 function drawHypnogram() {
   const c = initCanvas("hypnoCanvas");
   if (!c) return;
   const { ctx, width, height } = c;
-
   const rec = records.find(r => {
-    if (r.type !== "sleep" || !r.data || !r.data.segments || !r.data.segments.length) return false;
+    if (r.type !== "sleep" || !r.data?.segments?.length) return false;
     const t0 = Math.min(...r.data.segments.map(s => new Date(s.start).getTime()));
     return sameDay(new Date(t0), hypnoDate);
   });
-  const sub = $("hypno-chart-sub");
   if ($("hypnoDateLabel")) $("hypnoDateLabel").textContent = dateLabel(hypnoDate);
-
-  const setStat = (id, v) => { const el = $(id); if (el) el.textContent = v; };
   if (!rec) {
-    if (sub) sub.textContent = "该日期无数据";
-    ["hypno-deep","hypno-light","hypno-rem","hypno-total","hypno-awake"].forEach(id => setStat(id, "--"));
-    setStat("hypno-start", "--"); setStat("hypno-end", "--");
-    $("hypno-analysis") && ($("hypno-analysis").textContent = "");
-    return drawEmptyState(ctx, width, height, "这天没有同步到睡眠记录，试试切换日期");
+    setStats(["hypno-deep", "hypno-light", "hypno-rem", "hypno-total", "hypno-awake", "hypno-start", "hypno-end"],
+      ["--", "--", "--", "--", "--", "--", "--"]);
+    if ($("hypno-analysis")) $("hypno-analysis").textContent = "";
+    return drawEmpty(ctx, width, height, "这天没有同步到睡眠记录，试试切换日期");
   }
-
   const d = rec.data;
-  if (sub) sub.textContent = fmt(new Date(rec.time));
-  setStat("hypno-deep", `${d.deepMin}min`);
-  setStat("hypno-light", `${d.lightMin}min`);
-  setStat("hypno-rem", `${d.remMin}min`);
-  setStat("hypno-total", `${Math.floor(d.totalMin/60)}h${d.totalMin%60}min`);
-  setStat("hypno-awake", d.sessionCount > 1 ? d.sessionCount - 1 : 0);
-
+  setStats(["hypno-deep", "hypno-light", "hypno-rem", "hypno-total", "hypno-awake"], [
+    `${d.deepMin}min`, `${d.lightMin}min`, `${d.remMin}min`,
+    `${Math.floor(d.totalMin / 60)}h${d.totalMin % 60}min`,
+    d.sessionCount > 1 ? d.sessionCount - 1 : 0
+  ]);
   const segs = d.segments;
   const tMin = Math.min(...segs.map(s => new Date(s.start).getTime()));
   const tMax = Math.max(...segs.map(s => new Date(s.start).getTime() + s.durSec * 1000));
-  setStat("hypno-start", fmt(new Date(tMin)).split(" ").pop().slice(0,5));
-  setStat("hypno-end", fmt(new Date(tMax)).split(" ").pop().slice(0,5));
-
-  const analysis = $("hypno-analysis");
-  if (analysis) {
-    let text = d.totalMin >= 420 ? "睡眠时长充足" : d.totalMin >= 300 ? "睡眠时长一般" : "睡眠时长偏短";
-    analysis.textContent = `📈 ${text}（本地粗略估算，非官方算法）`;
+  setStats(["hypno-start", "hypno-end"], [
+    fmt(new Date(tMin)).split(" ").pop().slice(0, 5),
+    fmt(new Date(tMax)).split(" ").pop().slice(0, 5)
+  ]);
+  if ($("hypno-analysis")) {
+    const text = d.totalMin >= 420 ? "睡眠时长充足" : d.totalMin >= 300 ? "睡眠时长一般" : "睡眠时长偏短";
+    $("hypno-analysis").textContent = `📈 ${text}（本地粗略估算）`;
   }
-
   const span = (tMax - tMin) || 1;
   const xOf = t => (t - tMin) / span * width;
-  const LEVEL = { 3: { y: height * 0.12, h: height * 0.30, color: "#e8834a" },  // REM：最高
-                  2: { y: height * 0.46, h: height * 0.30, color: "#b9a6f2" },  // 浅睡：居中
-                  1: { y: height * 0.80, h: height * 0.18, color: "#5b4fd6" } }; // 深睡：最低
+  const LEVEL = {
+    3: { y: height * 0.12, h: height * 0.30, color: "#e8834a" },
+    2: { y: height * 0.46, h: height * 0.30, color: "#b9a6f2" },
+    1: { y: height * 0.80, h: height * 0.18, color: "#5b4fd6" }
+  };
   for (const seg of segs) {
     const lvl = LEVEL[seg.stage];
     if (!lvl) continue;
@@ -955,49 +795,34 @@ function drawStepsChart() {
   const c = initCanvas("stepsCanvas");
   if (!c) return;
   const { ctx, width, height } = c;
-
   if ($("stepsDateLabel")) $("stepsDateLabel").textContent = dateLabel(stepsDate);
   if ($("stepsDateNav")) $("stepsDateNav").style.display = chartRange.steps === "day" ? "" : "none";
   if ($("stepsHourLabels")) $("stepsHourLabels").style.display = chartRange.steps === "day" ? "" : "none";
-
-  // 收集所有步数历史桶
   let raw = [];
-  for (const rec of records) {
-    if (rec.type === "stepsHist" && Array.isArray(rec.data)) {
+  for (const rec of records)
+    if (rec.type === "stepsHist" && Array.isArray(rec.data))
       for (const x of rec.data) raw.push(x);
-    }
-  }
-
-  const setStat = (id, v) => { const el = $(id); if (el) el.textContent = v; };
   const sub = $("steps-chart-sub");
-
   if (chartRange.steps === "day") {
-    // 日视图：0–23 小时柱状图
-    const dayBuckets = new Array(24).fill(0);
+    const buckets = new Array(24).fill(0);
     let count = 0;
     for (const x of raw) {
       if (!sameDay(new Date(x.t), stepsDate)) continue;
       const h = typeof x.hour === "number" ? x.hour : new Date(x.t).getHours();
-      if (h >= 0 && h < 24) {
-        dayBuckets[h] += x.steps || 0;
-        count++;
-      }
+      if (h >= 0 && h < 24) { buckets[h] += x.steps || 0; count++; }
     }
     if (sub) sub.textContent = count ? `共 ${count} 个时段` : "暂无数据";
-    const nonZero = dayBuckets.filter(v => v > 0);
-    const total = dayBuckets.reduce((a, b) => a + b, 0);
-    setStat("steps-total", total || "--");
-    if (!nonZero.length) {
-      setStat("steps-avg", "--"); setStat("steps-high", "--"); setStat("steps-low", "--");
-      return drawEmptyState(ctx, width, height, "同步步数历史后生成每小时柱状图");
-    }
-    setStat("steps-avg", Math.round(total / Math.max(nonZero.length, 1)));
-    setStat("steps-high", Math.max(...dayBuckets));
-    setStat("steps-low", Math.min(...nonZero));
-
-    const max = Math.max(...dayBuckets, 1);
-    const barW = width / 24;
-    dayBuckets.forEach((v, i) => {
+    const nonZero = buckets.filter(v => v > 0);
+    const total = buckets.reduce((a, b) => a + b, 0);
+    setStats(["steps-total", "steps-avg", "steps-high", "steps-low"], [
+      total || "--",
+      nonZero.length ? Math.round(total / nonZero.length) : "--",
+      nonZero.length ? Math.max(...buckets) : "--",
+      nonZero.length ? Math.min(...nonZero) : "--"
+    ]);
+    if (!nonZero.length) return drawEmpty(ctx, width, height, "同步步数历史后生成每小时柱状图");
+    const max = Math.max(...buckets, 1), barW = width / 24;
+    buckets.forEach((v, i) => {
       if (v <= 0) return;
       const h = (v / max) * (height - 12);
       ctx.fillStyle = "#67d9df";
@@ -1005,40 +830,32 @@ function drawStepsChart() {
     });
     return;
   }
-
-  // 周/月/年：按天汇总后画柱/面积
   const cutoff = Date.now() - (RANGE_DAYS[chartRange.steps] || 7) * 86400000;
   const byDay = new Map();
   for (const x of raw) {
     if (x.t < cutoff) continue;
-    const d = startOfDay(new Date(x.t));
-    const key = d.getTime();
+    const key = startOfDay(new Date(x.t)).getTime();
     byDay.set(key, (byDay.get(key) || 0) + (x.steps || 0));
   }
   const points = [...byDay.entries()].sort((a, b) => a[0] - b[0]).map(e => e[1]);
   if (sub) sub.textContent = points.length ? `共 ${points.length} 天` : "暂无数据";
-  if (points.length < 1) {
-    setStat("steps-total", "--"); setStat("steps-avg", "--"); setStat("steps-high", "--"); setStat("steps-low", "--");
-    return drawEmptyState(ctx, width, height, "同步步数历史后可生成趋势图");
+  if (!points.length) {
+    setStats(["steps-total", "steps-avg", "steps-high", "steps-low"], ["--", "--", "--", "--"]);
+    return drawEmpty(ctx, width, height, "同步步数历史后可生成趋势图");
   }
   const total = points.reduce((a, b) => a + b, 0);
-  setStat("steps-total", total);
-  setStat("steps-avg", Math.round(total / points.length));
-  setStat("steps-high", Math.max(...points));
-  setStat("steps-low", Math.min(...points));
-
+  setStats(["steps-total", "steps-avg", "steps-high", "steps-low"], [
+    total, Math.round(total / points.length), Math.max(...points), Math.min(...points)
+  ]);
   if (points.length === 1) {
-    // 单点也画一根柱
     const max = points[0] || 1;
-    const barW = width * 0.3;
     ctx.fillStyle = "#67d9df";
-    ctx.fillRect(width * 0.35, height - (points[0] / max) * (height - 12), barW, (points[0] / max) * (height - 12));
+    ctx.fillRect(width * 0.35, height - (points[0] / max) * (height - 12), width * 0.3, (points[0] / max) * (height - 12));
     return;
   }
-  drawAreaChart(ctx, width, height, points, "#67d9df", a => `rgba(103, 217, 223, ${a})`, "#d6b56a");
+  drawArea(ctx, width, height, points, "#67d9df", a => `rgba(103,217,223,${a})`, "#d6b56a");
 }
 
-// 统一刷新：历史列表 + 图表（连接/清空/翻页/新数据到达时调用）
 function refreshAll() {
   renderHist();
   drawTrendChart();
@@ -1051,18 +868,16 @@ function refreshAll() {
   drawStepsChart();
 }
 
+/* ========== Packet Handler ========== */
 function handle(type, p) {
-  if (histBusy && type !== 0x0580 && type !== histEchoType && !REALTIME_TYPES.has(type)) {
+  if (histBusy && type !== 0x0580 && type !== histEchoType && !REALTIME.has(type)) {
     if (histType === null) histType = type;
     histChunks.push(p);
     return;
   }
   switch (type) {
     case 0x0200:
-      // 电量查询在本设备上不可靠，已移除电量显示；保留解析以免影响协议流程
-      if (p.length > 0 && p[0] === 0xfe) {
-        log("电量 0xfe（戒指未就绪）");
-      }
+      if (p.length > 0 && p[0] === 0xfe) log("电量 0xfe（戒指未就绪）");
       break;
     case 0x020c:
       if (p.length >= 2) {
@@ -1071,30 +886,22 @@ function handle(type, p) {
       }
       break;
     case 0x0600:
-      // PulseLoop: live activity push — steps in first 2–4 bytes LE
       if (p.length >= 4) {
-        const s32 = p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
-        if (s32 > 0 && s32 < 200000) $("steps").textContent = s32;
+        const s = p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
+        if (s > 0 && s < 200000) $("steps").textContent = s;
       } else if (p.length >= 2) {
         const s = p[0] | (p[1] << 8);
         if (s > 0 && s < 200000) $("steps").textContent = s;
       }
       break;
     case 0x0615:
-      // PulseLoop: unprompted battery push（电量显示已移除，仅记日志）
       if (p.length >= 1 && p[0] <= 100) log("电量推送 " + p[0] + "%");
       break;
     case 0x0601:
-      if (p[0] > 0 && p[0] < 250) {
-        $("hr").textContent = p[0];
-        add("hr", p[0]);
-      }
+      if (p[0] > 0 && p[0] < 250) { $("hr").textContent = p[0]; add("hr", p[0]); }
       break;
     case 0x0602:
-      if (p[0] > 0 && p[0] <= 100) {
-        $("spo2").textContent = p[0];
-        add("spo2", p[0]);
-      }
+      if (p[0] > 0 && p[0] <= 100) { $("spo2").textContent = p[0]; add("spo2", p[0]); }
       break;
     case 0x0603:
       if (p.length >= 3 && p[0] > 0 && p[1] > 0) {
@@ -1102,56 +909,43 @@ function handle(type, p) {
         $("bpHr").textContent = "HR " + p[2];
         add("bp", { sys: p[0], dia: p[1], hr: p[2] });
       } else if (p.length >= 4 && p[3] > 0) {
-        const v = p[3];
-        $("hrv").textContent = v;
-        add("hrv", v);
+        $("hrv").textContent = p[3];
+        add("hrv", p[3]);
       }
       break;
     case 0x040e:
       if (measureResolve && p[0] === measureExpectCode) {
-        const r = measureResolve; measureResolve = null; measureExpectCode = null;
-        r();
+        const r = measureResolve; measureResolve = null; measureExpectCode = null; r();
       }
       break;
     case 0x0580: {
-      // PulseLoop: after 05 80 terminal, MUST ACK with 05 80 {00}
-      send(0x0580, [0x00]);
+      send(0x0580, [0x00]); // ACK
       const buf = histChunks.reduce(cat, new Uint8Array());
       if (histReqKey === "06") add("hrHist", decodeHR(buf));
       else if (histReqKey === "08") add("bpHist", decodeBP(buf));
       else if (histReqKey === "09") add("all", decodeAll(buf));
       else if (histReqKey === "33") {
-        const pressureData = decodePressure(buf);
-        add("pressure", pressureData);
-        if (pressureData.length && $("pressureVal")) {
-          $("pressureVal").textContent = pressureData[pressureData.length - 1].pressure;
-        }
-      }
-      else if (histReqKey === "02") {
-        const stepsData = decodeSteps(buf);
-        if (stepsData.length) {
-          add("stepsHist", stepsData);
-          // 用最近一天的合计刷新首页步数（若实时值还是 --）
+        const data = decodePressure(buf);
+        add("pressure", data);
+        if (data.length && $("pressureVal")) $("pressureVal").textContent = data[data.length - 1].pressure;
+      } else if (histReqKey === "02") {
+        const data = decodeSteps(buf);
+        if (data.length) {
+          add("stepsHist", data);
           const today = startOfDay(new Date());
-          let todaySum = 0;
-          for (const x of stepsData) if (sameDay(new Date(x.t), today)) todaySum += x.steps;
-          if (todaySum > 0 && $("steps") && ($("steps").textContent === "--" || +$("steps").textContent < todaySum)) {
-            $("steps").textContent = todaySum;
-          }
-        } else if (buf.length > 0) {
-          add("raw", { key: histReqKey, label: HIST_LABELS[histReqKey] || histReqKey, frameType: histType, hex: hex(buf), bytes: buf.length });
-        }
-      }
-      else if (histReqKey === "04") {
-        const sleepData = decodeSleep(buf);
-        if (sleepData) {
-          add("sleep", sleepData);
-          const label = `${Math.floor(sleepData.totalMin/60)}h${sleepData.totalMin%60}m`;
-          if ($("sleepMin")) $("sleepMin").textContent = label;
-        } else if (buf.length > 0) add("raw", { key: histReqKey, label: HIST_LABELS[histReqKey] || histReqKey, frameType: histType, hex: hex(buf), bytes: buf.length });
-      }
-      else if (buf.length > 0) {
-        add("raw", { key: histReqKey, label: HIST_LABELS[histReqKey] || histReqKey, frameType: histType, hex: hex(buf), bytes: buf.length });
+          let sum = 0;
+          for (const x of data) if (sameDay(new Date(x.t), today)) sum += x.steps;
+          if (sum > 0 && $("steps") && ($("steps").textContent === "--" || +$("steps").textContent < sum))
+            $("steps").textContent = sum;
+        } else if (buf.length) add("raw", { key: histReqKey, label: HIST_LABEL[histReqKey] || histReqKey, frameType: histType, hex: hex(buf), bytes: buf.length });
+      } else if (histReqKey === "04") {
+        const data = decodeSleep(buf);
+        if (data) {
+          add("sleep", data);
+          if ($("sleepMin")) $("sleepMin").textContent = `${Math.floor(data.totalMin / 60)}h${data.totalMin % 60}m`;
+        } else if (buf.length) add("raw", { key: histReqKey, label: HIST_LABEL[histReqKey] || histReqKey, frameType: histType, hex: hex(buf), bytes: buf.length });
+      } else if (buf.length) {
+        add("raw", { key: histReqKey, label: HIST_LABEL[histReqKey] || histReqKey, frameType: histType, hex: hex(buf), bytes: buf.length });
       }
       finishHist();
       break;
@@ -1159,37 +953,32 @@ function handle(type, p) {
   }
 }
 
+/* ========== BLE Connect ========== */
 async function connect() {
   try {
     if (!navigator.bluetooth) throw new Error("需要 Bluefy / Chrome");
     setStatus("选择蓝牙设备中...", "disconnected");
     if (device?.gatt?.connected) try { device.gatt.disconnect(); } catch (_) {}
-
     device = await navigator.bluetooth.requestDevice({
       filters: [{ namePrefix: "TK5" }, { namePrefix: "tk5" }],
       optionalServices: [SVC]
     });
     await device.gatt.connect();
-
     const svc = await device.gatt.getPrimaryService(SVC);
     c1 = await svc.getCharacteristic(C1U);
     c3 = await svc.getCharacteristic(C3U);
-
     c1.addEventListener("characteristicvaluechanged", e => feed("C1", e.target.value.buffer));
     c3.addEventListener("characteristicvaluechanged", e => feed("C3", e.target.value.buffer));
     await c1.startNotifications();
     await c3.startNotifications();
-
     device.addEventListener("gattserverdisconnected", () => {
       setStatus("设备已断开连接", "disconnected");
       c1 = c3 = null;
       histBusy = false;
       isMeasuring = false;
-      clearActiveProgress();
+      clearProgress();
     });
-
     setStatus("已连接 · " + (device.name || "TK5"), "connected");
-
     await send(0x0201, [0x47, 0x46]);
     await send(0x0100, timePayload());
     await send(0x021b);
@@ -1198,7 +987,7 @@ async function connect() {
     await send(0x020c);
     await send(0x032f, [0x01, 0x00]);
     await send(0x0309, [0x01, 0x00, 0x02, 0xa0]);
-
+    // 自动测量流程
     (async () => {
       isMeasuring = true;
       try {
@@ -1208,23 +997,23 @@ async function connect() {
         await measureAndWait(1, 1, 30000, "bp");
         setStatus("正在测量心率...");
         await measureAndWait(0, null, 25000, "hr");
-        setStatus("正在测量血氧，请确保手环佩戴正确...");
+        setStatus("正在测量血氧，请确保佩戴正确...");
         await measureAndWait(2, 2, 50000, "spo2");
         setStatus("正在测量 HRV...");
         await measureAndWait(10, 0x0a, 30000, "hrv");
         setStatus("已连接 · " + (device?.name || "TK5") + " (自动流程完成)", "connected");
       } catch (e) {
-        log("自动测量流程出错: " + e.message);
+        log("自动测量出错: " + e.message);
         setStatus("已连接 · " + (device?.name || "TK5"), "connected");
       } finally {
         isMeasuring = false;
-        clearActiveProgress();
+        clearProgress();
       }
     })();
   } catch (e) {
     setStatus("连接失败: " + e.message, "disconnected");
     isMeasuring = false;
-    clearActiveProgress();
+    clearProgress();
   }
 }
 
@@ -1232,32 +1021,28 @@ function disconnect() {
   try { if (device?.gatt?.connected) device.gatt.disconnect(); } catch (_) {}
 }
 
-function startActiveProgress(cardKey, durationMs) {
-  clearActiveProgress();
+/* ========== Measure ========== */
+function startProgress(cardKey, durationMs) {
+  clearProgress();
   const bar = $(`prog-${cardKey}`);
   if (!bar) return;
   let elapsed = 0;
-  const interval = 100;
-  activeTimerInterval = setInterval(() => {
-    elapsed += interval;
-    const percent = Math.min(100, (elapsed / durationMs) * 100);
-    bar.style.width = percent + "%";
-    if (elapsed >= durationMs) clearActiveProgress();
-  }, interval);
+  activeTimer = setInterval(() => {
+    elapsed += 100;
+    bar.style.width = Math.min(100, (elapsed / durationMs) * 100) + "%";
+    if (elapsed >= durationMs) clearProgress();
+  }, 100);
 }
 
-function clearActiveProgress() {
-  if (activeTimerInterval) {
-    clearInterval(activeTimerInterval);
-    activeTimerInterval = null;
-  }
+function clearProgress() {
+  if (activeTimer) { clearInterval(activeTimer); activeTimer = null; }
   document.querySelectorAll(".m-progress").forEach(el => el.style.width = "0%");
 }
 
 async function measure(mode) {
   if (!c1) return;
   if (mode < 0) {
-    clearActiveProgress();
+    clearProgress();
     await send(0x032f, [0x00, 0x00]);
     setStatus("已连接 · " + (device?.name || "TK5"), "connected");
     return;
@@ -1266,13 +1051,12 @@ async function measure(mode) {
 }
 
 async function measureAndWait(mode, expectCode, timeoutMs, cardKey) {
-  setStatus(`正在测量 ${MODE_NAMES[mode] || "项目"}，请保持佩戴...`);
-  startActiveProgress(cardKey, timeoutMs);
-
+  setStatus(`正在测量 ${MODE_NAME[mode] || "项目"}，请保持佩戴...`);
+  startProgress(cardKey, timeoutMs);
   await measure(mode);
   if (expectCode === null) {
     await sleep(timeoutMs);
-    clearActiveProgress();
+    clearProgress();
     return;
   }
   await Promise.race([
@@ -1280,9 +1064,10 @@ async function measureAndWait(mode, expectCode, timeoutMs, cardKey) {
     sleep(timeoutMs)
   ]);
   measureResolve = null; measureExpectCode = null;
-  clearActiveProgress();
+  clearProgress();
 }
 
+/* ========== History Sync ========== */
 function finishHist() {
   clearTimeout(histTimer);
   histBusy = false; histType = null; histChunks = []; histReqKey = null; histEchoType = null;
@@ -1292,12 +1077,9 @@ function finishHist() {
 }
 
 function hist(key) {
-  return new Promise(async (resolve) => {
+  return new Promise(async resolve => {
     if (!c1 || histBusy) { resolve(); return; }
-    histBusy = true;
-    histType = null;
-    histChunks = [];
-    histReqKey = key;
+    histBusy = true; histType = null; histChunks = []; histReqKey = key;
     histEchoType = 0x0500 | parseInt(key, 16);
     histResolve = resolve;
     document.querySelectorAll("[data-h]").forEach(b => b.disabled = true);
@@ -1307,19 +1089,62 @@ function hist(key) {
   });
 }
 
+/* ========== UI Binding ========== */
+function setupRangeTabs(containerId, chartKey, redraw) {
+  const el = $(containerId);
+  if (!el) return;
+  el.querySelectorAll("button").forEach(btn => {
+    btn.onclick = () => {
+      chartRange[chartKey] = btn.dataset.range;
+      el.querySelectorAll("button").forEach(b => b.classList.toggle("active", b === btn));
+      redraw();
+    };
+  });
+}
+
+function showPage(id) {
+  PAGES.forEach(p => { const el = $(p); if (el) el.style.display = p === id ? "" : "none"; });
+}
+
+function hydrateFromRecords() {
+  for (const rec of records) {
+    if (rec.type === "hr" && $("hr").textContent === "--") $("hr").textContent = rec.data;
+    else if (rec.type === "spo2" && $("spo2").textContent === "--") $("spo2").textContent = rec.data;
+    else if (rec.type === "bp" && $("bp").textContent === "-- / --") {
+      $("bp").textContent = `${rec.data.sys} / ${rec.data.dia}`;
+      $("bpHr").textContent = "HR " + rec.data.hr;
+    } else if (rec.type === "hrv" && $("hrv").textContent === "--") $("hrv").textContent = rec.data;
+    else if (rec.type === "sleep" && $("sleepMin").textContent === "--")
+      $("sleepMin").textContent = `${Math.floor(rec.data.totalMin / 60)}h${rec.data.totalMin % 60}m`;
+    else if (rec.type === "pressure" && rec.data && $("pressureVal")?.textContent === "--") {
+      const last = rec.data[rec.data.length - 1];
+      if (last) $("pressureVal").textContent = last.pressure;
+    }
+  }
+}
+
+/* Init */
+document.addEventListener("click", e => {
+  const btn = e.target.closest("button");
+  if (btn) {
+    playClick();
+    btn.classList.add("glow");
+    setTimeout(() => btn.classList.remove("glow"), 400);
+  }
+});
+
 document.querySelectorAll("[data-mode]").forEach(b => {
   b.onclick = async () => {
     if (isMeasuring && +b.dataset.mode !== -1) return;
-
     const mode = +b.dataset.mode;
     if (mode >= 0) {
       isMeasuring = true;
-      setStatus(`正在手动测量 ${MODE_NAMES[mode]}...`);
-      startActiveProgress(MODE_CARD_KEYS[mode], 30000);
+      setStatus(`正在手动测量 ${MODE_NAME[mode]}...`);
+      startProgress(MODE_CARD[mode], 30000);
       await measure(mode);
     } else {
       isMeasuring = false;
-      clearActiveProgress();
+      clearProgress();
       await measure(mode);
     }
   };
@@ -1327,9 +1152,9 @@ document.querySelectorAll("[data-mode]").forEach(b => {
 
 $("btnConnect").onclick = connect;
 $("btnDisconnect").onclick = disconnect;
-$("btnSteps").onclick = () => { send(0x020c); };
+$("btnSteps").onclick = () => send(0x020c);
 document.querySelectorAll("[data-h]").forEach(b => b.onclick = () => hist(b.dataset.h));
-$("btnCopy").onclick = async () => { try { await navigator.clipboard.writeText(logs.join("\n")); } catch(e){} };
+$("btnCopy").onclick = async () => { try { await navigator.clipboard.writeText(logs.join("\n")); } catch (_) {} };
 $("btnClearLog").onclick = () => { logs = []; $("log").textContent = ""; };
 $("btnClearRec").onclick = () => {
   if (confirm("清空本地记录？")) { records = []; localStorage.removeItem("tk5Records"); refreshAll(); }
@@ -1343,65 +1168,25 @@ setupRangeTabs("spo2-range", "spo2", drawSpo2Chart);
 setupRangeTabs("hrv-range", "hrv", drawHRVChart);
 setupRangeTabs("steps-range", "steps", drawStepsChart);
 
-// 用本地已保存的记录回填顶部卡片，避免刷新页面后明明有历史数据却显示"--"（只在还没收到实时数据时补一次）
-function hydrateFromRecords() {
-  for (const rec of records) {
-    if (rec.type === "hr" && $("hr").textContent === "--") $("hr").textContent = rec.data;
-    else if (rec.type === "spo2" && $("spo2").textContent === "--") $("spo2").textContent = rec.data;
-    else if (rec.type === "bp" && $("bp").textContent === "-- / --") {
-      $("bp").textContent = `${rec.data.sys} / ${rec.data.dia}`;
-      $("bpHr").textContent = "HR " + rec.data.hr;
-    } else if (rec.type === "hrv" && $("hrv").textContent === "--") $("hrv").textContent = rec.data;
-    else if (rec.type === "sleep" && $("sleepMin").textContent === "--") {
-      const label = `${Math.floor(rec.data.totalMin/60)}h${rec.data.totalMin%60}m`;
-      $("sleepMin").textContent = label;
-    } else if (rec.type === "pressure" && rec.data && $("pressureVal") && $("pressureVal").textContent === "--") {
-      const last = rec.data[rec.data.length - 1];
-      if (last) $("pressureVal").textContent = last.pressure;
-    }
-  }
-}
-hydrateFromRecords();
-refreshAll();
-
-// 控制 / 数据 面板独立开关（互斥，再点一次可收起）
-function showControl() {
+$("btnControl").onclick = () => {
   const show = $("panel-control").style.display === "none";
   $("panel-control").style.display = show ? "" : "none";
   $("panel-data").style.display = "none";
-}
-function showData() {
+};
+$("btnData").onclick = () => {
   const show = $("panel-data").style.display === "none";
   $("panel-data").style.display = show ? "" : "none";
   $("panel-control").style.display = "none";
-}
-$("btnControl").onclick = showControl;
-$("btnData").onclick = showData;
+};
 
-// 首页 → 各详情页 的导航：一个通用showPage + 卡片点击/返回按钮统一绑定
-const PAGES = ["page1", "pageHR", "pageSpO2", "pageHRV", "pageBP", "pageSleep", "pagePressure", "pageSteps"];
-function showPage(id) {
-  PAGES.forEach(p => { const el = $(p); if (el) el.style.display = (p === id ? "" : "none"); });
-}
 document.querySelectorAll("[data-back]").forEach(b => b.onclick = () => showPage("page1"));
-
 $("card-hr").onclick = () => { showPage("pageHR"); drawTrendChart(); };
 $("card-spo2").onclick = () => { showPage("pageSpO2"); drawSpo2Chart(); };
 $("card-bp").onclick = () => { showPage("pageBP"); drawBPChart(); };
 $("card-hrv").onclick = () => { showPage("pageHRV"); drawHRVChart(); };
-$("card-sleep").onclick = () => {
-  showPage("pageSleep");
-  drawSleepChart();
-  drawHypnogram();
-};
-$("card-pressure").onclick = () => {
-  showPage("pagePressure");
-  drawPressureChart();
-};
-$("card-steps").onclick = () => {
-  showPage("pageSteps");
-  drawStepsChart();
-};
+$("card-sleep").onclick = () => { showPage("pageSleep"); drawSleepChart(); drawHypnogram(); };
+$("card-pressure").onclick = () => { showPage("pagePressure"); drawPressureChart(); };
+$("card-steps").onclick = () => { showPage("pageSteps"); drawStepsChart(); };
 
 $("pressureDatePrev").onclick = () => { pressureDate.setDate(pressureDate.getDate() - 1); drawPressureChart(); };
 $("pressureDateNext").onclick = () => { pressureDate.setDate(pressureDate.getDate() + 1); drawPressureChart(); };
@@ -1409,6 +1194,9 @@ $("hypnoDatePrev").onclick = () => { hypnoDate.setDate(hypnoDate.getDate() - 1);
 $("hypnoDateNext").onclick = () => { hypnoDate.setDate(hypnoDate.getDate() + 1); drawHypnogram(); };
 $("stepsDatePrev").onclick = () => { stepsDate.setDate(stepsDate.getDate() - 1); drawStepsChart(); };
 $("stepsDateNext").onclick = () => { stepsDate.setDate(stepsDate.getDate() + 1); drawStepsChart(); };
+
+hydrateFromRecords();
+refreshAll();
 </script>
 </body>
 </html>
