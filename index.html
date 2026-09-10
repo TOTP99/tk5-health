@@ -23,7 +23,7 @@ h1{margin:0;font-size:18px}h1 span{color:var(--gold);font-size:14px;margin-left:
 .m .l{font-size:12px;color:var(--muted)}.m .v{font-size:24px;font-weight:700;margin:6px 0 2px;line-height:1.1}.m .u{font-size:11px;color:var(--muted)}
 .m-progress{position:absolute;bottom:0;left:0;height:3px;background:var(--cyan);width:0%;transition:width 0.1s linear}
 
-button{border:1px solid #8b7440;border-radius:10px;padding:10px 14px;background:linear-gradient(145deg,#172933,#101d25);color:var(--text);font-size:13px;transition:border-color .2s, box-shadow .2s}
+button{border:1px solid #8b7440;border-radius:10px;padding:10px 14px;background:linear-gradient(145deg,#172933,#101d25);color:var(--text);font-size:13px;transition:border-color .2s, box-shadow .2s;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 button:active{filter:brightness(1.12)}
 button:disabled{opacity:.4;pointer-events:none}
 button.p{background:linear-gradient(135deg,#806a39,#4f4327);color:#fff}
@@ -123,16 +123,6 @@ canvas{width:100%!important;height:100px!important;display:block}
   </div>
   <div class="chart-box">
     <canvas id="trendCanvas"></canvas>
-  </div>
-</div>
-
-<div class="card">
-  <div class="chart-title"><span>😴 近期睡眠质量（深睡占比%）</span><span id="sleep-chart-sub">暂无数据</span></div>
-  <div class="range-tabs" id="sleep-range">
-    <button data-range="day">日</button><button data-range="week" class="active">周</button><button data-range="month">月</button><button data-range="year">年</button>
-  </div>
-  <div class="chart-box">
-    <canvas id="sleepCanvas"></canvas>
   </div>
 </div>
 
@@ -267,15 +257,31 @@ function playClickSound() {
   }
 }
 
-// 统一为所有按钮绑定点击光晕与音效
-document.addEventListener("click", (e) => {
-  const btn = e.target.closest("button");
-  if (btn) {
-    playClickSound();
-    btn.classList.add("glow");
-    setTimeout(() => btn.classList.remove("glow"), 400);
-  }
-});
+// Bluefy / iOS 兼容：统一绑定 click + touchend，避免部分环境下 click 不触发
+function bindTap(el, handler) {
+  if (!el) return;
+  let last = 0;
+  const wrap = (e) => {
+    // 防止 touchend + click 双触发
+    const now = Date.now();
+    if (now - last < 350) return;
+    last = now;
+    try {
+      playClickSound();
+      el.classList.add("glow");
+      setTimeout(() => el.classList.remove("glow"), 400);
+      handler(e);
+    } catch (err) {
+      log("BTN ERR: " + (err && err.message ? err.message : err));
+    }
+  };
+  el.addEventListener("click", wrap);
+  el.addEventListener("touchend", (e) => {
+    // 阻止后续合成 click，并立即响应（Bluefy/iOS 更可靠）
+    e.preventDefault();
+    wrap(e);
+  }, { passive: false });
+}
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 // PulseLoop YCBT: live vitals on C3 (06xx), command replies on C1; 0615 = unprompted battery push
@@ -487,7 +493,7 @@ function renderHist() {
 
 const RANGE_DAYS = { day: 1, week: 7, month: 30, year: 365 };
 // 三个图表各自独立记住当前选中的时间范围
-const chartRange = { trend: "week", sleep: "week", bp: "week", pressure: "day" };
+const chartRange = { trend: "week", bp: "week", pressure: "day" };
 
 // 压力/睡眠详情页的日期导航状态（默认今天，用‹›切换查看历史某一天）
 function startOfDay(d) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
@@ -507,11 +513,11 @@ function setupRangeTabs(containerId, chartKey, redraw) {
   const el = $(containerId);
   if (!el) return;
   el.querySelectorAll("button").forEach(btn => {
-    btn.onclick = () => {
+    bindTap(btn, () => {
       chartRange[chartKey] = btn.dataset.range;
       el.querySelectorAll("button").forEach(b => b.classList.toggle("active", b === btn));
       redraw();
-    };
+    });
   });
 }
 
@@ -590,24 +596,6 @@ function drawTrendChart() {
   if (points.length < 2) return drawEmptyState(ctx, width, height, "数据较少，多测几次即可生成趋势图");
 
   drawAreaChart(ctx, width, height, points, "#67d9df", a => `rgba(103, 217, 223, ${a})`, "#d6b56a");
-}
-
-function drawSleepChart() {
-  const c = initCanvas("sleepCanvas");
-  if (!c) return;
-  const { ctx, width, height } = c;
-
-  let points = [];
-  for (const rec of filterByRange(records, chartRange.sleep)) {
-    if (rec.type === "sleep" && typeof rec.data.score === "number") points.push(rec.data.score);
-  }
-  points = points.reverse().slice(-20);
-
-  const sub = $("sleep-chart-sub");
-  if (sub) sub.textContent = points.length ? `共 ${points.length} 个样本` : "暂无数据";
-  if (points.length < 2) return drawEmptyState(ctx, width, height, "同步睡眠历史后生成睡眠质量趋势图");
-
-  drawAreaChart(ctx, width, height, points, "#d6b56a", a => `rgba(214, 181, 106, ${a})`, "#67d9df");
 }
 
 function drawBPChart() {
@@ -804,7 +792,6 @@ function drawHypnogram() {
 function refreshAll() {
   renderHist();
   drawTrendChart();
-  drawSleepChart();
   drawBPChart();
   drawPressureChart();
   drawHypnogram();
@@ -1051,7 +1038,7 @@ function hist(key) {
 }
 
 document.querySelectorAll("[data-mode]").forEach(b => {
-  b.onclick = async () => {
+  bindTap(b, async () => {
     if (isMeasuring && +b.dataset.mode !== -1) return;
 
     const mode = +b.dataset.mode;
@@ -1065,26 +1052,25 @@ document.querySelectorAll("[data-mode]").forEach(b => {
       clearActiveProgress();
       await measure(mode);
     }
-  };
+  });
 });
 
-$("btnConnect").onclick = connect;
-$("btnDisconnect").onclick = disconnect;
-$("btnBattery").onclick = () => { send(0x0200); send(0x020c); };
-document.querySelectorAll("[data-h]").forEach(b => b.onclick = () => hist(b.dataset.h));
-$("btnCopy").onclick = async () => { try { await navigator.clipboard.writeText(logs.join("\n")); } catch(e){} };
-$("btnClearLog").onclick = () => { logs = []; $("log").textContent = ""; };
-$("btnClearRec").onclick = () => {
+bindTap($("btnConnect"), connect);
+bindTap($("btnDisconnect"), disconnect);
+bindTap($("btnBattery"), () => { send(0x0200); send(0x020c); });
+document.querySelectorAll("[data-h]").forEach(b => bindTap(b, () => hist(b.dataset.h)));
+bindTap($("btnCopy"), async () => { try { await navigator.clipboard.writeText(logs.join("\n")); } catch(e){} });
+bindTap($("btnClearLog"), () => { logs = []; $("log").textContent = ""; });
+bindTap($("btnClearRec"), () => {
   if (confirm("清空本地记录？")) { records = []; localStorage.removeItem("tk5Records"); refreshAll(); }
-};
-$("btnJson").onclick = () => {
+});
+bindTap($("btnJson"), () => {
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([JSON.stringify(records,null,2)],{type:"application/json"}));
   a.download = "tk5.json"; a.click();
-};
+});
 
 setupRangeTabs("trend-range", "trend", drawTrendChart);
-setupRangeTabs("sleep-range", "sleep", drawSleepChart);
 setupRangeTabs("bp-range", "bp", drawBPChart);
 setupRangeTabs("pressure-range", "pressure", drawPressureChart);
 
@@ -1109,49 +1095,63 @@ refreshAll();
 const MODES = ["监视", "控制", "数据"];
 let panelMode = "监视";
 function updatePanels() {
-  $("panel-control").style.display = panelMode === "控制" ? "" : "none";
-  $("panel-data").style.display = panelMode === "数据" ? "" : "none";
-  $("btnCycleMode").textContent = panelMode;
+  const control = $("panel-control");
+  const data = $("panel-data");
+  const btn = $("btnCycleMode");
+  if (control) control.style.display = panelMode === "控制" ? "" : "none";
+  if (data) data.style.display = panelMode === "数据" ? "" : "none";
+  if (btn) btn.textContent = panelMode;
 }
-$("btnCycleMode").onclick = () => {
+bindTap($("btnCycleMode"), () => {
   panelMode = MODES[(MODES.indexOf(panelMode) + 1) % MODES.length];
   updatePanels();
-};
+  log("面板模式: " + panelMode);
+});
 updatePanels();
 
-$("btnNextPage").onclick = () => {
+// 翻页后延迟一帧再画图，避免 Bluefy 在 display 刚切换时 canvas 尺寸为 0
+function afterShow(drawFns) {
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      drawFns.forEach(fn => { try { fn(); } catch (e) { log("DRAW ERR: " + e.message); } });
+    }, 50);
+  });
+}
+
+bindTap($("btnNextPage"), () => {
   $("page1").style.display = "none";
   $("page2").style.display = "";
-  drawTrendChart();
-  drawSleepChart();
-  drawBPChart();
-};
-$("btnPrevPage").onclick = () => {
+  afterShow([drawTrendChart, drawBPChart]);
+  log("切换到第2页");
+});
+bindTap($("btnPrevPage"), () => {
   $("page2").style.display = "none";
   $("page1").style.display = "";
-};
-$("btnNextPage2").onclick = () => {
+});
+bindTap($("btnNextPage2"), () => {
   $("page2").style.display = "none";
   $("page3").style.display = "";
-  drawPressureChart();
-};
-$("btnPrevPage2").onclick = () => {
+  afterShow([drawPressureChart]);
+  log("切换到第3页");
+});
+bindTap($("btnPrevPage2"), () => {
   $("page3").style.display = "none";
   $("page2").style.display = "";
-};
-$("btnNextPage3").onclick = () => {
+});
+bindTap($("btnNextPage3"), () => {
   $("page3").style.display = "none";
   $("page4").style.display = "";
-  drawHypnogram();
-};
-$("btnPrevPage3").onclick = () => {
+  afterShow([drawHypnogram]);
+  log("切换到第4页");
+});
+bindTap($("btnPrevPage3"), () => {
   $("page4").style.display = "none";
   $("page3").style.display = "";
-};
-$("pressureDatePrev").onclick = () => { pressureDate.setDate(pressureDate.getDate() - 1); drawPressureChart(); };
-$("pressureDateNext").onclick = () => { pressureDate.setDate(pressureDate.getDate() + 1); drawPressureChart(); };
-$("hypnoDatePrev").onclick = () => { hypnoDate.setDate(hypnoDate.getDate() - 1); drawHypnogram(); };
-$("hypnoDateNext").onclick = () => { hypnoDate.setDate(hypnoDate.getDate() + 1); drawHypnogram(); };
+});
+bindTap($("pressureDatePrev"), () => { pressureDate.setDate(pressureDate.getDate() - 1); drawPressureChart(); });
+bindTap($("pressureDateNext"), () => { pressureDate.setDate(pressureDate.getDate() + 1); drawPressureChart(); });
+bindTap($("hypnoDatePrev"), () => { hypnoDate.setDate(hypnoDate.getDate() - 1); drawHypnogram(); });
+bindTap($("hypnoDateNext"), () => { hypnoDate.setDate(hypnoDate.getDate() + 1); drawHypnogram(); });
 </script>
 </body>
 </html>
