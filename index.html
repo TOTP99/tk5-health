@@ -19,9 +19,29 @@ h1{margin:0;font-size:18px}h1 span{color:var(--gold);font-size:14px;margin-left:
 .status.disconnected .status-dot{background:#ef4444;box-shadow:0 0 8px #ef4444}
 
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.m{border:1px solid #35505b;border-radius:12px;padding:12px;background:linear-gradient(145deg,#142733,#0a151d);min-height:86px;position:relative;overflow:hidden}
+.m{border:1px solid #35505b;border-radius:12px;padding:12px;background:linear-gradient(145deg,#142733,#0a151d);min-height:86px;position:relative;overflow:hidden;cursor:pointer;transition:border-color .2s,box-shadow .2s}
+.m:active{border-color:var(--cyan);box-shadow:0 0 12px rgba(103,217,223,.3)}
 .m .l{font-size:12px;color:var(--muted)}.m .v{font-size:24px;font-weight:700;margin:6px 0 2px;line-height:1.1}.m .u{font-size:11px;color:var(--muted)}
 .m-progress{position:absolute;bottom:0;left:0;height:3px;background:var(--cyan);width:0%;transition:width 0.1s linear}
+.detail-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.detail-header .back{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;padding:0}
+.detail-title{font-size:18px;font-weight:700;text-align:center;flex:1}
+.big-avg{font-size:48px;font-weight:700;text-align:center;line-height:1.1;margin:12px 0 2px}
+.avg-label{text-align:center;font-size:13px;color:var(--muted);margin-bottom:14px}
+.hl-row{display:flex;justify-content:space-around;text-align:center;margin-bottom:16px}
+.hl-row .num{font-size:22px;font-weight:700}
+.hl-row .lbl{font-size:12px;color:var(--muted);margin-top:2px}
+.measure-btn{display:block;width:100%;padding:14px;border-radius:28px;border:none;background:linear-gradient(135deg,#2dd4bf,#14b8a6);color:#fff;font-size:16px;font-weight:600;text-align:center;margin:12px 0;cursor:pointer}
+.measure-btn:active{filter:brightness(1.1)}
+.analysis-box{margin-top:10px;padding:10px 12px;border-radius:10px;background:#0c1820;border:1px solid #2a4550;font-size:13px;color:var(--muted)}
+.legend-row{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px;font-size:12px;color:var(--muted)}
+.legend-row span{display:flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.sleep-stats{display:flex;justify-content:space-around;text-align:center;margin:12px 0}
+.sleep-stats .val{font-size:20px;font-weight:700}
+.sleep-stats .unit{font-size:11px;color:var(--muted)}
+.stage-legend{display:flex;justify-content:center;gap:14px;font-size:11px;color:var(--muted);margin:8px 0;flex-wrap:wrap}
+.stage-legend span{display:flex;align-items:center;gap:4px}
 
 button{border:1px solid #8b7440;border-radius:10px;padding:10px 14px;background:linear-gradient(145deg,#172933,#101d25);color:var(--text);font-size:13px;transition:border-color .2s, box-shadow .2s}
 button:active{filter:brightness(1.12)}
@@ -61,12 +81,13 @@ canvas{width:100%!important;height:100px!important;display:block}
 
 <div class="card">
   <div class="grid">
-    <div class="m" id="card-hr"><div class="l">❤️ 心率</div><div id="hr" class="v">--</div><div class="u">BPM</div><div class="m-progress" id="prog-hr"></div></div>
-    <div class="m" id="card-spo2"><div class="l">🩸 血氧</div><div id="spo2" class="v">--</div><div class="u">%</div><div class="m-progress" id="prog-spo2"></div></div>
-    <div class="m" id="card-bp"><div class="l">🩺 血压</div><div id="bp" class="v">-- / --</div><div class="u" id="bpHr"></div><div class="m-progress" id="prog-bp"></div></div>
-    <div class="m" id="card-hrv"><div class="l">📈 HRV</div><div id="hrv" class="v">--</div><div class="u"></div><div class="m-progress" id="prog-hrv"></div></div>
-    <div class="m"><div class="l">👣 步数</div><div id="steps" class="v">--</div><div class="u">今日</div></div>
-    <div class="m" id="card-sleep"><div class="l">😴 睡眠</div><div id="sleepMin" class="v">--</div><div class="u">时长</div></div>
+    <div class="m" id="card-hr" data-page="detail-hr"><div class="l">❤️ 心率</div><div id="hr" class="v">--</div><div class="u">BPM</div><div class="m-progress" id="prog-hr"></div></div>
+    <div class="m" id="card-spo2" data-page="detail-spo2"><div class="l">🩸 血氧</div><div id="spo2" class="v">--</div><div class="u">%</div><div class="m-progress" id="prog-spo2"></div></div>
+    <div class="m" id="card-bp" data-page="detail-bp"><div class="l">🩺 血压</div><div id="bp" class="v">-- / --</div><div class="u" id="bpHr"></div><div class="m-progress" id="prog-bp"></div></div>
+    <div class="m" id="card-hrv" data-page="detail-hrv"><div class="l">📈 HRV</div><div id="hrv" class="v">--</div><div class="u"></div><div class="m-progress" id="prog-hrv"></div></div>
+    <div class="m" id="card-pressure" data-page="page3"><div class="l">💆 压力</div><div id="pressureHome" class="v">--</div><div class="u">今日</div></div>
+    <div class="m" id="card-sleep" data-page="page4"><div class="l">😴 睡眠</div><div id="sleepMin" class="v">--</div><div class="u">时长</div></div>
+    <div class="m" id="card-steps" data-page="detail-steps"><div class="l">👣 步数</div><div id="steps" class="v">--</div><div class="u">今日</div></div>
   </div>
   <div class="row" style="margin-top:8px">
     <button id="btnBattery">刷新电量/步数</button>
@@ -115,6 +136,70 @@ canvas{width:100%!important;height:100px!important;display:block}
 </div>
 </div>
 
+
+<!-- ===== 心率详情 ===== -->
+<div id="detail-hr" style="display:none">
+<div class="card">
+  <div class="detail-header"><button class="back c" data-back>‹</button><div class="detail-title">HR</div><div style="width:36px"></div></div>
+  <div class="range-tabs" id="hr-detail-range"><button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button></div>
+  <div class="row" style="justify-content:center;align-items:center;gap:16px;margin:6px 0"><button class="c" id="hrDatePrev" style="padding:2px 12px">‹</button><span id="hrDateLabel" style="font-size:13px;color:var(--cyan)">--</span><button class="c" id="hrDateNext" style="padding:2px 12px">›</button></div>
+  <div class="chart-box" style="height:140px"><canvas id="hrDetailCanvas"></canvas></div>
+  <div class="big-avg" id="hr-avg">--</div><div class="avg-label">average</div>
+  <div class="hl-row"><div><div class="num" style="color:#67d9df" id="hr-high">--</div><div class="lbl">↑ highest</div></div><div><div class="num" style="color:#d6b56a" id="hr-low">--</div><div class="lbl">↓ lowest</div></div></div>
+  <button class="measure-btn" data-mode="0">Heart rate measurement</button>
+  <div class="analysis-box" id="hr-analysis">Heart rate analysis<br>Your heart rate is normal.</div>
+</div></div>
+
+<!-- ===== 血氧详情 ===== -->
+<div id="detail-spo2" style="display:none">
+<div class="card">
+  <div class="detail-header"><button class="back c" data-back>‹</button><div class="detail-title">SpO2</div><div style="width:36px"></div></div>
+  <div class="range-tabs" id="spo2-detail-range"><button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button></div>
+  <div class="row" style="justify-content:center;align-items:center;gap:16px;margin:6px 0"><button class="c" id="spo2DatePrev" style="padding:2px 12px">‹</button><span id="spo2DateLabel" style="font-size:13px;color:var(--cyan)">--</span><button class="c" id="spo2DateNext" style="padding:2px 12px">›</button></div>
+  <div class="chart-box" style="height:140px"><canvas id="spo2DetailCanvas"></canvas></div>
+  <div class="big-avg" id="spo2-avg">--</div><div class="avg-label">average</div>
+  <div class="hl-row"><div><div class="num" style="color:#67d9df" id="spo2-high">--</div><div class="lbl">↑ highest</div></div><div><div class="num" style="color:#d6b56a" id="spo2-low">--</div><div class="lbl">↓ lowest</div></div></div>
+  <button class="measure-btn" data-mode="2">Spo2 measurement</button>
+  <div class="analysis-box" id="spo2-analysis">Spo2 analysis<br>Your blood oxygen saturation is fine.</div>
+</div></div>
+
+<!-- ===== 血压详情 ===== -->
+<div id="detail-bp" style="display:none">
+<div class="card">
+  <div class="detail-header"><button class="back c" data-back>‹</button><div class="detail-title">BP</div><div style="width:36px"></div></div>
+  <div class="range-tabs" id="bp-detail-range"><button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button></div>
+  <div class="row" style="justify-content:center;align-items:center;gap:16px;margin:6px 0"><button class="c" id="bpDatePrev" style="padding:2px 12px">‹</button><span id="bpDateLabel" style="font-size:13px;color:var(--cyan)">--</span><button class="c" id="bpDateNext" style="padding:2px 12px">›</button></div>
+  <div class="chart-box" style="height:140px"><canvas id="bpDetailCanvas"></canvas></div>
+  <div class="big-avg" id="bp-avg">-- / --</div><div class="avg-label">average</div>
+  <div class="hl-row"><div><div class="num" style="color:#67d9df" id="bp-high">-- / --</div><div class="lbl">↑ highest</div></div><div><div class="num" style="color:#d6b56a" id="bp-low">-- / --</div><div class="lbl">↓ lowest</div></div></div>
+  <button class="measure-btn" data-mode="1">Blood pressure measurement</button>
+  <div class="analysis-box" id="bp-analysis">Blood pressure analysis<br>keep it up</div>
+</div></div>
+
+<!-- ===== HRV详情 ===== -->
+<div id="detail-hrv" style="display:none">
+<div class="card">
+  <div class="detail-header"><button class="back c" data-back>‹</button><div class="detail-title">HRV</div><div style="width:36px"></div></div>
+  <div class="range-tabs" id="hrv-detail-range"><button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button></div>
+  <div class="row" style="justify-content:center;align-items:center;gap:16px;margin:6px 0"><button class="c" id="hrvDatePrev" style="padding:2px 12px">‹</button><span id="hrvDateLabel" style="font-size:13px;color:var(--cyan)">--</span><button class="c" id="hrvDateNext" style="padding:2px 12px">›</button></div>
+  <div class="chart-box" style="height:140px"><canvas id="hrvDetailCanvas"></canvas></div>
+  <div class="big-avg" id="hrv-avg">--</div><div class="avg-label">average</div>
+  <div class="hl-row"><div><div class="num" style="color:#67d9df" id="hrv-high">--</div><div class="lbl">↑ highest</div></div><div><div class="num" style="color:#d6b56a" id="hrv-low">--</div><div class="lbl">↓ lowest</div></div></div>
+  <button class="measure-btn" data-mode="10">HRV measurement</button>
+  <div class="analysis-box" id="hrv-analysis">HRV<br>Your heart rate is normal.</div>
+</div></div>
+
+<!-- ===== 步数详情 ===== -->
+<div id="detail-steps" style="display:none">
+<div class="card">
+  <div class="detail-header"><button class="back c" data-back>‹</button><div class="detail-title">Steps</div><div style="width:36px"></div></div>
+  <div class="range-tabs" id="steps-detail-range"><button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button></div>
+  <div class="row" style="justify-content:center;align-items:center;gap:16px;margin:6px 0"><button class="c" id="stepsDatePrev" style="padding:2px 12px">‹</button><span id="stepsDateLabel" style="font-size:13px;color:var(--cyan)">--</span><button class="c" id="stepsDateNext" style="padding:2px 12px">›</button></div>
+  <div class="chart-box" style="height:140px"><canvas id="stepsDetailCanvas"></canvas></div>
+  <div class="big-avg" id="steps-total">--</div><div class="avg-label">Total steps</div>
+  <div class="analysis-box" id="steps-analysis">Step analysis<br>The amount of exercise is not enough, please refuel and keep exercising.</div>
+</div></div>
+
 <div id="page2" style="display:none">
 <div class="card">
   <div class="chart-title"><span>📈 近期心率趋势 (BPM)</span><span id="chart-sub">暂无数据</span></div>
@@ -161,7 +246,7 @@ canvas{width:100%!important;height:100px!important;display:block}
 
 <div id="page3" style="display:none">
 <div class="card">
-  <div class="chart-title"><span>💆 压力</span><span id="pressure-chart-sub">暂无数据</span></div>
+  <div class="detail-header"><button class="back c" data-back>‹</button><div class="detail-title">pressure</div><div style="width:36px"></div></div>
   <div class="range-tabs" id="pressure-range">
     <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
   </div>
@@ -170,55 +255,58 @@ canvas{width:100%!important;height:100px!important;display:block}
     <span id="pressureDateLabel" style="font-size:13px;color:var(--cyan)">--</span>
     <button id="pressureDateNext" class="c" style="padding:2px 12px">›</button>
   </div>
-  <div class="chart-box">
-    <canvas id="pressureCanvas"></canvas>
+  <div class="chart-box" style="height:140px"><canvas id="pressureCanvas"></canvas></div>
+  <div class="big-avg" id="pressure-avg">--</div><div class="avg-label">average</div>
+  <div class="hl-row">
+    <div><div class="num" style="color:#67d9df" id="pressure-high">--</div><div class="lbl">↑ highest</div></div>
+    <div><div class="num" style="color:#d6b56a" id="pressure-low">--</div><div class="lbl">↓ lowest</div></div>
   </div>
-  <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
-    <div><div style="font-size:20px;font-weight:700" id="pressure-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
-    <div><div style="font-size:20px;font-weight:700;color:#67d9df" id="pressure-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
-    <div><div style="font-size:20px;font-weight:700;color:#d6b56a" id="pressure-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
+  <button class="measure-btn" id="btnPressureMeasure">pressure measurement</button>
+  <div class="analysis-box">
+    <div style="font-weight:600;color:var(--text);margin-bottom:6px">Pressure reference value</div>
+    <div class="legend-row">
+      <span><i class="dot" style="background:#67d9df"></i> &lt;=25 easy</span>
+      <span><i class="dot" style="background:#3b82f6"></i> 26-50 normal</span>
+      <span><i class="dot" style="background:#f59e0b"></i> 51-80 medium</span>
+      <span><i class="dot" style="background:#ef4444"></i> 81-100 On the high side</span>
+    </div>
   </div>
 </div>
-
-<div class="card">
-  <div class="row">
-    <button id="btnPrevPage2" style="flex:1">上一页</button>
-    <button id="btnNextPage3" class="p" style="flex:1">下一页</button>
-  </div>
-</div>
+<div class="card"><div class="row"><button id="btnPrevPage2" style="flex:1">上一页</button><button id="btnNextPage3" class="p" style="flex:1">下一页</button></div></div>
 </div>
 
 <div id="page4" style="display:none">
 <div class="card">
-  <div class="chart-title"><span>😴 睡眠详情</span><span id="hypno-chart-sub">暂无数据</span></div>
+  <div class="detail-header"><button class="back c" data-back>‹</button><div class="detail-title">Sleep</div><div style="width:36px"></div></div>
+  <div class="range-tabs" id="sleep-detail-range">
+    <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button>
+  </div>
   <div class="row" style="justify-content:center;align-items:center;gap:16px;margin:6px 0">
     <button id="hypnoDatePrev" class="c" style="padding:2px 12px">‹</button>
     <span id="hypnoDateLabel" style="font-size:13px;color:var(--cyan)">--</span>
     <button id="hypnoDateNext" class="c" style="padding:2px 12px">›</button>
   </div>
-  <div class="chart-box" style="height:120px">
-    <canvas id="hypnoCanvas"></canvas>
-  </div>
+  <div class="chart-box" style="height:130px"><canvas id="hypnoCanvas"></canvas></div>
   <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:2px">
     <span id="hypno-start">--</span><span id="hypno-end">--</span>
   </div>
-  <div style="display:flex;justify-content:space-around;margin-top:14px;text-align:center">
-    <div><div style="font-size:18px;font-weight:700;color:#5b4fd6" id="hypno-deep">--</div><div style="font-size:11px;color:var(--muted)">深睡</div></div>
-    <div><div style="font-size:18px;font-weight:700;color:#b9a6f2" id="hypno-light">--</div><div style="font-size:11px;color:var(--muted)">浅睡</div></div>
-    <div><div style="font-size:18px;font-weight:700;color:#e8834a" id="hypno-rem">--</div><div style="font-size:11px;color:var(--muted)">REM</div></div>
+  <div class="sleep-stats" style="margin-top:16px">
+    <div><div class="val" style="color:#5b4fd6" id="hypno-deep">--</div><div class="unit">Deep sleeping</div></div>
+    <div><div class="val" style="color:#b9a6f2" id="hypno-light">--</div><div class="unit">Light sleeping</div></div>
+    <div><div class="val" style="color:#e8834a" id="hypno-rem">--</div><div class="unit">REM</div></div>
   </div>
-  <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
-    <div><div style="font-size:18px;font-weight:700" id="hypno-total">--</div><div style="font-size:11px;color:var(--muted)">睡眠时长</div></div>
-    <div><div style="font-size:18px;font-weight:700;color:#d6b56a" id="hypno-awake">--</div><div style="font-size:11px;color:var(--muted)">清醒次数</div></div>
+  <div class="stage-legend">
+    <span><i class="dot" style="background:#5b4fd6"></i> Deep</span>
+    <span><i class="dot" style="background:#b9a6f2"></i> Light</span>
+    <span><i class="dot" style="background:#e8834a"></i> REM</span>
   </div>
-  <div style="margin-top:14px;font-size:12px;color:var(--muted)" id="hypno-analysis"></div>
+  <div class="sleep-stats">
+    <div><div class="val" id="hypno-total">--</div><div class="unit">Sleep duration</div></div>
+    <div><div class="val" style="color:#d6b56a" id="hypno-awake">--</div><div class="unit">Awake</div></div>
+  </div>
+  <div class="analysis-box" id="hypno-analysis">Sleep analysis<br>Your sleep quality is average.</div>
 </div>
-
-<div class="card">
-  <div class="row">
-    <button id="btnPrevPage3" style="flex:1">上一页</button>
-  </div>
-</div>
+<div class="card"><div class="row"><button id="btnPrevPage3" style="flex:1">上一页</button></div></div>
 </div>
 </main>
 
@@ -487,14 +575,31 @@ function renderHist() {
 
 const RANGE_DAYS = { day: 1, week: 7, month: 30, year: 365 };
 // 三个图表各自独立记住当前选中的时间范围
-const chartRange = { trend: "week", sleep: "week", bp: "week", pressure: "day" };
+const chartRange = { trend: "week", sleep: "week", bp: "week", pressure: "day", hrDetail: "day", spo2Detail: "day", bpDetail: "day", hrvDetail: "day", stepsDetail: "day" };
 
-// 压力/睡眠详情页的日期导航状态（默认今天，用‹›切换查看历史某一天）
 function startOfDay(d) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
 function sameDay(a, b) { return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
 function dateLabel(d) { return `${d.getMonth()+1}/${String(d.getDate()).padStart(2,"0")}`; }
 let pressureDate = startOfDay(new Date());
 let hypnoDate = startOfDay(new Date());
+let hrDate = startOfDay(new Date());
+let spo2Date = startOfDay(new Date());
+let bpDate = startOfDay(new Date());
+let hrvDate = startOfDay(new Date());
+let stepsDate = startOfDay(new Date());
+
+const ALL_PAGES = ["page1","page2","page3","page4","detail-hr","detail-spo2","detail-bp","detail-hrv","detail-steps"];
+function showPage(id) {
+  ALL_PAGES.forEach(p => { const el = $(p); if (el) el.style.display = p === id ? "" : "none"; });
+  if (id === "detail-hr") drawHrDetail();
+  else if (id === "detail-spo2") drawSpo2Detail();
+  else if (id === "detail-bp") drawBpDetail();
+  else if (id === "detail-hrv") drawHrvDetail();
+  else if (id === "detail-steps") drawStepsDetail();
+  else if (id === "page3") drawPressureChart();
+  else if (id === "page4") drawHypnogram();
+  else if (id === "page2") { drawTrendChart(); drawSleepChart(); drawBPChart(); }
+}
 
 // 按“年/月/周/日”过滤记录：只保留 time 落在最近 N 天内的
 function filterByRange(list, range) {
@@ -731,12 +836,13 @@ function drawPressureChart() {
     bars = raw.slice(-24).map(x => x.pressure);
   }
 
-  const max = 100; // 压力是0-100分值，固定量程与官方App一致
+  const max = 100;
   const barW = width / bars.length;
+  const pressureColor = v => v <= 25 ? "#67d9df" : v <= 50 ? "#3b82f6" : v <= 80 ? "#f59e0b" : "#ef4444";
   bars.forEach((v, i) => {
     if (v === null) return;
     const h = (v / max) * (height - 10);
-    ctx.fillStyle = "#67d9df";
+    ctx.fillStyle = pressureColor(v);
     ctx.fillRect(i * barW + barW * 0.2, height - h, barW * 0.6, h);
   });
 }
@@ -766,12 +872,12 @@ function drawHypnogram() {
   }
 
   const d = rec.data;
-  if (sub) sub.textContent = fmt(new Date(rec.time));
-  setStat("hypno-deep", `${d.deepMin}min`);
-  setStat("hypno-light", `${d.lightMin}min`);
-  setStat("hypno-rem", `${d.remMin}min`);
-  setStat("hypno-total", `${Math.floor(d.totalMin/60)}h${d.totalMin%60}min`);
-  setStat("hypno-awake", d.sessionCount > 1 ? d.sessionCount - 1 : 0);
+  const fmtHM = m => `${Math.floor(m/60)}h${String(m%60).padStart(2,"0")}min`;
+  setStat("hypno-deep", fmtHM(d.deepMin));
+  setStat("hypno-light", fmtHM(d.lightMin));
+  setStat("hypno-rem", fmtHM(d.remMin));
+  setStat("hypno-total", fmtHM(d.totalMin));
+  setStat("hypno-awake", (d.sessionCount > 1 ? d.sessionCount - 1 : 0) + " times");
 
   const segs = d.segments;
   const tMin = Math.min(...segs.map(s => s.start.getTime()));
@@ -781,26 +887,174 @@ function drawHypnogram() {
 
   const analysis = $("hypno-analysis");
   if (analysis) {
-    let text = d.totalMin >= 420 ? "睡眠时长充足" : d.totalMin >= 300 ? "睡眠时长一般" : "睡眠时长偏短";
-    analysis.textContent = `📈 ${text}（本地粗略估算，非官方算法）`;
+    const text = d.totalMin >= 420 ? "Your sleep quality is good." : d.totalMin >= 300 ? "Your sleep quality is average." : "Your sleep quality needs improvement.";
+    analysis.innerHTML = `Sleep analysis<br>${text}`;
   }
 
-  const span = (tMax - tMin) || 1;
-  const xOf = t => (t - tMin) / span * width;
-  const LEVEL = { 3: { y: height * 0.12, h: height * 0.30, color: "#e8834a" },  // REM：最高
-                  2: { y: height * 0.46, h: height * 0.30, color: "#b9a6f2" },  // 浅睡：居中
-                  1: { y: height * 0.80, h: height * 0.18, color: "#5b4fd6" } }; // 深睡：最低
-  for (const seg of segs) {
-    const lvl = LEVEL[seg.stage];
-    if (!lvl) continue;
-    const x1 = xOf(seg.start.getTime());
-    const x2 = xOf(seg.start.getTime() + seg.durSec * 1000);
-    ctx.fillStyle = lvl.color;
-    ctx.fillRect(x1, lvl.y, Math.max(x2 - x1, 1.5), lvl.h);
+  const canvas = $("hypnoCanvas");
+  if (canvas) {
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.clientWidth || 300, h = 130;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    const span = (tMax - tMin) || 1;
+    const xOf = t => (t - tMin) / span * w;
+    const LEVEL = { 3: { y: h * 0.08, h: h * 0.28, color: "#e8834a" },
+                    2: { y: h * 0.40, h: h * 0.28, color: "#b9a6f2" },
+                    1: { y: h * 0.72, h: h * 0.22, color: "#5b4fd6" } };
+    for (const seg of segs) {
+      const lvl = LEVEL[seg.stage];
+      if (!lvl) continue;
+      const x1 = xOf(seg.start.getTime());
+      const x2 = xOf(seg.start.getTime() + seg.durSec * 1000);
+      ctx.fillStyle = lvl.color;
+      ctx.fillRect(x1, lvl.y, Math.max(x2 - x1, 1.5), lvl.h);
+    }
   }
 }
 
-// 统一刷新：历史列表 + 图表（连接/清空/翻页/新数据到达时调用）
+
+function collectMetricPoints(type, range, dayDate) {
+  const pts = [];
+  const push = (t, val) => { if (val != null && !isNaN(val)) pts.push({ t: new Date(t).getTime(), v: val }); };
+  for (const rec of records) {
+    const rt = new Date(rec.time).getTime();
+    if (range === "day") { if (!sameDay(new Date(rec.time), dayDate)) continue; }
+    else { if (rt < Date.now() - (RANGE_DAYS[range] || 7) * 86400000) continue; }
+    if (type === "hr") {
+      if (rec.type === "hr") push(rec.time, rec.data);
+      else if (rec.type === "all" && rec.data) for (const x of rec.data) if (x.hr) push(rec.time, x.hr);
+      else if (rec.type === "hrHist" && rec.data) for (const x of rec.data) if (x.hr) push(x.local || rec.time, x.hr);
+    } else if (type === "spo2") {
+      if (rec.type === "spo2") push(rec.time, rec.data);
+      else if (rec.type === "all" && rec.data) for (const x of rec.data) if (x.spo2) push(rec.time, x.spo2);
+    } else if (type === "hrv") {
+      if (rec.type === "hrv") push(rec.time, rec.data);
+    } else if (type === "bp") {
+      if (rec.type === "bp" && rec.data) pts.push({ t: rt, sys: rec.data.sys, dia: rec.data.dia });
+      else if (rec.type === "all" && rec.data) for (const x of rec.data) if (x.sys) pts.push({ t: rt, sys: x.sys, dia: x.dia });
+      else if (rec.type === "bpHist" && rec.data) for (const x of rec.data) if (x.sys) pts.push({ t: new Date(x.local || rec.time).getTime(), sys: x.sys, dia: x.dia });
+    }
+  }
+  pts.sort((a, b) => a.t - b.t);
+  return pts;
+}
+
+function drawDetailArea(canvasId, points, stroke, fillRgba, yMin, yMax) {
+  const canvas = $(canvasId); if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const width = canvas.clientWidth || 300, height = 140;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = width * dpr; canvas.height = height * dpr;
+  ctx.scale(dpr, dpr); ctx.clearRect(0, 0, width, height);
+  if (points.length < 1) { drawEmptyState(ctx, width, height, "暂无数据，测量或同步历史后显示"); return; }
+  const vals = points.map(p => p.v);
+  const min = yMin != null ? yMin : Math.min(...vals) - 5;
+  const max = yMax != null ? yMax : Math.max(...vals) + 5;
+  const yOf = v => height - ((v - min) / (max - min || 1)) * (height - 24) - 12;
+  let tMin = points[0].t, tMax = points[points.length - 1].t;
+  if (tMax - tMin < 3600000) { tMin -= 1800000; tMax += 1800000; }
+  const xOf = t => ((t - tMin) / (tMax - tMin || 1)) * width;
+  const grad = ctx.createLinearGradient(0, 0, 0, height);
+  grad.addColorStop(0, fillRgba(0.35)); grad.addColorStop(1, fillRgba(0));
+  ctx.beginPath();
+  points.forEach((p, i) => (i === 0 ? ctx.moveTo(xOf(p.t), yOf(p.v)) : ctx.lineTo(xOf(p.t), yOf(p.v))));
+  ctx.lineTo(xOf(points[points.length - 1].t), height); ctx.lineTo(xOf(points[0].t), height); ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+  ctx.beginPath();
+  points.forEach((p, i) => (i === 0 ? ctx.moveTo(xOf(p.t), yOf(p.v)) : ctx.lineTo(xOf(p.t), yOf(p.v))));
+  ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.stroke();
+}
+
+function drawHrDetail() {
+  if ($("hrDateLabel")) $("hrDateLabel").textContent = dateLabel(hrDate);
+  const pts = collectMetricPoints("hr", chartRange.hrDetail, hrDate);
+  const vals = pts.map(p => p.v);
+  const set = (id, v) => { const el = $(id); if (el) el.textContent = v; };
+  if (!vals.length) { set("hr-avg","--"); set("hr-high","--"); set("hr-low","--"); }
+  else { set("hr-avg", Math.round(vals.reduce((a,b)=>a+b,0)/vals.length)); set("hr-high", Math.max(...vals)); set("hr-low", Math.min(...vals)); }
+  drawDetailArea("hrDetailCanvas", pts, "#f472b6", a => `rgba(244,114,182,${a})`, 40, 180);
+  const avg = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : null;
+  const ana = $("hr-analysis"); if (ana) ana.innerHTML = avg == null ? "暂无数据" : (avg >= 60 && avg <= 100 ? "Heart rate analysis<br>Your heart rate is normal." : "Heart rate analysis<br>请关注心率变化");
+}
+
+function drawSpo2Detail() {
+  if ($("spo2DateLabel")) $("spo2DateLabel").textContent = dateLabel(spo2Date);
+  const pts = collectMetricPoints("spo2", chartRange.spo2Detail, spo2Date);
+  const vals = pts.map(p => p.v);
+  const set = (id, v) => { const el = $(id); if (el) el.textContent = v; };
+  if (!vals.length) { set("spo2-avg","--"); set("spo2-high","--"); set("spo2-low","--"); }
+  else { set("spo2-avg", Math.round(vals.reduce((a,b)=>a+b,0)/vals.length)); set("spo2-high", Math.max(...vals)); set("spo2-low", Math.min(...vals)); }
+  drawDetailArea("spo2DetailCanvas", pts, "#fb923c", a => `rgba(251,146,60,${a})`, 80, 100);
+  const avg = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : null;
+  const ana = $("spo2-analysis"); if (ana) ana.innerHTML = avg == null ? "暂无数据" : (avg >= 95 ? "Spo2 analysis<br>Your blood oxygen saturation is fine." : "Spo2 analysis<br>血氧偏低，请注意");
+}
+
+function drawBpDetail() {
+  if ($("bpDateLabel")) $("bpDateLabel").textContent = dateLabel(bpDate);
+  const pts = collectMetricPoints("bp", chartRange.bpDetail, bpDate);
+  const set = (id, v) => { const el = $(id); if (el) el.textContent = v; };
+  if (!pts.length) { set("bp-avg","-- / --"); set("bp-high","-- / --"); set("bp-low","-- / --"); }
+  else {
+    const sys = pts.map(p => p.sys), dia = pts.map(p => p.dia);
+    set("bp-avg", `${Math.round(sys.reduce((a,b)=>a+b,0)/sys.length)}/${Math.round(dia.reduce((a,b)=>a+b,0)/dia.length)}`);
+    set("bp-high", `${Math.max(...sys)}/${Math.max(...dia)}`);
+    set("bp-low", `${Math.min(...sys)}/${Math.min(...dia)}`);
+  }
+  const canvas = $("bpDetailCanvas"); if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const width = canvas.clientWidth || 300, height = 140;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = width * dpr; canvas.height = height * dpr; ctx.scale(dpr, dpr); ctx.clearRect(0, 0, width, height);
+  if (!pts.length) return drawEmptyState(ctx, width, height, "暂无数据，测量或同步历史后显示");
+  const min = 30, max = 160, yOf = v => height - ((v - min) / (max - min)) * (height - 20) - 10;
+  const barW = Math.min(14, width / Math.max(pts.length, 1) * 0.5);
+  pts.forEach((p, i) => {
+    const x = (i + 0.5) * (width / pts.length);
+    ctx.fillStyle = "#f59e0b"; ctx.fillRect(x - barW/2, yOf(p.sys), barW, height - yOf(p.sys) - 4);
+    ctx.fillStyle = "#ea580c"; ctx.fillRect(x - barW/2, yOf(p.dia), barW, height - yOf(p.dia) - 4);
+  });
+  const ana = $("bp-analysis");
+  if (ana) {
+    if (!pts.length) ana.innerHTML = "暂无数据";
+    else { const avgSys = Math.round(pts.reduce((a,p)=>a+p.sys,0)/pts.length); ana.innerHTML = avgSys < 120 ? "Blood pressure analysis<br>keep it up" : "Blood pressure analysis<br>请注意血压变化"; }
+  }
+}
+
+function drawHrvDetail() {
+  if ($("hrvDateLabel")) $("hrvDateLabel").textContent = dateLabel(hrvDate);
+  const pts = collectMetricPoints("hrv", chartRange.hrvDetail, hrvDate);
+  const vals = pts.map(p => p.v);
+  const set = (id, v) => { const el = $(id); if (el) el.textContent = v; };
+  if (!vals.length) { set("hrv-avg","--"); set("hrv-high","--"); set("hrv-low","--"); }
+  else { set("hrv-avg", Math.round(vals.reduce((a,b)=>a+b,0)/vals.length)); set("hrv-high", Math.max(...vals)); set("hrv-low", Math.min(...vals)); }
+  drawDetailArea("hrvDetailCanvas", pts, "#f472b6", a => `rgba(244,114,182,${a})`, 0, 220);
+  const ana = $("hrv-analysis"); if (ana) ana.innerHTML = vals.length ? "HRV<br>Your heart rate is normal." : "暂无数据";
+}
+
+function drawStepsDetail() {
+  if ($("stepsDateLabel")) $("stepsDateLabel").textContent = dateLabel(stepsDate);
+  const totalEl = $("steps-total");
+  const cur = parseInt($("steps")?.textContent || "0", 10) || 0;
+  if (totalEl) totalEl.textContent = cur || "--";
+  const canvas = $("stepsDetailCanvas"); if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const width = canvas.clientWidth || 300, height = 140;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = width * dpr; canvas.height = height * dpr; ctx.scale(dpr, dpr); ctx.clearRect(0, 0, width, height);
+  if (cur > 0) {
+    const max = Math.max(cur * 1.2, 100);
+    const h = (cur / max) * (height - 20);
+    ctx.fillStyle = "#2dd4bf";
+    ctx.fillRect(width * 0.05, height - h - 4, width * 0.08, h);
+  } else {
+    drawEmptyState(ctx, width, height, "暂无步数数据");
+  }
+  const ana = $("steps-analysis");
+  if (ana) ana.innerHTML = cur >= 8000 ? "Step analysis<br>Good job, keep moving!" : "Step analysis<br>The amount of exercise is not enough, please refuel and keep exercising.";
+}
+
 function refreshAll() {
   renderHist();
   drawTrendChart();
@@ -808,7 +1062,18 @@ function refreshAll() {
   drawBPChart();
   drawPressureChart();
   drawHypnogram();
+  if ($("detail-hr") && $("detail-hr").style.display !== "none") drawHrDetail();
+  if ($("detail-spo2") && $("detail-spo2").style.display !== "none") drawSpo2Detail();
+  if ($("detail-bp") && $("detail-bp").style.display !== "none") drawBpDetail();
+  if ($("detail-hrv") && $("detail-hrv").style.display !== "none") drawHrvDetail();
+  if ($("detail-steps") && $("detail-steps").style.display !== "none") drawStepsDetail();
+  const pressVals = [];
+  for (const rec of records) {
+    if (rec.type === "pressure" && rec.data) for (const x of rec.data) if (sameDay(new Date(x.t), startOfDay(new Date()))) pressVals.push(x.pressure);
+  }
+  if ($("pressureHome")) $("pressureHome").textContent = pressVals.length ? Math.round(pressVals.reduce((a,b)=>a+b,0)/pressVals.length) : "--";
 }
+
 
 function handle(type, p) {
   if (histBusy && type !== 0x0580 && type !== histEchoType && !REALTIME_TYPES.has(type)) {
@@ -1119,39 +1384,50 @@ $("btnCycleMode").onclick = () => {
 };
 updatePanels();
 
-$("btnNextPage").onclick = () => {
-  $("page1").style.display = "none";
-  $("page2").style.display = "";
-  drawTrendChart();
-  drawSleepChart();
-  drawBPChart();
-};
-$("btnPrevPage").onclick = () => {
-  $("page2").style.display = "none";
-  $("page1").style.display = "";
-};
-$("btnNextPage2").onclick = () => {
-  $("page2").style.display = "none";
-  $("page3").style.display = "";
-  drawPressureChart();
-};
-$("btnPrevPage2").onclick = () => {
-  $("page3").style.display = "none";
-  $("page2").style.display = "";
-};
-$("btnNextPage3").onclick = () => {
-  $("page3").style.display = "none";
-  $("page4").style.display = "";
-  drawHypnogram();
-};
-$("btnPrevPage3").onclick = () => {
-  $("page4").style.display = "none";
-  $("page3").style.display = "";
-};
+$("btnNextPage").onclick = () => showPage("page2");
+$("btnPrevPage").onclick = () => showPage("page1");
+$("btnNextPage2").onclick = () => showPage("page3");
+$("btnPrevPage2").onclick = () => showPage("page2");
+$("btnNextPage3").onclick = () => showPage("page4");
+$("btnPrevPage3").onclick = () => showPage("page3");
+
+document.querySelectorAll(".m[data-page]").forEach(card => {
+  card.addEventListener("click", () => { const pid = card.dataset.page; if (pid) showPage(pid); });
+});
+document.querySelectorAll("[data-back]").forEach(btn => { btn.onclick = () => showPage("page1"); });
+
+setupRangeTabs("hr-detail-range", "hrDetail", drawHrDetail);
+setupRangeTabs("spo2-detail-range", "spo2Detail", drawSpo2Detail);
+setupRangeTabs("bp-detail-range", "bpDetail", drawBpDetail);
+setupRangeTabs("hrv-detail-range", "hrvDetail", drawHrvDetail);
+setupRangeTabs("steps-detail-range", "stepsDetail", drawStepsDetail);
+
 $("pressureDatePrev").onclick = () => { pressureDate.setDate(pressureDate.getDate() - 1); drawPressureChart(); };
 $("pressureDateNext").onclick = () => { pressureDate.setDate(pressureDate.getDate() + 1); drawPressureChart(); };
 $("hypnoDatePrev").onclick = () => { hypnoDate.setDate(hypnoDate.getDate() - 1); drawHypnogram(); };
 $("hypnoDateNext").onclick = () => { hypnoDate.setDate(hypnoDate.getDate() + 1); drawHypnogram(); };
+if ($("hrDatePrev")) $("hrDatePrev").onclick = () => { hrDate.setDate(hrDate.getDate() - 1); drawHrDetail(); };
+if ($("hrDateNext")) $("hrDateNext").onclick = () => { hrDate.setDate(hrDate.getDate() + 1); drawHrDetail(); };
+if ($("spo2DatePrev")) $("spo2DatePrev").onclick = () => { spo2Date.setDate(spo2Date.getDate() - 1); drawSpo2Detail(); };
+if ($("spo2DateNext")) $("spo2DateNext").onclick = () => { spo2Date.setDate(spo2Date.getDate() + 1); drawSpo2Detail(); };
+if ($("bpDatePrev")) $("bpDatePrev").onclick = () => { bpDate.setDate(bpDate.getDate() - 1); drawBpDetail(); };
+if ($("bpDateNext")) $("bpDateNext").onclick = () => { bpDate.setDate(bpDate.getDate() + 1); drawBpDetail(); };
+if ($("hrvDatePrev")) $("hrvDatePrev").onclick = () => { hrvDate.setDate(hrvDate.getDate() - 1); drawHrvDetail(); };
+if ($("hrvDateNext")) $("hrvDateNext").onclick = () => { hrvDate.setDate(hrvDate.getDate() + 1); drawHrvDetail(); };
+if ($("stepsDatePrev")) $("stepsDatePrev").onclick = () => { stepsDate.setDate(stepsDate.getDate() - 1); drawStepsDetail(); };
+if ($("stepsDateNext")) $("stepsDateNext").onclick = () => { stepsDate.setDate(stepsDate.getDate() + 1); drawStepsDetail(); };
+
+document.querySelectorAll(".measure-btn[data-mode]").forEach(btn => {
+  btn.onclick = async () => {
+    const mode = +btn.dataset.mode;
+    if (!c1 || isMeasuring) return;
+    isMeasuring = true;
+    setStatus("正在手动测量 " + (MODE_NAMES[mode] || "") + "...");
+    startActiveProgress(MODE_CARD_KEYS[mode], 30000);
+    await measure(mode);
+    setTimeout(() => { isMeasuring = false; clearActiveProgress(); }, 30000);
+  };
+});
 </script>
 </body>
 </html>
