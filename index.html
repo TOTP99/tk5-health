@@ -95,7 +95,7 @@ canvas{width:100%!important;height:100px!important;display:block}
     <button data-h="1a">血氧历史</button>
     <button data-h="1e">体温历史</button>
     <button data-h="2f">综合(旧)</button>
-    <button data-h="33">身体数据</button>
+    <button data-h="33">压力历史</button>
   </div>
 </div>
 </div>
@@ -154,6 +154,69 @@ canvas{width:100%!important;height:100px!important;display:block}
 <div class="card">
   <div class="row">
     <button id="btnPrevPage" style="flex:1">上一页</button>
+    <button id="btnNextPage2" class="p" style="flex:1">下一页</button>
+  </div>
+</div>
+</div>
+
+<div id="page3" style="display:none">
+<div class="card">
+  <div class="chart-title"><span>💆 压力</span><span id="pressure-chart-sub">暂无数据</span></div>
+  <div class="range-tabs" id="pressure-range">
+    <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
+  </div>
+  <div class="row" id="pressureDateNav" style="justify-content:center;align-items:center;gap:16px;margin:6px 0">
+    <button id="pressureDatePrev" class="c" style="padding:2px 12px">‹</button>
+    <span id="pressureDateLabel" style="font-size:13px;color:var(--cyan)">--</span>
+    <button id="pressureDateNext" class="c" style="padding:2px 12px">›</button>
+  </div>
+  <div class="chart-box">
+    <canvas id="pressureCanvas"></canvas>
+  </div>
+  <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
+    <div><div style="font-size:20px;font-weight:700" id="pressure-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
+    <div><div style="font-size:20px;font-weight:700;color:#67d9df" id="pressure-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
+    <div><div style="font-size:20px;font-weight:700;color:#d6b56a" id="pressure-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="row">
+    <button id="btnPrevPage2" style="flex:1">上一页</button>
+    <button id="btnNextPage3" class="p" style="flex:1">下一页</button>
+  </div>
+</div>
+</div>
+
+<div id="page4" style="display:none">
+<div class="card">
+  <div class="chart-title"><span>😴 睡眠详情</span><span id="hypno-chart-sub">暂无数据</span></div>
+  <div class="row" style="justify-content:center;align-items:center;gap:16px;margin:6px 0">
+    <button id="hypnoDatePrev" class="c" style="padding:2px 12px">‹</button>
+    <span id="hypnoDateLabel" style="font-size:13px;color:var(--cyan)">--</span>
+    <button id="hypnoDateNext" class="c" style="padding:2px 12px">›</button>
+  </div>
+  <div class="chart-box" style="height:120px">
+    <canvas id="hypnoCanvas"></canvas>
+  </div>
+  <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:2px">
+    <span id="hypno-start">--</span><span id="hypno-end">--</span>
+  </div>
+  <div style="display:flex;justify-content:space-around;margin-top:14px;text-align:center">
+    <div><div style="font-size:18px;font-weight:700;color:#5b4fd6" id="hypno-deep">--</div><div style="font-size:11px;color:var(--muted)">深睡</div></div>
+    <div><div style="font-size:18px;font-weight:700;color:#b9a6f2" id="hypno-light">--</div><div style="font-size:11px;color:var(--muted)">浅睡</div></div>
+    <div><div style="font-size:18px;font-weight:700;color:#e8834a" id="hypno-rem">--</div><div style="font-size:11px;color:var(--muted)">REM</div></div>
+  </div>
+  <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
+    <div><div style="font-size:18px;font-weight:700" id="hypno-total">--</div><div style="font-size:11px;color:var(--muted)">睡眠时长</div></div>
+    <div><div style="font-size:18px;font-weight:700;color:#d6b56a" id="hypno-awake">--</div><div style="font-size:11px;color:var(--muted)">清醒次数</div></div>
+  </div>
+  <div style="margin-top:14px;font-size:12px;color:var(--muted)" id="hypno-analysis"></div>
+</div>
+
+<div class="card">
+  <div class="row">
+    <button id="btnPrevPage3" style="flex:1">上一页</button>
   </div>
 </div>
 </div>
@@ -219,7 +282,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const REALTIME_TYPES = new Set([0x0600, 0x0601, 0x0602, 0x0603, 0x0615, 0x040e, 0x0200, 0x020c, 0x0203]);
 const HIST_LABELS = {
   "04": "睡眠历史(原始)", "02": "步数历史(原始)", "1a": "血氧历史(原始)",
-  "1e": "体温历史(原始)", "2f": "综合(旧,0x2f原始)", "33": "身体数据(原始)"
+  "1e": "体温历史(原始)", "2f": "综合(旧,0x2f原始)", "33": "压力历史"
 };
 const MODE_NAMES = { 0: "心率", 1: "血压", 2: "血氧", 10: "HRV" };
 const MODE_CARD_KEYS = { 0: "hr", 1: "bp", 2: "spo2", 10: "hrv" };
@@ -332,6 +395,17 @@ function decodeAll(bytes) {
   return r;
 }
 
+// 压力历史帧(0x33/0x0534)：每条记录固定28字节 [时间戳4][数据11][补零11][CRC2]，每小时一条整点采样；
+// 压力值 = 数据段第10字节(索引9) + 24，已用官方App同日数据逐点核对(5/5条对上4条，1条差1，判断为App端平滑导致)
+function decodePressure(bytes) {
+  const r = [];
+  for (let i = 0; i + 28 <= bytes.length; i += 28) {
+    const d = ts(bytes[i],bytes[i+1],bytes[i+2],bytes[i+3]);
+    r.push({ local: fmt(d), t: d.getTime(), pressure: bytes[i+13] + 24 });
+  }
+  return r;
+}
+
 // 睡眠帧(0x0513)：每条记录以[af fa][记录总长2 LE]开头，20字节记录头[标记4][起始时间戳4][结束时间戳4][未知8]，
 // 之后每8字节一段[阶段标记1(0xf1深/0xf2浅/0xf3REM)][段起始时间戳4][时长秒数2 LE][占位1]；
 // 一次同步可能返回多条记录(中途醒来会拆成多条)，需按每条记录自带长度字段切分后逐条解码再合并统计。
@@ -397,6 +471,9 @@ function renderHist() {
     } else if (rec.type === "sleep" && rec.data) {
       const d = rec.data;
       cards.push(`<div class="rc"><div class="t">😴 ${esc(d.start)} ~ ${esc(d.end)}（共${d.totalMin}分钟）</div><div>深睡 <b>${d.deepMin}</b>分 · 浅睡 <b>${d.lightMin}</b>分 · REM <b>${d.remMin}</b>分</div></div>`);
+    } else if (rec.type === "pressure" && rec.data) {
+      for (const x of [...rec.data].reverse())
+        cards.push(`<div class="rc"><div class="t">${esc(x.local)}</div><div>压力 <b>${x.pressure}</b></div></div>`);
     } else if (rec.type === "raw") {
       const d = rec.data;
       cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} · ${esc(d.label)} · 帧0x${(d.frameType||0).toString(16).padStart(4,"0")} · ${d.bytes}字节</div><div style="font:11px/1.4 ui-monospace,Menlo,Consolas,monospace;word-break:break-all;color:var(--cyan)">${esc(d.hex)}</div></div>`);
@@ -410,7 +487,14 @@ function renderHist() {
 
 const RANGE_DAYS = { day: 1, week: 7, month: 30, year: 365 };
 // 三个图表各自独立记住当前选中的时间范围
-const chartRange = { trend: "week", sleep: "week", bp: "week" };
+const chartRange = { trend: "week", sleep: "week", bp: "week", pressure: "day" };
+
+// 压力/睡眠详情页的日期导航状态（默认今天，用‹›切换查看历史某一天）
+function startOfDay(d) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
+function sameDay(a, b) { return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+function dateLabel(d) { return `${d.getMonth()+1}/${String(d.getDate()).padStart(2,"0")}`; }
+let pressureDate = startOfDay(new Date());
+let hypnoDate = startOfDay(new Date());
 
 // 按“年/月/周/日”过滤记录：只保留 time 落在最近 N 天内的
 function filterByRange(list, range) {
@@ -601,12 +685,129 @@ function drawBPChart() {
   drawDots("dia", "#67d9df", DIA_LINE);
 }
 
-// 统一刷新：历史列表 + 三个图表（连接/清空/翻页/新数据到达时调用）
+// 压力柱状图：日视图按0-23整点分桶(压力本身就是整点采样)，周/月/年视图取范围内最近样本
+function drawPressureChart() {
+  const c = initCanvas("pressureCanvas");
+  if (!c) return;
+  const { ctx, width, height } = c;
+
+  if ($("pressureDateLabel")) $("pressureDateLabel").textContent = dateLabel(pressureDate);
+  if ($("pressureDateNav")) $("pressureDateNav").style.display = chartRange.pressure === "day" ? "" : "none";
+
+  let raw = [];
+  if (chartRange.pressure === "day") {
+    for (const rec of records) {
+      if (rec.type === "pressure" && rec.data) {
+        for (const x of rec.data) if (sameDay(new Date(x.t), pressureDate)) raw.push(x);
+      }
+    }
+  } else {
+    for (const rec of filterByRange(records, chartRange.pressure)) {
+      if (rec.type === "pressure" && rec.data) for (const x of rec.data) raw.push(x);
+    }
+  }
+
+  const sub = $("pressure-chart-sub");
+  if (sub) sub.textContent = raw.length ? `共 ${raw.length} 个样本` : "暂无数据";
+
+  const avgEl = $("pressure-avg"), hiEl = $("pressure-high"), loEl = $("pressure-low");
+  if (!raw.length) {
+    if (avgEl) avgEl.textContent = "--";
+    if (hiEl) hiEl.textContent = "--";
+    if (loEl) loEl.textContent = "--";
+    return drawEmptyState(ctx, width, height, "同步压力历史后生成趋势图");
+  }
+
+  const values = raw.map(x => x.pressure);
+  if (avgEl) avgEl.textContent = Math.round(values.reduce((a, b) => a + b, 0) / values.length);
+  if (hiEl) hiEl.textContent = Math.max(...values);
+  if (loEl) loEl.textContent = Math.min(...values);
+
+  let bars;
+  if (chartRange.pressure === "day") {
+    bars = new Array(24).fill(null);
+    for (const x of raw) bars[new Date(x.t).getHours()] = x.pressure;
+  } else {
+    bars = raw.slice(-24).map(x => x.pressure);
+  }
+
+  const max = 100; // 压力是0-100分值，固定量程与官方App一致
+  const barW = width / bars.length;
+  bars.forEach((v, i) => {
+    if (v === null) return;
+    const h = (v / max) * (height - 10);
+    ctx.fillStyle = "#67d9df";
+    ctx.fillRect(i * barW + barW * 0.2, height - h, barW * 0.6, h);
+  });
+}
+
+// 睡眠阶段图：用最近一次同步到的睡眠记录的segments画三档柱子(REM最高/浅睡居中/深睡最低)，
+// 简化版——官方App是平滑连接的波形图，这里用离散柱子近似同样的"高低起伏"视觉效果，不追求像素级还原
+function drawHypnogram() {
+  const c = initCanvas("hypnoCanvas");
+  if (!c) return;
+  const { ctx, width, height } = c;
+
+  const rec = records.find(r => {
+    if (r.type !== "sleep" || !r.data || !r.data.segments || !r.data.segments.length) return false;
+    const t0 = Math.min(...r.data.segments.map(s => s.start.getTime()));
+    return sameDay(new Date(t0), hypnoDate);
+  });
+  const sub = $("hypno-chart-sub");
+  if ($("hypnoDateLabel")) $("hypnoDateLabel").textContent = dateLabel(hypnoDate);
+
+  const setStat = (id, v) => { const el = $(id); if (el) el.textContent = v; };
+  if (!rec) {
+    if (sub) sub.textContent = "该日期无数据";
+    ["hypno-deep","hypno-light","hypno-rem","hypno-total","hypno-awake"].forEach(id => setStat(id, "--"));
+    setStat("hypno-start", "--"); setStat("hypno-end", "--");
+    $("hypno-analysis") && ($("hypno-analysis").textContent = "");
+    return drawEmptyState(ctx, width, height, "这天没有同步到睡眠记录，试试切换日期");
+  }
+
+  const d = rec.data;
+  if (sub) sub.textContent = fmt(new Date(rec.time));
+  setStat("hypno-deep", `${d.deepMin}min`);
+  setStat("hypno-light", `${d.lightMin}min`);
+  setStat("hypno-rem", `${d.remMin}min`);
+  setStat("hypno-total", `${Math.floor(d.totalMin/60)}h${d.totalMin%60}min`);
+  setStat("hypno-awake", d.sessionCount > 1 ? d.sessionCount - 1 : 0);
+
+  const segs = d.segments;
+  const tMin = Math.min(...segs.map(s => s.start.getTime()));
+  const tMax = Math.max(...segs.map(s => s.start.getTime() + s.durSec * 1000));
+  setStat("hypno-start", fmt(new Date(tMin)).split(" ").pop().slice(0,5));
+  setStat("hypno-end", fmt(new Date(tMax)).split(" ").pop().slice(0,5));
+
+  const analysis = $("hypno-analysis");
+  if (analysis) {
+    let text = d.totalMin >= 420 ? "睡眠时长充足" : d.totalMin >= 300 ? "睡眠时长一般" : "睡眠时长偏短";
+    analysis.textContent = `📈 ${text}（本地粗略估算，非官方算法）`;
+  }
+
+  const span = (tMax - tMin) || 1;
+  const xOf = t => (t - tMin) / span * width;
+  const LEVEL = { 3: { y: height * 0.12, h: height * 0.30, color: "#e8834a" },  // REM：最高
+                  2: { y: height * 0.46, h: height * 0.30, color: "#b9a6f2" },  // 浅睡：居中
+                  1: { y: height * 0.80, h: height * 0.18, color: "#5b4fd6" } }; // 深睡：最低
+  for (const seg of segs) {
+    const lvl = LEVEL[seg.stage];
+    if (!lvl) continue;
+    const x1 = xOf(seg.start.getTime());
+    const x2 = xOf(seg.start.getTime() + seg.durSec * 1000);
+    ctx.fillStyle = lvl.color;
+    ctx.fillRect(x1, lvl.y, Math.max(x2 - x1, 1.5), lvl.h);
+  }
+}
+
+// 统一刷新：历史列表 + 图表（连接/清空/翻页/新数据到达时调用）
 function refreshAll() {
   renderHist();
   drawTrendChart();
   drawSleepChart();
   drawBPChart();
+  drawPressureChart();
+  drawHypnogram();
 }
 
 function handle(type, p) {
@@ -683,6 +884,7 @@ function handle(type, p) {
       if (histReqKey === "06") add("hrHist", decodeHR(buf));
       else if (histReqKey === "08") add("bpHist", decodeBP(buf));
       else if (histReqKey === "09") add("all", decodeAll(buf));
+      else if (histReqKey === "33") add("pressure", decodePressure(buf));
       else if (histReqKey === "04") {
         const sleepData = decodeSleep(buf);
         if (sleepData) {
@@ -884,6 +1086,7 @@ $("btnJson").onclick = () => {
 setupRangeTabs("trend-range", "trend", drawTrendChart);
 setupRangeTabs("sleep-range", "sleep", drawSleepChart);
 setupRangeTabs("bp-range", "bp", drawBPChart);
+setupRangeTabs("pressure-range", "pressure", drawPressureChart);
 
 // 用本地已保存的记录回填顶部卡片，避免刷新页面后明明有历史数据却显示"--"（只在还没收到实时数据时补一次）
 function hydrateFromRecords() {
@@ -927,6 +1130,28 @@ $("btnPrevPage").onclick = () => {
   $("page2").style.display = "none";
   $("page1").style.display = "";
 };
+$("btnNextPage2").onclick = () => {
+  $("page2").style.display = "none";
+  $("page3").style.display = "";
+  drawPressureChart();
+};
+$("btnPrevPage2").onclick = () => {
+  $("page3").style.display = "none";
+  $("page2").style.display = "";
+};
+$("btnNextPage3").onclick = () => {
+  $("page3").style.display = "none";
+  $("page4").style.display = "";
+  drawHypnogram();
+};
+$("btnPrevPage3").onclick = () => {
+  $("page4").style.display = "none";
+  $("page3").style.display = "";
+};
+$("pressureDatePrev").onclick = () => { pressureDate.setDate(pressureDate.getDate() - 1); drawPressureChart(); };
+$("pressureDateNext").onclick = () => { pressureDate.setDate(pressureDate.getDate() + 1); drawPressureChart(); };
+$("hypnoDatePrev").onclick = () => { hypnoDate.setDate(hypnoDate.getDate() - 1); drawHypnogram(); };
+$("hypnoDateNext").onclick = () => { hypnoDate.setDate(hypnoDate.getDate() + 1); drawHypnogram(); };
 </script>
 </body>
 </html>
