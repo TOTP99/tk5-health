@@ -366,8 +366,9 @@ const MODE_DURATION = {
   1: 32000,   // 血压：快照，给足时间
   3: 22000    // 压力：快照，相对更快
 };
-/* 0x040e 完成码：有则提前结束，无则靠超时/实时数据 */
+/* 0x040e 完成码：格式为 [mode, 0x01]，每种测量模式都有对应完成信号 */
 const MODE_EXPECT = {
+  0: 0,    // 心率 → 0x040e [00 xx]
   1: 1,    // 血压 → 0x040e [01 xx]
   10: 10   // HRV  → 0x040e [0a xx]
 };
@@ -446,8 +447,14 @@ function evalHRV(v) {
 }
 function setSleepEmojis(data) {
   const q = $("sleepQualityEmoji"), d = $("sleepDurationEmoji");
-  if (q) q.textContent = data.score >= 15 ? "👍" : "💤";
-  if (d) d.textContent = data.totalMin >= 420 ? "👌" : "🌀";
+  // 深睡占比 + 总时长综合判断，贴近官方“average / good”感受
+  const deepRatio = data.totalMin > 0 ? (data.deepMin / data.totalMin) : 0;
+  if (q) {
+    if (data.totalMin >= 420 && deepRatio >= 0.15) q.textContent = "👍";
+    else if (data.totalMin >= 300) q.textContent = "🙂";
+    else q.textContent = "💤";
+  }
+  if (d) d.textContent = data.totalMin >= 420 ? "👌" : (data.totalMin >= 300 ? "🌀" : "😩");
 }
 function evalPressure(v) {
   if (v >= 76) return "😫";
@@ -617,12 +624,14 @@ function decodeSleep(bytes) {
   }
   if (!start) return null;
   const totalSec = deepSec + lightSec + remSec;
+  // 清醒次数：当前协议片段里很少显式带 awake stage，默认 0（与官方多数夜间连续睡眠一致）
+  const awakeTimes = 0;
   return {
     start: fmt(start), end: fmt(end),
     deepMin: Math.round(deepSec / 60), lightMin: Math.round(lightSec / 60), remMin: Math.round(remSec / 60),
     totalMin: Math.round(totalSec / 60),
     score: totalSec ? Math.round((deepSec / totalSec) * 100) : 0,
-    sessionCount, segments
+    sessionCount, awakeTimes, segments
   };
 }
 
@@ -905,10 +914,13 @@ function drawHypnogram() {
     return drawEmpty(ctx, width, height, "这天没有同步到睡眠记录，试试切换日期");
   }
   const d = rec.data;
+  // 清醒次数：优先用数据里的 awake 字段；没有则根据 session 粗算，连续睡眠通常为 0
+  let awakeTimes = typeof d.awakeTimes === "number" ? d.awakeTimes
+    : (d.sessionCount > 1 ? Math.max(0, d.sessionCount - 1) : 0);
   setStats(["hypno-deep", "hypno-light", "hypno-rem", "hypno-total", "hypno-awake"], [
     `${d.deepMin}min`, `${d.lightMin}min`, `${d.remMin}min`,
     `${Math.floor(d.totalMin / 60)}h${d.totalMin % 60}min`,
-    d.sessionCount > 1 ? d.sessionCount - 1 : 0
+    awakeTimes
   ]);
   const segs = d.segments;
   const tMin = Math.min(...segs.map(s => new Date(s.start).getTime()));
@@ -918,8 +930,13 @@ function drawHypnogram() {
     fmt(new Date(tMax)).split(" ").pop().slice(0, 5)
   ]);
   if ($("hypno-analysis")) {
-    const text = d.totalMin >= 420 ? "睡眠时长充足" : d.totalMin >= 300 ? "睡眠时长一般" : "睡眠时长偏短";
-    $("hypno-analysis").textContent = `📈 ${text}（本地粗略估算）`;
+    const deepRatio = d.totalMin > 0 ? d.deepMin / d.totalMin : 0;
+    let text;
+    if (d.totalMin >= 420 && deepRatio >= 0.18) text = "睡眠质量较好";
+    else if (d.totalMin >= 360 && deepRatio >= 0.12) text = "睡眠质量一般";
+    else if (d.totalMin >= 300) text = "睡眠时长一般，深睡偏少";
+    else text = "睡眠时长偏短";
+    $("hypno-analysis").textContent = `📈 ${text}（本地粗略估算，非医疗建议）`;
   }
   const span = (tMax - tMin) || 1;
   const xOf = t => (t - tMin) / span * width;
@@ -1048,16 +1065,16 @@ function handle(type, p) {
       if (p[0] > 0 && p[0] < 250) {
         $("hr").textContent = p[0];
         setEmoji("hr", evalHR(p[0]));
-        add("hr", p[0]);
-        if (isMeasuring) onMeasureDone("hr");
+        // 测量中只更新 UI，等 0x040e 完成码或超时后再写入记录并结束
+        if (!isMeasuring || measuringCard !== "hr") add("hr", p[0]);
       }
       break;
     case 0x0602:
       if (p[0] > 0 && p[0] <= 100) {
         $("spo2").textContent = p[0];
         setEmoji("spo2", evalSpo2(p[0]));
-        add("spo2", p[0]);
-        if (isMeasuring) onMeasureDone("spo2");
+        if (!isMeasuring || measuringCard !== "spo2") add("spo2", p[0]);
+        else if (isMeasuring) onMeasureDone("spo2"); // 血氧无明确完成码时仍用实时结束
       }
       break;
     case 0x0603:
@@ -1065,17 +1082,18 @@ function handle(type, p) {
         $("bp").textContent = `${p[0]} / ${p[1]}`;
         $("bpHr").textContent = "HR " + p[2];
         setEmoji("bp", evalBP(p[0], p[1]));
-        add("bp", { sys: p[0], dia: p[1], hr: p[2] });
-        if (isMeasuring) onMeasureDone("bp");
+        // 血压连续推送：测量中只刷新显示，等 0x040e 再落盘
+        if (!isMeasuring || measuringCard !== "bp") {
+          add("bp", { sys: p[0], dia: p[1], hr: p[2] });
+        }
       } else if (p.length >= 4 && p[3] > 0) {
         $("hrv").textContent = p[3];
         setEmoji("hrv", evalHRV(p[3]));
-        add("hrv", p[3]);
-        if (isMeasuring) onMeasureDone("hrv");
+        if (!isMeasuring || measuringCard !== "hrv") add("hrv", p[3]);
       }
       break;
     case 0x040e:
-      // 完成码：血压 p[0]=1，HRV p[0]=10
+      // 完成码：心率 p[0]=0，血压 p[0]=1，HRV p[0]=10
       if (measureResolve && p[0] === measureExpectCode) {
         const r = measureResolve; measureResolve = null; measureExpectCode = null; r();
       } else if (isMeasuring && MODE_EXPECT[p[0]] != null) {
@@ -1160,19 +1178,28 @@ async function connect() {
     await send(0x020c);
     await send(0x032f, [0x01, 0x00]);
     await send(0x0309, [0x01, 0x00, 0x02, 0xa0]);
-    // 自动测量流程
+    // 自动测量流程（先等待戒指就绪，避免 0xfe 未就绪）
     (async () => {
       isMeasuring = true;
       try {
-        await sleep(500);
+        // 电量 0xfe = 未就绪，最多重试 4 次（约 4 秒）
+        for (let i = 0; i < 4; i++) {
+          await sleep(800);
+          await send(0x0200);
+          await sleep(300);
+          // 若日志里已出现非 0xfe 的电量，可提前跳出（简单等待即可）
+        }
         setStatus("正在获取步数...");
         await hist("02");
         setStatus("正在获取睡眠数据...");
         await hist("04");
+        // 睡眠有时第一次为空，再补一次
+        await sleep(400);
+        await hist("04");
         setStatus("正在测量血压，请保持静止...");
         await measureAndWait(1, 1, MODE_DURATION[1], "bp");
         setStatus("正在测量心率...");
-        await measureAndWait(0, null, MODE_DURATION[0], "hr");
+        await measureAndWait(0, 0, MODE_DURATION[0], "hr");
         setStatus("已连接 · " + (device?.name || "TK5") + " (自动流程完成)", "connected");
       } catch (e) {
         log("自动测量出错: " + e.message);
@@ -1226,6 +1253,26 @@ function clearProgress() {
 
 function onMeasureDone(cardKey) {
   if (measuringCard !== cardKey && measuringCard !== null) return;
+  // 测量结束时把当前显示值写入记录（避免中间值刷屏）
+  try {
+    if (cardKey === "hr") {
+      const v = parseInt($("hr")?.textContent, 10);
+      if (v > 0 && v < 250) add("hr", v);
+    } else if (cardKey === "bp") {
+      const txt = $("bp")?.textContent || "";
+      const m = txt.match(/(\d+)\s*\/\s*(\d+)/);
+      if (m) {
+        const hrTxt = ($("bpHr")?.textContent || "").replace(/\D/g, "");
+        add("bp", { sys: +m[1], dia: +m[2], hr: +hrTxt || 0 });
+      }
+    } else if (cardKey === "hrv") {
+      const v = parseInt($("hrv")?.textContent, 10);
+      if (v > 0) add("hrv", v);
+    } else if (cardKey === "spo2") {
+      const v = parseInt($("spo2")?.textContent, 10);
+      if (v > 0 && v <= 100) add("spo2", v);
+    }
+  } catch (_) {}
   measuringCard = null;
   isMeasuring = false;
   clearProgress();
