@@ -5,22 +5,90 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>TK5 Smart Ring</title>
 <style>
-:root{--gold:#d6b56a;--cyan:#67d9df;--text:#edf5f7;--muted:#8ea3ad;--line:#715f35;--line2:#29404b}
+:root{--gold:#d6b56a;--cyan:#67d9df;--coral:#e08a67;--text:#edf5f7;--muted:#8ea3ad;--line:#715f35;--line2:#29404b;--num-font:ui-rounded,"SF Pro Rounded","Segoe UI Rounded",-apple-system,sans-serif}
 *{box-sizing:border-box}html{background:#050a0e}
 body{margin:0;min-height:100vh;background:radial-gradient(circle at 20% 0%,#183140 0%,#071018 40%,#050a0e 100%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:max(14px,env(safe-area-inset-top)) 12px max(28px,env(safe-area-inset-bottom))}
 main{max-width:720px;margin:0 auto}
 .card{border:1px solid var(--line);background:linear-gradient(145deg,rgba(17,30,41,.98),rgba(7,15,22,.98));border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 10px 28px rgba(0,0,0,.4)}
 h1{margin:0;font-size:18px}h1 span{color:var(--gold);font-size:14px;margin-left:20px}
 .row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.status{margin-top:10px;padding:8px 12px;border:1px solid var(--line2);border-radius:10px;color:var(--cyan);background:#07141c;font-size:13px;display:flex;align-items:center;gap:8px}
+.status{margin-top:0;padding:4px 10px;border:1px solid var(--line2);border-radius:20px;color:var(--cyan);background:#07141c;font-size:11px;display:flex;align-items:center;gap:6px;max-width:150px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .status-dot{width:8px;height:8px;border-radius:50%;background:#f59e0b;box-shadow:0 0 8px #f59e0b;flex-shrink:0}
 .status.connected .status-dot{background:#10b981;box-shadow:0 0 10px #10b981}
 .status.disconnected .status-dot{background:#ef4444;box-shadow:0 0 8px #ef4444}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .m{border:1px solid #35505b;border-radius:12px;padding:12px;background:linear-gradient(145deg,#142733,#0a151d);min-height:86px;position:relative;overflow:hidden}
 #card-hr,#card-spo2,#card-bp,#card-hrv,#card-sleep,#card-steps,#card-pressure{cursor:pointer}
-.m .l{font-size:12px;color:var(--muted)}.m .v{font-size:24px;font-weight:700;margin:6px 0 2px;line-height:1.1}.m .u{font-size:11px;color:var(--muted)}
-.m-progress{position:absolute;bottom:0;left:0;height:3px;background:var(--cyan);width:0%;transition:width .1s linear}
+.m .l{font-size:12px;color:var(--muted)}.m .v{font-size:24px;font-weight:700;margin:6px 0 2px;line-height:1.1;font-family:var(--num-font);font-variant-numeric:tabular-nums;letter-spacing:.2px}.m .u{font-size:11px;color:var(--muted)}
+/* 进度条基础 */
+.m-progress{position:absolute;bottom:0;left:0;height:3px;background:var(--cyan);width:0%;transition:width .12s linear;border-radius:0 2px 0 0}
+/* 节律型进度条：更柔和、略高、带呼吸感 */
+.shape-rhythmic .m-progress{height:4px;transition:width .18s ease-out}
+.shape-rhythmic.measuring .m-progress{animation:pulse-bar 1.2s ease-in-out infinite}
+/* 离散型进度条：更干脆、略细 */
+.shape-discrete .m-progress{height:2.5px;transition:width .08s linear}
+@keyframes pulse-bar{
+  0%,100%{opacity:1;filter:brightness(1)}
+  50%{opacity:.75;filter:brightness(1.25)}
+}
+/* 四种波形：冷节律(心连) / 冷离散(血压) / 暖节律(睡眠) / 暖离散(压力) */
+.cat-cool{background:linear-gradient(160deg,#0f2a32 0%,#0a1c22 55%,#071418 100%)}
+.cat-cool .l{color:#7ecfd6}
+.cat-warm{background:linear-gradient(160deg,#2c1a12 0%,#1a100c 55%,#120b08 100%)}
+.cat-warm .l{color:#e0a88a}
+.cat-warm .m-progress{background:var(--coral)}
+/* 形状：节律(连续信号) vs 离散(瞬时快照) */
+.shape-rhythmic{border-radius:22px}
+.shape-discrete{border-radius:6px}
+/* 1. 冷色节律 —— 柔和双线 + 轻微青光，暗示连续波形 */
+.cat-cool.shape-rhythmic{
+  border:1px solid #3d8a94;
+  box-shadow:
+    inset 0 0 0 1px #08161a,
+    inset 0 0 0 3px rgba(103,217,223,.45),
+    0 0 12px rgba(103,217,223,.08);
+}
+/* 2. 冷色离散 —— 清晰粗边框，快照感 */
+.cat-cool.shape-discrete{
+  border:2.5px solid #2a6570;
+  box-shadow:inset 0 1px 0 rgba(103,217,223,.12);
+}
+/* 3. 暖色节律 —— 柔和双线 + 轻微珊瑚光，暗示过程性 */
+.cat-warm.shape-rhythmic{
+  border:1px solid #9a6540;
+  box-shadow:
+    inset 0 0 0 1px #140c08,
+    inset 0 0 0 3px rgba(224,138,103,.45),
+    0 0 12px rgba(224,138,103,.08);
+}
+/* 4. 暖色离散 —— 清晰粗边框，快照感 */
+.cat-warm.shape-discrete{
+  border:2.5px solid #75422e;
+  box-shadow:inset 0 1px 0 rgba(224,138,103,.12);
+}
+/* 步数：中性活动类，保持简洁 */
+#card-steps{border:1px solid #3a4c54;background:linear-gradient(145deg,#14202a,#0b1319)}
+/* 测量完成瞬间反馈 */
+.m.done-flash{animation:done-flash .45s ease-out}
+@keyframes done-flash{
+  0%{filter:brightness(1.35)}
+  100%{filter:brightness(1)}
+}
+
+.clock-card{aspect-ratio:1/1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:radial-gradient(ellipse at 50% 15%,#2b1f0d 0%,#0d0904 72%);border-color:#8a6a28;box-shadow:inset 0 0 0 1px rgba(214,181,106,.22),inset 0 0 16px rgba(0,0,0,.55)}
+.clock-card .clock-date{font-family:"Courier New",monospace;font-size:11px;letter-spacing:2px;color:var(--gold);text-shadow:0 0 6px rgba(214,181,106,.5);text-transform:uppercase}
+.clock-card .clock-divider{width:56%;height:1px;background:linear-gradient(90deg,transparent,rgba(214,181,106,.75),transparent);position:relative}
+.clock-card .clock-divider::before{content:"";position:absolute;left:50%;top:-1.5px;width:4px;height:4px;background:var(--gold);border-radius:50%;transform:translateX(-50%);box-shadow:0 0 5px var(--gold)}
+.clock-card .clock-week{font-family:"Courier New",monospace;font-size:10px;letter-spacing:4px;color:#b89a58;opacity:.9}
+.clock-card .clock-time{font-family:"Courier New",monospace;font-size:21px;font-weight:700;letter-spacing:1px;color:var(--gold);text-shadow:0 0 8px rgba(214,181,106,.7)}
+.mini-refresh{position:absolute;top:8px;right:8px;padding:2px 7px;font-size:12px;line-height:1.4;border-radius:8px}
+.status-emoji{position:absolute;top:8px;right:10px;font-size:16px;line-height:1}
+.sleep-emojis{position:absolute;top:8px;right:10px;display:flex;gap:4px;font-size:16px;line-height:1}
+.pressure-col{display:flex;flex-direction:column;gap:8px}
+.pressure-mini{min-height:0;padding:10px 12px}
+.pressure-mini .v{font-size:20px;margin:4px 0 0}
+.pressure-btns{flex:1;align-items:flex-end;margin:0}
+.pressure-btns button{flex:1}
 button{border:1px solid #8b7440;border-radius:10px;padding:10px 14px;background:linear-gradient(145deg,#172933,#101d25);color:var(--text);font-size:13px;transition:border-color .2s,box-shadow .2s}
 button:active{filter:brightness(1.12)}
 button:disabled{opacity:.4;pointer-events:none}
@@ -48,24 +116,31 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
     <div class="row" style="margin-top:10px;justify-content:center">
       <button id="btnConnect" class="p">连接</button>
       <button id="btnDisconnect">断开</button>
+      <div id="status" class="status disconnected"><div class="status-dot"></div><span>未连接</span></div>
     </div>
-    <div id="status" class="status disconnected"><div class="status-dot"></div><span>未连接</span></div>
   </div>
 
   <div class="card">
     <div class="grid">
-      <div class="m" id="card-hr"><div class="l">❤️ 心率</div><div id="hr" class="v">--</div><div class="u">BPM</div><div class="m-progress" id="prog-hr"></div></div>
-      <div class="m" id="card-spo2"><div class="l">🩸 血氧</div><div id="spo2" class="v">--</div><div class="u">%</div><div class="m-progress" id="prog-spo2"></div></div>
-      <div class="m" id="card-bp"><div class="l">🩺 血压</div><div id="bp" class="v">-- / --</div><div class="u" id="bpHr"></div><div class="m-progress" id="prog-bp"></div></div>
-      <div class="m" id="card-hrv"><div class="l">📈 HRV</div><div id="hrv" class="v">--</div><div class="u"></div><div class="m-progress" id="prog-hrv"></div></div>
-      <div class="m" id="card-steps"><div class="l">👣 步数</div><div id="steps" class="v">--</div><div class="u">今日</div></div>
-      <div class="m" id="card-sleep"><div class="l">😴 睡眠</div><div id="sleepMin" class="v">--</div><div class="u">时长</div></div>
-      <div class="m" id="card-pressure"><div class="l">💆 压力</div><div id="pressureVal" class="v">--</div><div class="u">最新</div></div>
-    </div>
-    <div class="row" style="margin-top:8px">
-      <button id="btnSteps">🔄 步数</button>
-      <button id="btnControl" class="c" style="margin-left:14px">控制</button>
-      <button id="btnData" class="c" style="margin-left:8px">数据</button>
+      <div class="m cat-cool shape-rhythmic" id="card-hr"><span class="status-emoji" id="hrEmoji"></span><div class="l">❤️ 心率</div><div id="hr" class="v">--</div><div class="u">BPM</div><div class="m-progress" id="prog-hr"></div></div>
+      <div class="m cat-cool shape-rhythmic" id="card-spo2"><span class="status-emoji" id="spo2Emoji"></span><div class="l">🩸 血氧</div><div id="spo2" class="v">--</div><div class="u">%</div><div class="m-progress" id="prog-spo2"></div></div>
+      <div class="m cat-cool shape-discrete" id="card-bp"><span class="status-emoji" id="bpEmoji"></span><div class="l">🩺 血压</div><div id="bp" class="v">-- / --</div><div class="u" id="bpHr"></div><div class="m-progress" id="prog-bp"></div></div>
+      <div class="m cat-cool shape-rhythmic" id="card-hrv"><span class="status-emoji" id="hrvEmoji"></span><div class="l">📈 HRV</div><div id="hrv" class="v">--</div><div class="u"></div><div class="m-progress" id="prog-hrv"></div></div>
+      <div class="m shape-discrete" id="card-steps"><button id="btnSteps" class="mini-refresh">🔄</button><div class="l">👣 步数</div><div id="steps" class="v">--</div><div class="u">今日</div></div>
+      <div class="m cat-warm shape-rhythmic" id="card-sleep"><div class="sleep-emojis"><span id="sleepQualityEmoji"></span><span id="sleepDurationEmoji"></span></div><div class="l">😴 睡眠</div><div id="sleepMin" class="v">--</div><div class="u">时长</div></div>
+      <div class="pressure-col">
+        <div class="m pressure-mini cat-warm shape-discrete" id="card-pressure"><span class="status-emoji" id="pressureEmoji"></span><div class="l">💆 压力</div><div id="pressureVal" class="v">--</div><div class="u">最新</div></div>
+        <div class="row pressure-btns">
+          <button id="btnControl" class="c">控制</button>
+          <button id="btnData" class="c">数据</button>
+        </div>
+      </div>
+      <div class="m clock-card" id="card-clock">
+        <div class="clock-date" id="clockDate">--- --, ----</div>
+        <div class="clock-divider"></div>
+        <div class="clock-week" id="clockWeek">---</div>
+        <div class="clock-time" id="clockTime">--:--:--</div>
+      </div>
     </div>
   </div>
 
@@ -76,6 +151,7 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
         <button class="c" data-mode="2">测血氧</button>
         <button class="c" data-mode="1">测血压</button>
         <button class="c" data-mode="10">测HRV</button>
+        <button class="c" data-mode="3">测压力</button>
         <button data-mode="-1">停止</button>
       </div>
       <div class="row" style="margin-top:8px">
@@ -87,8 +163,6 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
       <div class="row" style="margin-top:8px">
         <button data-h="02">步数历史</button>
         <button data-h="1a">血氧历史</button>
-        <button data-h="1e">体温历史</button>
-        <button data-h="2f">综合(旧)</button>
         <button data-h="33">压力历史</button>
       </div>
     </div>
@@ -113,7 +187,7 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
     <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
     <div class="chart-title"><span>❤️ 心率</span><span id="chart-sub">暂无数据</span></div>
     <div class="range-tabs" id="trend-range">
-      <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
+      <button data-range="day">日</button><button data-range="week" class="active">周</button><button data-range="month">月</button><button data-range="year">年</button>
     </div>
     <div class="chart-box"><canvas id="trendCanvas"></canvas></div>
     <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
@@ -129,7 +203,7 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
     <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
     <div class="chart-title"><span>🩸 血氧</span><span id="spo2-chart-sub">暂无数据</span></div>
     <div class="range-tabs" id="spo2-range">
-      <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
+      <button data-range="day">日</button><button data-range="week" class="active">周</button><button data-range="month">月</button><button data-range="year">年</button>
     </div>
     <div class="chart-box"><canvas id="spo2Canvas"></canvas></div>
     <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
@@ -145,7 +219,7 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
     <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
     <div class="chart-title"><span>📈 HRV</span><span id="hrv-chart-sub">暂无数据</span></div>
     <div class="range-tabs" id="hrv-range">
-      <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
+      <button data-range="day">日</button><button data-range="week" class="active">周</button><button data-range="month">月</button><button data-range="year">年</button>
     </div>
     <div class="chart-box"><canvas id="hrvCanvas"></canvas></div>
     <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
@@ -181,7 +255,7 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
     <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
     <div class="chart-title"><span>😴 睡眠</span><span id="sleep-chart-sub">暂无数据</span></div>
     <div class="range-tabs" id="sleep-range">
-      <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
+      <button data-range="day">日</button><button data-range="week" class="active">周</button><button data-range="month">月</button><button data-range="year">年</button>
     </div>
     <div class="row" id="hypnoDateNav" style="justify-content:center;align-items:center;gap:16px;margin:6px 0">
       <button id="hypnoDatePrev" class="c" style="padding:2px 12px">‹</button>
@@ -272,11 +346,31 @@ const C3U = "be940003-7333-be46-b7ae-689e71722bd5";
 const EPOCH = 946684800; // 2000-01-01 UTC
 const REALTIME = new Set([0x0600, 0x0601, 0x0602, 0x0603, 0x0615, 0x040e, 0x0200, 0x020c, 0x0203]);
 const HIST_LABEL = {
-  "04": "睡眠历史", "02": "步数历史", "1a": "血氧历史",
-  "1e": "体温历史", "2f": "综合(旧)", "33": "压力历史"
+  "04": "睡眠历史", "02": "步数历史", "1a": "血氧历史", "33": "压力历史"
 };
-const MODE_NAME = { 0: "心率", 1: "血压", 2: "血氧", 10: "HRV" };
-const MODE_CARD = { 0: "hr", 1: "bp", 2: "spo2", 10: "hrv" };
+const MODE_NAME = { 0: "心率", 1: "血压", 2: "血氧", 10: "HRV", 3: "压力" };
+const MODE_CARD = { 0: "hr", 1: "bp", 2: "spo2", 10: "hrv", 3: "pressure" };
+/* 按测量性质：节律=连续信号，离散=瞬时快照 */
+const MODE_NATURE = {
+  0: "rhythmic",   // 心率 连续
+  2: "rhythmic",   // 血氧 连续
+  10: "rhythmic",  // HRV 连续
+  1: "discrete",   // 血压 快照
+  3: "discrete"    // 压力 快照
+};
+/* 不同性质推荐测量时长（ms） */
+const MODE_DURATION = {
+  0: 28000,   // 心率：连续采样，稍长
+  2: 26000,   // 血氧：连续
+  10: 30000,  // HRV：需要更稳定窗口
+  1: 32000,   // 血压：快照，给足时间
+  3: 22000    // 压力：快照，相对更快
+};
+/* 0x040e 完成码：有则提前结束，无则靠超时/实时数据 */
+const MODE_EXPECT = {
+  1: 1,    // 血压 → 0x040e [01 xx]
+  10: 10   // HRV  → 0x040e [0a xx]
+};
 const RANGE_DAYS = { day: 1, week: 7, month: 30, year: 365 };
 const PAGES = ["page1", "pageHR", "pageSpO2", "pageHRV", "pageBP", "pageSleep", "pagePressure", "pageSteps"];
 
@@ -285,8 +379,9 @@ let device = null, c1 = null, c3 = null;
 let c1Buf = new Uint8Array(), c3Buf = new Uint8Array();
 let logs = [], records = JSON.parse(localStorage.getItem("tk5Records") || "[]");
 let histBusy = false, histTimer = null, histType = null, histChunks = [], histReqKey = null, histEchoType = null, histResolve = null;
-let measureResolve = null, measureExpectCode = null, isMeasuring = false, activeTimer = null;
-let chartRange = { trend: "week", sleep: "week", bp: "week", pressure: "day", spo2: "week", hrv: "week", steps: "day" };
+let measureResolve = null, measureExpectCode = null, isMeasuring = false, activeTimer = null, measuringCard = null;
+/* 图表默认范围：连续信号偏周，快照偏日 */
+let chartRange = { trend: "week", sleep: "week", bp: "day", pressure: "day", spo2: "week", hrv: "week", steps: "day" };
 let pressureDate = startOfDay(new Date());
 let hypnoDate = startOfDay(new Date());
 let stepsDate = startOfDay(new Date());
@@ -321,6 +416,43 @@ function setStatus(text, type = "connected") {
   st.className = `status ${type}`;
   const span = st.querySelector("span");
   if (span) span.textContent = text;
+}
+
+/* 健康数值粗略分级：😀正常 🫡值得关注 😱异常（通用成人参考区间，非医疗诊断，个体差异请自行调整阈值） */
+function setEmoji(key, emoji) {
+  const el = $(key + "Emoji");
+  if (el) el.textContent = emoji;
+}
+function evalHR(v) {
+  if (v >= 60 && v <= 100) return "😀";
+  if ((v >= 50 && v < 60) || (v > 100 && v <= 110)) return "🫡";
+  return "😱";
+}
+function evalSpo2(v) {
+  if (v >= 95) return "😀";
+  if (v >= 90) return "🫡";
+  return "😱";
+}
+function evalBP(sys, dia) {
+  if (sys < 90 || dia < 60) return "😱";
+  if (sys < 120 && dia < 80) return "😀";
+  if (sys < 140 && dia < 90) return "🫡";
+  return "😱";
+}
+function evalHRV(v) {
+  if (v >= 20) return "😀";
+  if (v >= 10) return "🫡";
+  return "😱";
+}
+function setSleepEmojis(data) {
+  const q = $("sleepQualityEmoji"), d = $("sleepDurationEmoji");
+  if (q) q.textContent = data.score >= 15 ? "👍" : "💤";
+  if (d) d.textContent = data.totalMin >= 420 ? "👌" : "🌀";
+}
+function evalPressure(v) {
+  if (v >= 76) return "😫";
+  if (v >= 51) return "😇";
+  return "🥳";
 }
 
 function playClick() {
@@ -401,28 +533,28 @@ function feed(kind, data) {
 /* ========== Decode ========== */
 function decodeHR(bytes) {
   const r = [];
-  for (let i = 0; i + 6 <= bytes.length; i += 6)
-    r.push({ local: fmt(ts(bytes[i], bytes[i + 1], bytes[i + 2], bytes[i + 3])), hr: bytes[i + 5] });
+  for (let i = 0; i + 6 <= bytes.length; i += 6) {
+    const d = ts(bytes[i], bytes[i + 1], bytes[i + 2], bytes[i + 3]);
+    r.push({ local: fmt(d), t: d.getTime(), hr: bytes[i + 5] });
+  }
   return r;
 }
 
 function decodeBP(bytes) {
   const r = [];
-  for (let i = 0; i + 8 <= bytes.length; i += 8)
-    r.push({
-      local: fmt(ts(bytes[i], bytes[i + 1], bytes[i + 2], bytes[i + 3])),
-      sys: bytes[i + 5], dia: bytes[i + 6], hr: bytes[i + 7]
-    });
+  for (let i = 0; i + 8 <= bytes.length; i += 8) {
+    const d = ts(bytes[i], bytes[i + 1], bytes[i + 2], bytes[i + 3]);
+    r.push({ local: fmt(d), t: d.getTime(), sys: bytes[i + 5], dia: bytes[i + 6], hr: bytes[i + 7] });
+  }
   return r;
 }
 
 function decodeAll(bytes) {
   const r = [];
-  for (let i = 0; i + 20 <= bytes.length; i += 20)
-    r.push({
-      local: fmt(ts(bytes[i], bytes[i + 1], bytes[i + 2], bytes[i + 3])),
-      hr: bytes[i + 6], sys: bytes[i + 7], dia: bytes[i + 8], spo2: bytes[i + 9]
-    });
+  for (let i = 0; i + 20 <= bytes.length; i += 20) {
+    const d = ts(bytes[i], bytes[i + 1], bytes[i + 2], bytes[i + 3]);
+    r.push({ local: fmt(d), t: d.getTime(), hr: bytes[i + 6], sys: bytes[i + 7], dia: bytes[i + 8], spo2: bytes[i + 9] });
+  }
   return r;
 }
 
@@ -518,6 +650,12 @@ function renderHist() {
       cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>血氧 <b>${rec.data}</b>%</div></div>`);
     } else if (rec.type === "hr") {
       cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>心率 <b>${rec.data}</b></div></div>`);
+    } else if (rec.type === "hrHist" && Array.isArray(rec.data)) {
+      for (const x of [...rec.data].reverse())
+        cards.push(`<div class="rc"><div class="t">${esc(x.local)}</div><div>心率 <b>${x.hr}</b></div></div>`);
+    } else if (rec.type === "bpHist" && Array.isArray(rec.data)) {
+      for (const x of [...rec.data].reverse())
+        cards.push(`<div class="rc"><div class="t">${esc(x.local)}</div><div>血压 <b>${x.sys}/${x.dia}</b> 心率 <b>${x.hr}</b></div></div>`);
     } else if (rec.type === "hrv") {
       cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>HRV <b>${rec.data}</b></div></div>`);
     } else if (rec.type === "sleep" && rec.data) {
@@ -579,13 +717,18 @@ function drawArea(ctx, w, h, points, stroke, fillFn, dot) {
 }
 
 function collectMetricPoints(type, range, extraFromAll) {
+  const cutoff = Date.now() - (RANGE_DAYS[range] || 7) * 86400000;
   let pts = [];
-  for (const rec of filterByRange(records, range)) {
-    if (rec.type === type) pts.push(rec.data);
-    else if (extraFromAll && rec.type === "all" && rec.data)
-      for (const x of rec.data) if (x[extraFromAll]) pts.push(x[extraFromAll]);
+  for (const rec of records) {
+    if (rec.type === type && new Date(rec.time).getTime() >= cutoff) {
+      pts.push(rec.data);
+    } else if (extraFromAll && rec.type === "all" && Array.isArray(rec.data)) {
+      for (const x of rec.data) if (x[extraFromAll] && (x.t || 0) >= cutoff) pts.push(x[extraFromAll]);
+    } else if (type === "hr" && rec.type === "hrHist" && Array.isArray(rec.data)) {
+      for (const x of rec.data) if (x.hr && (x.t || 0) >= cutoff) pts.push(x.hr);
+    }
   }
-  return pts.reverse().slice(-20);
+  return pts.slice(-20);
 }
 
 function setStats(ids, values) {
@@ -653,13 +796,17 @@ function drawBPChart() {
   const c = initCanvas("bpCanvas");
   if (!c) return;
   const { ctx, width, height } = c;
+  const cutoff = Date.now() - (RANGE_DAYS[chartRange.bp] || 7) * 86400000;
   let points = [];
-  for (const rec of filterByRange(records, chartRange.bp)) {
-    if (rec.type === "bp" && rec.data) points.push({ sys: rec.data.sys, dia: rec.data.dia });
-    else if (rec.type === "all" && rec.data)
-      for (const x of rec.data) if (x.sys) points.push({ sys: x.sys, dia: x.dia });
+  for (const rec of records) {
+    if (rec.type === "bp" && rec.data && new Date(rec.time).getTime() >= cutoff)
+      points.push({ sys: rec.data.sys, dia: rec.data.dia });
+    else if (rec.type === "all" && Array.isArray(rec.data))
+      for (const x of rec.data) if (x.sys && (x.t || 0) >= cutoff) points.push({ sys: x.sys, dia: x.dia });
+    else if (rec.type === "bpHist" && Array.isArray(rec.data))
+      for (const x of rec.data) if (x.sys && (x.t || 0) >= cutoff) points.push({ sys: x.sys, dia: x.dia });
   }
-  points = points.reverse().slice(-20);
+  points = points.slice(-20);
   const sub = $("bp-chart-sub");
   if (sub) sub.textContent = points.length ? `共 ${points.length} 个样本` : "暂无数据";
   if (points.length < 2) {
@@ -898,24 +1045,43 @@ function handle(type, p) {
       if (p.length >= 1 && p[0] <= 100) log("电量推送 " + p[0] + "%");
       break;
     case 0x0601:
-      if (p[0] > 0 && p[0] < 250) { $("hr").textContent = p[0]; add("hr", p[0]); }
+      if (p[0] > 0 && p[0] < 250) {
+        $("hr").textContent = p[0];
+        setEmoji("hr", evalHR(p[0]));
+        add("hr", p[0]);
+        if (isMeasuring) onMeasureDone("hr");
+      }
       break;
     case 0x0602:
-      if (p[0] > 0 && p[0] <= 100) { $("spo2").textContent = p[0]; add("spo2", p[0]); }
+      if (p[0] > 0 && p[0] <= 100) {
+        $("spo2").textContent = p[0];
+        setEmoji("spo2", evalSpo2(p[0]));
+        add("spo2", p[0]);
+        if (isMeasuring) onMeasureDone("spo2");
+      }
       break;
     case 0x0603:
       if (p.length >= 3 && p[0] > 0 && p[1] > 0) {
         $("bp").textContent = `${p[0]} / ${p[1]}`;
         $("bpHr").textContent = "HR " + p[2];
+        setEmoji("bp", evalBP(p[0], p[1]));
         add("bp", { sys: p[0], dia: p[1], hr: p[2] });
+        if (isMeasuring) onMeasureDone("bp");
       } else if (p.length >= 4 && p[3] > 0) {
         $("hrv").textContent = p[3];
+        setEmoji("hrv", evalHRV(p[3]));
         add("hrv", p[3]);
+        if (isMeasuring) onMeasureDone("hrv");
       }
       break;
     case 0x040e:
+      // 完成码：血压 p[0]=1，HRV p[0]=10
       if (measureResolve && p[0] === measureExpectCode) {
         const r = measureResolve; measureResolve = null; measureExpectCode = null; r();
+      } else if (isMeasuring && MODE_EXPECT[p[0]] != null) {
+        // 未走 Promise 等待时（例如实时数据已提前结束），仍按完成码收尾
+        const cardKey = MODE_CARD[p[0]];
+        if (cardKey) onMeasureDone(cardKey);
       }
       break;
     case 0x0580: {
@@ -927,7 +1093,12 @@ function handle(type, p) {
       else if (histReqKey === "33") {
         const data = decodePressure(buf);
         add("pressure", data);
-        if (data.length && $("pressureVal")) $("pressureVal").textContent = data[data.length - 1].pressure;
+        if (data.length && $("pressureVal")) {
+          const last = data[data.length - 1].pressure;
+          $("pressureVal").textContent = last;
+          setEmoji("pressure", evalPressure(last));
+          onMeasureDone("pressure");
+        }
       } else if (histReqKey === "02") {
         const data = decodeSteps(buf);
         if (data.length) {
@@ -943,6 +1114,7 @@ function handle(type, p) {
         if (data) {
           add("sleep", data);
           if ($("sleepMin")) $("sleepMin").textContent = `${Math.floor(data.totalMin / 60)}h${data.totalMin % 60}m`;
+          setSleepEmojis(data);
         } else if (buf.length) add("raw", { key: histReqKey, label: HIST_LABEL[histReqKey] || histReqKey, frameType: histType, hex: hex(buf), bytes: buf.length });
       } else if (buf.length) {
         add("raw", { key: histReqKey, label: HIST_LABEL[histReqKey] || histReqKey, frameType: histType, hex: hex(buf), bytes: buf.length });
@@ -976,6 +1148,7 @@ async function connect() {
       c1 = c3 = null;
       histBusy = false;
       isMeasuring = false;
+      measuringCard = null;
       clearProgress();
     });
     setStatus("已连接 · " + (device.name || "TK5"), "connected");
@@ -992,27 +1165,28 @@ async function connect() {
       isMeasuring = true;
       try {
         await sleep(500);
-        await hist("09");
+        setStatus("正在获取步数...");
+        await hist("02");
+        setStatus("正在获取睡眠数据...");
+        await hist("04");
         setStatus("正在测量血压，请保持静止...");
-        await measureAndWait(1, 1, 30000, "bp");
+        await measureAndWait(1, 1, MODE_DURATION[1], "bp");
         setStatus("正在测量心率...");
-        await measureAndWait(0, null, 25000, "hr");
-        setStatus("正在测量血氧，请确保佩戴正确...");
-        await measureAndWait(2, 2, 50000, "spo2");
-        setStatus("正在测量 HRV...");
-        await measureAndWait(10, 0x0a, 30000, "hrv");
+        await measureAndWait(0, null, MODE_DURATION[0], "hr");
         setStatus("已连接 · " + (device?.name || "TK5") + " (自动流程完成)", "connected");
       } catch (e) {
         log("自动测量出错: " + e.message);
         setStatus("已连接 · " + (device?.name || "TK5"), "connected");
       } finally {
         isMeasuring = false;
+        measuringCard = null;
         clearProgress();
       }
     })();
   } catch (e) {
     setStatus("连接失败: " + e.message, "disconnected");
     isMeasuring = false;
+    measuringCard = null;
     clearProgress();
   }
 }
@@ -1022,26 +1196,54 @@ function disconnect() {
 }
 
 /* ========== Measure ========== */
-function startProgress(cardKey, durationMs) {
+function startProgress(cardKey, durationMs, nature) {
   clearProgress();
+  measuringCard = cardKey;
+  const card = $(`card-${cardKey}`);
   const bar = $(`prog-${cardKey}`);
+  if (card) card.classList.add("measuring");
   if (!bar) return;
   let elapsed = 0;
+  const step = nature === "rhythmic" ? 80 : 100;
   activeTimer = setInterval(() => {
-    elapsed += 100;
+    elapsed += step;
     bar.style.width = Math.min(100, (elapsed / durationMs) * 100) + "%";
-    if (elapsed >= durationMs) clearProgress();
-  }, 100);
+    if (elapsed >= durationMs) {
+      clearInterval(activeTimer);
+      activeTimer = null;
+      // 超时由 measureAndWait / 手动 setTimeout 负责 onMeasureDone，此处仅清条
+      bar.style.width = "0%";
+      if (card) card.classList.remove("measuring");
+    }
+  }, step);
 }
 
 function clearProgress() {
   if (activeTimer) { clearInterval(activeTimer); activeTimer = null; }
-  document.querySelectorAll(".m-progress").forEach(el => el.style.width = "0%");
+  document.querySelectorAll(".m-progress").forEach(el => { el.style.width = "0%"; });
+  document.querySelectorAll(".m.measuring").forEach(el => el.classList.remove("measuring"));
+}
+
+function onMeasureDone(cardKey) {
+  if (measuringCard !== cardKey && measuringCard !== null) return;
+  measuringCard = null;
+  isMeasuring = false;
+  clearProgress();
+  const card = $(`card-${cardKey}`);
+  if (card) {
+    card.classList.remove("done-flash");
+    void card.offsetWidth;
+    card.classList.add("done-flash");
+    setTimeout(() => card.classList.remove("done-flash"), 450);
+  }
+  if (device?.gatt?.connected) setStatus("已连接 · " + (device.name || "TK5"), "connected");
 }
 
 async function measure(mode) {
   if (!c1) return;
   if (mode < 0) {
+    measuringCard = null;
+    isMeasuring = false;
     clearProgress();
     await send(0x032f, [0x00, 0x00]);
     setStatus("已连接 · " + (device?.name || "TK5"), "connected");
@@ -1051,20 +1253,24 @@ async function measure(mode) {
 }
 
 async function measureAndWait(mode, expectCode, timeoutMs, cardKey) {
-  setStatus(`正在测量 ${MODE_NAME[mode] || "项目"}，请保持佩戴...`);
-  startProgress(cardKey, timeoutMs);
+  const nature = MODE_NATURE[mode] || "rhythmic";
+  setStatus(nature === "discrete"
+    ? `正在测量 ${MODE_NAME[mode]}，请保持静止...`
+    : `正在测量 ${MODE_NAME[mode]}，请保持佩戴...`);
+  startProgress(cardKey, timeoutMs, nature);
   await measure(mode);
   if (expectCode === null) {
     await sleep(timeoutMs);
-    clearProgress();
+    onMeasureDone(cardKey);
     return;
   }
   await Promise.race([
     new Promise(resolve => { measureExpectCode = expectCode; measureResolve = resolve; }),
     sleep(timeoutMs)
   ]);
-  measureResolve = null; measureExpectCode = null;
-  clearProgress();
+  measureResolve = null;
+  measureExpectCode = null;
+  onMeasureDone(cardKey);
 }
 
 /* ========== History Sync ========== */
@@ -1108,17 +1314,20 @@ function showPage(id) {
 
 function hydrateFromRecords() {
   for (const rec of records) {
-    if (rec.type === "hr" && $("hr").textContent === "--") $("hr").textContent = rec.data;
-    else if (rec.type === "spo2" && $("spo2").textContent === "--") $("spo2").textContent = rec.data;
+    if (rec.type === "hr" && $("hr").textContent === "--") { $("hr").textContent = rec.data; setEmoji("hr", evalHR(rec.data)); }
+    else if (rec.type === "spo2" && $("spo2").textContent === "--") { $("spo2").textContent = rec.data; setEmoji("spo2", evalSpo2(rec.data)); }
     else if (rec.type === "bp" && $("bp").textContent === "-- / --") {
       $("bp").textContent = `${rec.data.sys} / ${rec.data.dia}`;
       $("bpHr").textContent = "HR " + rec.data.hr;
-    } else if (rec.type === "hrv" && $("hrv").textContent === "--") $("hrv").textContent = rec.data;
-    else if (rec.type === "sleep" && $("sleepMin").textContent === "--")
+      setEmoji("bp", evalBP(rec.data.sys, rec.data.dia));
+    } else if (rec.type === "hrv" && $("hrv").textContent === "--") { $("hrv").textContent = rec.data; setEmoji("hrv", evalHRV(rec.data)); }
+    else if (rec.type === "sleep" && $("sleepMin").textContent === "--") {
       $("sleepMin").textContent = `${Math.floor(rec.data.totalMin / 60)}h${rec.data.totalMin % 60}m`;
+      setSleepEmojis(rec.data);
+    }
     else if (rec.type === "pressure" && rec.data && $("pressureVal")?.textContent === "--") {
       const last = rec.data[rec.data.length - 1];
-      if (last) $("pressureVal").textContent = last.pressure;
+      if (last) { $("pressureVal").textContent = last.pressure; setEmoji("pressure", evalPressure(last.pressure)); }
     }
   }
 }
@@ -1139,12 +1348,11 @@ document.querySelectorAll("[data-mode]").forEach(b => {
     const mode = +b.dataset.mode;
     if (mode >= 0) {
       isMeasuring = true;
-      setStatus(`正在手动测量 ${MODE_NAME[mode]}...`);
-      startProgress(MODE_CARD[mode], 30000);
-      await measure(mode);
+      const cardKey = MODE_CARD[mode];
+      const dur = MODE_DURATION[mode] || 28000;
+      const expect = MODE_EXPECT[mode] ?? null;
+      await measureAndWait(mode, expect, dur, cardKey);
     } else {
-      isMeasuring = false;
-      clearProgress();
       await measure(mode);
     }
   };
@@ -1186,7 +1394,7 @@ $("card-bp").onclick = () => { showPage("pageBP"); drawBPChart(); };
 $("card-hrv").onclick = () => { showPage("pageHRV"); drawHRVChart(); };
 $("card-sleep").onclick = () => { showPage("pageSleep"); drawSleepChart(); drawHypnogram(); };
 $("card-pressure").onclick = () => { showPage("pagePressure"); drawPressureChart(); };
-$("card-steps").onclick = () => { showPage("pageSteps"); drawStepsChart(); };
+$("card-steps").onclick = (e) => { if (e.target.closest("#btnSteps")) return; showPage("pageSteps"); drawStepsChart(); };
 
 $("pressureDatePrev").onclick = () => { pressureDate.setDate(pressureDate.getDate() - 1); drawPressureChart(); };
 $("pressureDateNext").onclick = () => { pressureDate.setDate(pressureDate.getDate() + 1); drawPressureChart(); };
@@ -1194,6 +1402,18 @@ $("hypnoDatePrev").onclick = () => { hypnoDate.setDate(hypnoDate.getDate() - 1);
 $("hypnoDateNext").onclick = () => { hypnoDate.setDate(hypnoDate.getDate() + 1); drawHypnogram(); };
 $("stepsDatePrev").onclick = () => { stepsDate.setDate(stepsDate.getDate() - 1); drawStepsChart(); };
 $("stepsDateNext").onclick = () => { stepsDate.setDate(stepsDate.getDate() + 1); drawStepsChart(); };
+
+function pad2(n) { return String(n).padStart(2, "0"); }
+const MONTHS_EN = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+const WEEKDAYS_CN = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+function updateClock() {
+  const now = new Date();
+  $("clockDate").textContent = `${MONTHS_EN[now.getMonth()]} ${pad2(now.getDate())}, ${now.getFullYear()}`;
+  $("clockWeek").textContent = WEEKDAYS_CN[now.getDay()];
+  $("clockTime").textContent = `${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}`;
+}
+updateClock();
+setInterval(updateClock, 1000);
 
 hydrateFromRecords();
 refreshAll();
