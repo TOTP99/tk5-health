@@ -121,6 +121,9 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
         <button data-h="08">血压历史</button>
         <button data-h="06">心率历史</button>
         <button data-h="04">睡眠历史</button>
+        <span id="batInd" style="margin-left:12px;font-size:15px;letter-spacing:1px;cursor:pointer;user-select:none;display:inline-flex;align-items:center;gap:1px" title="点击🔋重置为满电">
+          <span id="batIcon">🔋</span><span id="bat3">3</span><span id="bat2">2</span><span id="bat1">1</span>🔌<span id="batWarn"></span>
+        </span>
       </div>
       <div class="row" style="margin-top:8px">
         <button data-h="02">步数历史</button>
@@ -1408,6 +1411,50 @@ $("hypnoDateNext").onclick = () => { hypnoDate.setDate(hypnoDate.getDate() + 1);
 $("stepsDatePrev").onclick = () => { stepsDate.setDate(stepsDate.getDate() - 1); drawStepsChart(); };
 $("stepsDateNext").onclick = () => { stepsDate.setDate(stepsDate.getDate() + 1); drawStepsChart(); };
 
+/* ========== Battery estimate (click 🔋 to reset full charge) ==========
+ * 假设充满后约 5 天需再充。天数按本地日历日差计算：
+ * day0（刚点🔋）: 321 正常色
+ * day1: 3 红
+ * day2: 2 黄
+ * day3: 1 蓝
+ * day>=4: 🔌 后出现 ⚠️ 提醒充电
+ */
+function getLastCharge() {
+  const v = localStorage.getItem("tk5LastCharge");
+  return v ? +v : null;
+}
+function setLastCharge(ts) {
+  localStorage.setItem("tk5LastCharge", String(ts));
+}
+function daysSinceCharge() {
+  const last = getLastCharge();
+  if (last == null) return 0;
+  const a = startOfDay(new Date(last));
+  const b = startOfDay(new Date());
+  return Math.max(0, Math.round((b - a) / 86400000));
+}
+function updateBatteryUI() {
+  const days = daysSinceCharge();
+  const c3 = $("bat3"), c2 = $("bat2"), c1 = $("bat1"), warn = $("batWarn"), icon = $("batIcon");
+  if (!c3) return;
+  const base = "inherit";
+  c3.style.color = days >= 1 ? "#ef4444" : base;
+  c2.style.color = days >= 2 ? "#d6b56a" : base;
+  c1.style.color = days >= 3 ? "#67d9df" : base;
+  if (warn) warn.textContent = days >= 4 ? "⚠️" : "";
+  if (icon) icon.style.filter = days >= 4 ? "grayscale(0.4)" : "";
+}
+const batIconEl = $("batIcon");
+if (batIconEl) {
+  batIconEl.style.cursor = "pointer";
+  batIconEl.onclick = () => {
+    setLastCharge(Date.now());
+    updateBatteryUI();
+    log("电量估算已重置为满电（100%）");
+  };
+}
+updateBatteryUI();
+
 function pad2(n) { return String(n).padStart(2, "0"); }
 const MONTHS_EN = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 const WEEKDAYS_CN = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
@@ -1416,6 +1463,7 @@ function updateClock() {
   $("clockDate").textContent = `${MONTHS_EN[now.getMonth()]} ${pad2(now.getDate())}, ${now.getFullYear()}`;
   $("clockWeek").textContent = WEEKDAYS_CN[now.getDay()];
   $("clockTime").textContent = `${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}`;
+  updateBatteryUI();
 }
 updateClock();
 setInterval(updateClock, 1000);
