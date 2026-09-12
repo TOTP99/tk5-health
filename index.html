@@ -20,60 +20,21 @@ h1{margin:0;font-size:18px}h1 span{color:var(--gold);font-size:14px;margin-left:
 .m{border:1px solid #35505b;border-radius:12px;padding:12px;background:linear-gradient(145deg,#142733,#0a151d);min-height:86px;position:relative;overflow:hidden}
 #card-hr,#card-spo2,#card-bp,#card-hrv,#card-sleep,#card-steps,#card-pressure{cursor:pointer}
 .m .l{font-size:12px;color:var(--muted)}.m .v{font-size:24px;font-weight:700;margin:6px 0 2px;line-height:1.1;font-family:var(--num-font);font-variant-numeric:tabular-nums;letter-spacing:.2px}.m .u{font-size:11px;color:var(--muted)}
-/* 进度条基础 */
 .m-progress{position:absolute;bottom:0;left:0;height:3px;background:var(--cyan);width:0%;transition:width .12s linear;border-radius:0 2px 0 0}
-/* 节律型进度条：更柔和、略高、带呼吸感 */
 .shape-rhythmic .m-progress{height:4px;transition:width .18s ease-out}
 .shape-rhythmic.measuring .m-progress{animation:pulse-bar 1.2s ease-in-out infinite}
-/* 离散型进度条：更干脆、略细 */
 .shape-discrete .m-progress{height:2.5px;transition:width .08s linear}
-@keyframes pulse-bar{
-  0%,100%{opacity:1;filter:brightness(1)}
-  50%{opacity:.75;filter:brightness(1.25)}
-}
-/* 四种波形：冷节律(心连) / 冷离散(血压) / 暖节律(睡眠) / 暖离散(压力) */
-.cat-cool{background:linear-gradient(160deg,#0f2a32 0%,#0a1c22 55%,#071418 100%)}
-.cat-cool .l{color:#7ecfd6}
-.cat-warm{background:linear-gradient(160deg,#2c1a12 0%,#1a100c 55%,#120b08 100%)}
-.cat-warm .l{color:#e0a88a}
-.cat-warm .m-progress{background:var(--coral)}
-/* 形状：节律(连续信号) vs 离散(瞬时快照) */
-.shape-rhythmic{border-radius:22px}
-.shape-discrete{border-radius:6px}
-/* 1. 冷色节律 —— 柔和双线 + 轻微青光，暗示连续波形 */
-.cat-cool.shape-rhythmic{
-  border:1px solid #3d8a94;
-  box-shadow:
-    inset 0 0 0 1px #08161a,
-    inset 0 0 0 3px rgba(103,217,223,.45),
-    0 0 12px rgba(103,217,223,.08);
-}
-/* 2. 冷色离散 —— 清晰粗边框，快照感 */
-.cat-cool.shape-discrete{
-  border:2.5px solid #2a6570;
-  box-shadow:inset 0 1px 0 rgba(103,217,223,.12);
-}
-/* 3. 暖色节律 —— 柔和双线 + 轻微珊瑚光，暗示过程性 */
-.cat-warm.shape-rhythmic{
-  border:1px solid #9a6540;
-  box-shadow:
-    inset 0 0 0 1px #140c08,
-    inset 0 0 0 3px rgba(224,138,103,.45),
-    0 0 12px rgba(224,138,103,.08);
-}
-/* 4. 暖色离散 —— 清晰粗边框，快照感 */
-.cat-warm.shape-discrete{
-  border:2.5px solid #75422e;
-  box-shadow:inset 0 1px 0 rgba(224,138,103,.12);
-}
-/* 步数：中性活动类，保持简洁 */
+@keyframes pulse-bar{0%,100%{opacity:1;filter:brightness(1)}50%{opacity:.75;filter:brightness(1.25)}}
+.cat-cool{background:linear-gradient(160deg,#0f2a32 0%,#0a1c22 55%,#071418 100%)}.cat-cool .l{color:#7ecfd6}
+.cat-warm{background:linear-gradient(160deg,#2c1a12 0%,#1a100c 55%,#120b08 100%)}.cat-warm .l{color:#e0a88a}.cat-warm .m-progress{background:var(--coral)}
+.shape-rhythmic{border-radius:22px}.shape-discrete{border-radius:6px}
+.cat-cool.shape-rhythmic{border:1px solid #3d8a94;box-shadow:inset 0 0 0 1px #08161a,inset 0 0 0 3px rgba(103,217,223,.45),0 0 12px rgba(103,217,223,.08)}
+.cat-cool.shape-discrete{border:2.5px solid #2a6570;box-shadow:inset 0 1px 0 rgba(103,217,223,.12)}
+.cat-warm.shape-rhythmic{border:1px solid #9a6540;box-shadow:inset 0 0 0 1px #140c08,inset 0 0 0 3px rgba(224,138,103,.45),0 0 12px rgba(224,138,103,.08)}
+.cat-warm.shape-discrete{border:2.5px solid #75422e;box-shadow:inset 0 1px 0 rgba(224,138,103,.12)}
 #card-steps{border:1px solid #3a4c54;background:linear-gradient(145deg,#14202a,#0b1319)}
-/* 测量完成瞬间反馈 */
 .m.done-flash{animation:done-flash .45s ease-out}
-@keyframes done-flash{
-  0%{filter:brightness(1.35)}
-  100%{filter:brightness(1)}
-}
+@keyframes done-flash{0%{filter:brightness(1.35)}100%{filter:brightness(1)}}
 
 .clock-card{aspect-ratio:1/1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:radial-gradient(ellipse at 50% 15%,#2b1f0d 0%,#0d0904 72%);border-color:#8a6a28;box-shadow:inset 0 0 0 1px rgba(214,181,106,.22),inset 0 0 16px rgba(0,0,0,.55)}
 .clock-card .clock-date{font-family:"Courier New",monospace;font-size:11px;letter-spacing:2px;color:var(--gold);text-shadow:0 0 6px rgba(214,181,106,.5);text-transform:uppercase}
@@ -253,18 +214,14 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
 <div id="pageSleep" style="display:none">
   <div class="card">
     <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
-    <div class="chart-title"><span>😴 睡眠</span><span id="sleep-chart-sub">暂无数据</span></div>
-    <div class="range-tabs" id="sleep-range">
-      <button data-range="day">日</button><button data-range="week" class="active">周</button><button data-range="month">月</button><button data-range="year">年</button>
-    </div>
+    <div class="chart-title"><span>😴 睡眠阶段</span><span id="hypnoDateLabel" style="color:var(--cyan)">--</span></div>
     <div class="row" id="hypnoDateNav" style="justify-content:center;align-items:center;gap:16px;margin:6px 0">
       <button id="hypnoDatePrev" class="c" style="padding:2px 12px">‹</button>
-      <span id="hypnoDateLabel" style="font-size:13px;color:var(--cyan)">--</span>
+      <span style="font-size:12px;color:var(--muted)">切换日期</span>
       <button id="hypnoDateNext" class="c" style="padding:2px 12px">›</button>
     </div>
-    <div class="chart-box" style="height:120px;position:relative">
-      <canvas id="sleepCanvas"></canvas>
-      <canvas id="hypnoCanvas" style="position:absolute;left:0;top:0"></canvas>
+    <div class="chart-box" style="height:120px">
+      <canvas id="hypnoCanvas"></canvas>
     </div>
     <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:2px" id="hypnoTimeRow">
       <span id="hypno-start">--</span><span id="hypno-end">--</span>
@@ -279,6 +236,15 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
       <div><div style="font-size:18px;font-weight:700;color:#d6b56a" id="hypno-awake">--</div><div style="font-size:11px;color:var(--muted)">清醒次数</div></div>
     </div>
     <div style="margin-top:14px;font-size:12px;color:var(--muted)" id="hypno-analysis"></div>
+  </div>
+  <div class="card">
+    <div class="chart-title"><span>📈 睡眠质量趋势</span><span id="sleep-chart-sub">暂无数据</span></div>
+    <div class="range-tabs" id="sleep-range">
+      <button data-range="day">日</button><button data-range="week" class="active">周</button><button data-range="month">月</button><button data-range="year">年</button>
+    </div>
+    <div class="chart-box" style="height:120px">
+      <canvas id="sleepCanvas"></canvas>
+    </div>
   </div>
 </div>
 
@@ -345,33 +311,12 @@ const C1U = "be940001-7333-be46-b7ae-689e71722bd5";
 const C3U = "be940003-7333-be46-b7ae-689e71722bd5";
 const EPOCH = 946684800; // 2000-01-01 UTC
 const REALTIME = new Set([0x0600, 0x0601, 0x0602, 0x0603, 0x0615, 0x040e, 0x0200, 0x020c, 0x0203]);
-const HIST_LABEL = {
-  "04": "睡眠历史", "02": "步数历史", "1a": "血氧历史", "33": "压力历史"
-};
+const HIST_LABEL = { "04": "睡眠历史", "02": "步数历史", "1a": "血氧历史", "33": "压力历史" };
 const MODE_NAME = { 0: "心率", 1: "血压", 2: "血氧", 10: "HRV", 3: "压力" };
 const MODE_CARD = { 0: "hr", 1: "bp", 2: "spo2", 10: "hrv", 3: "pressure" };
-/* 按测量性质：节律=连续信号，离散=瞬时快照 */
-const MODE_NATURE = {
-  0: "rhythmic",   // 心率 连续
-  2: "rhythmic",   // 血氧 连续
-  10: "rhythmic",  // HRV 连续
-  1: "discrete",   // 血压 快照
-  3: "discrete"    // 压力 快照
-};
-/* 不同性质推荐测量时长（ms） */
-const MODE_DURATION = {
-  0: 28000,   // 心率：连续采样，稍长
-  2: 26000,   // 血氧：连续
-  10: 30000,  // HRV：需要更稳定窗口
-  1: 32000,   // 血压：快照，给足时间
-  3: 22000    // 压力：快照，相对更快
-};
-/* 0x040e 完成码：有则提前结束，无则靠超时/实时数据 */
-const MODE_EXPECT = {
-  1: 1,    // 血压 → 0x040e [01 xx]
-  10: 10,  // HRV  → 0x040e [0a xx]
-  3: 3     // 压力 → 可能 0x040e [03 xx]；无则超时后拉历史
-};
+const MODE_NATURE = { 0: "rhythmic", 2: "rhythmic", 10: "rhythmic", 1: "discrete", 3: "discrete" };
+const MODE_DURATION = { 0: 28000, 2: 26000, 10: 30000, 1: 32000, 3: 22000 };
+const MODE_EXPECT = { 1: 1, 10: 10, 3: 3 }; // 0x040e 完成码
 const RANGE_DAYS = { day: 1, week: 7, month: 30, year: 365 };
 const PAGES = ["page1", "pageHR", "pageSpO2", "pageHRV", "pageBP", "pageSleep", "pagePressure", "pageSteps"];
 
@@ -381,11 +326,8 @@ let c1Buf = new Uint8Array(), c3Buf = new Uint8Array();
 let logs = [], records = JSON.parse(localStorage.getItem("tk5Records") || "[]");
 let histBusy = false, histTimer = null, histType = null, histChunks = [], histReqKey = null, histEchoType = null, histResolve = null;
 let measureResolve = null, measureExpectCode = null, isMeasuring = false, activeTimer = null, measuringCard = null;
-/* 图表默认范围：连续信号偏周，快照偏日 */
 let chartRange = { trend: "week", sleep: "week", bp: "day", pressure: "day", spo2: "week", hrv: "week", steps: "day" };
-let pressureDate = startOfDay(new Date());
-let hypnoDate = startOfDay(new Date());
-let stepsDate = startOfDay(new Date());
+let pressureDate = startOfDay(new Date()), hypnoDate = startOfDay(new Date()), stepsDate = startOfDay(new Date());
 let audioCtx = null;
 
 /* ========== Utils ========== */
@@ -419,7 +361,7 @@ function setStatus(text, type = "connected") {
   if (span) span.textContent = text;
 }
 
-/* 健康数值粗略分级：😀正常 🫡值得关注 😱异常（通用成人参考区间，非医疗诊断，个体差异请自行调整阈值） */
+/* 数值粗略分级（非医疗诊断） */
 function setEmoji(key, emoji) {
   const el = $(key + "Emoji");
   if (el) el.textContent = emoji;
@@ -596,7 +538,6 @@ function decodeSleep(bytes) {
   let start = null, end = null, deepSec = 0, lightSec = 0, remSec = 0, sessionCount = 0;
   const segments = [];
 
-  // 格式 A：变长会话记录（SDK 标准）
   let i = 0;
   while (i + 20 <= bytes.length) {
     const len = bytes[i + 2] | (bytes[i + 3] << 8);
@@ -622,7 +563,6 @@ function decodeSleep(bytes) {
     i += len;
   }
 
-  // 格式 B：若变长失败，按 8 字节阶段块扫描（tag + ts4 + dur2 + pad）
   if (!segments.length && bytes.length >= 8) {
     for (let j = 0; j + 8 <= bytes.length; j++) {
       const rawTag = bytes[j];
@@ -1106,11 +1046,9 @@ function handle(type, p) {
       }
       break;
     case 0x040e:
-      // 完成码：血压 p[0]=1，HRV p[0]=10
       if (measureResolve && p[0] === measureExpectCode) {
         const r = measureResolve; measureResolve = null; measureExpectCode = null; r();
       } else if (isMeasuring && MODE_EXPECT[p[0]] != null) {
-        // 未走 Promise 等待时（例如实时数据已提前结束），仍按完成码收尾
         const cardKey = MODE_CARD[p[0]];
         if (cardKey) onMeasureDone(cardKey);
       }
@@ -1199,7 +1137,6 @@ async function connect() {
     await send(0x020c);
     await send(0x032f, [0x01, 0x00]);
     await send(0x0309, [0x01, 0x00, 0x02, 0xa0]);
-    // 自动测量流程
     (async () => {
       isMeasuring = true;
       try {
@@ -1250,7 +1187,6 @@ function startProgress(cardKey, durationMs, nature) {
     if (elapsed >= durationMs) {
       clearInterval(activeTimer);
       activeTimer = null;
-      // 超时由 measureAndWait / 手动 setTimeout 负责 onMeasureDone，此处仅清条
       bar.style.width = "0%";
       if (card) card.classList.remove("measuring");
     }
@@ -1309,11 +1245,7 @@ async function measureAndWait(mode, expectCode, timeoutMs, cardKey) {
     measureExpectCode = null;
   }
   onMeasureDone(cardKey);
-  // 压力为戒指本地存储，测量后需拉 05 33 历史才能显示结果
-  if (mode === 3) {
-    setStatus("正在同步压力结果...");
-    await hist("33");
-  }
+  if (mode === 3) { setStatus("正在同步压力结果..."); await hist("33"); }
 }
 
 /* ========== History Sync ========== */
@@ -1328,11 +1260,7 @@ function finishHist() {
 function hist(key) {
   return new Promise(async resolve => {
     if (!c1) { resolve(); return; }
-    // 若上一次同步未结束，先强制收尾再继续，避免睡眠/压力被跳过
-    if (histBusy) {
-      finishHist();
-      await sleep(200);
-    }
+    if (histBusy) { finishHist(); await sleep(200); }
     histBusy = true; histType = null; histChunks = []; histReqKey = key;
     histEchoType = 0x0500 | parseInt(key, 16);
     histResolve = resolve;
