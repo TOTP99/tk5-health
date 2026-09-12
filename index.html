@@ -70,6 +70,7 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
 </style>
 </head>
 <body>
+<audio id="audioUnlock" preload="auto" style="display:none" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="></audio>
 <main>
 <div id="page1">
   <div class="card">
@@ -316,7 +317,7 @@ const MODE_NAME = { 0: "心率", 1: "血压", 2: "血氧", 10: "HRV", 3: "压力
 const MODE_CARD = { 0: "hr", 1: "bp", 2: "spo2", 10: "hrv", 3: "pressure" };
 const MODE_NATURE = { 0: "rhythmic", 2: "rhythmic", 10: "rhythmic", 1: "discrete", 3: "discrete" };
 const MODE_DURATION = { 0: 28000, 2: 26000, 10: 30000, 1: 32000, 3: 22000 };
-const MODE_EXPECT = { 1: 1, 10: 10, 3: 3 }; // 0x040e 完成码
+const MODE_EXPECT = { 0: 0, 1: 1, 10: 10, 3: 3 }; // 0x040e 完成码：格式为[mode,0x01]，心率(0)也有完成信号
 const RANGE_DAYS = { day: 1, week: 7, month: 30, year: 365 };
 const PAGES = ["page1", "pageHR", "pageSpO2", "pageHRV", "pageBP", "pageSleep", "pagePressure", "pageSteps"];
 
@@ -396,6 +397,16 @@ function evalPressure(v) {
   if (v >= 76) return "😫";
   if (v >= 51) return "😇";
   return "🥳";
+}
+
+let audioUnlocked = false;
+function unlockAudioSession() {
+  // iOS静音开关会屏蔽AudioContext合成音效，但<audio>标签走不同的音频会话通道不受影响；
+  // 首次用户手势时播放一个无声<audio>可以把会话切到"播放"类别，之后Web Audio的声音也能绕过静音开关
+  if (audioUnlocked) return;
+  audioUnlocked = true;
+  const el = $("audioUnlock");
+  if (el) el.play().catch(() => {});
 }
 
 function playClick() {
@@ -603,6 +614,15 @@ function add(type, data) {
   records = records.slice(0, 4000);
   localStorage.setItem("tk5Records", JSON.stringify(records));
   refreshAll();
+}
+
+/* 同一次连接内重复请求历史，设备可能原样返回同一批数据（ACK后不会立刻标记已消费）；
+   按内容做全量比对去重，避免图表/统计里重复计入同一批数据 */
+function addUnique(type, data) {
+  const sig = JSON.stringify(data);
+  const dup = records.some(r => r.type === type && JSON.stringify(r.data) === sig);
+  if (!dup) add(type, data);
+  return !dup;
 }
 
 function renderHist() {
@@ -988,6 +1008,12 @@ function refreshAll() {
 
 /* ========== Packet Handler ========== */
 function handle(type, p) {
+  if (histBusy && type === histEchoType && p.length < 10) {
+    // 直接回显包且长度<10字节（无header）：设备判定"无新记录"，不会再有0x0580终止帧，直接结束避免空等12秒超时
+    log(`${HIST_LABEL[histReqKey] || histReqKey || "历史"} 无新记录`);
+    finishHist();
+    return;
+  }
   if (histBusy && type !== 0x0580 && type !== histEchoType && !REALTIME.has(type)) {
     if (histType === null) histType = type;
     histChunks.push(p);
@@ -1056,12 +1082,12 @@ function handle(type, p) {
     case 0x0580: {
       send(0x0580, [0x00]); // ACK
       const buf = histChunks.reduce(cat, new Uint8Array());
-      if (histReqKey === "06") add("hrHist", decodeHR(buf));
-      else if (histReqKey === "08") add("bpHist", decodeBP(buf));
-      else if (histReqKey === "09") add("all", decodeAll(buf));
+      if (histReqKey === "06") addUnique("hrHist", decodeHR(buf));
+      else if (histReqKey === "08") addUnique("bpHist", decodeBP(buf));
+      else if (histReqKey === "09") addUnique("all", decodeAll(buf));
       else if (histReqKey === "33") {
         const data = decodePressure(buf);
-        add("pressure", data);
+        addUnique("pressure", data);
         if (data.length && $("pressureVal")) {
           const last = data[data.length - 1].pressure;
           $("pressureVal").textContent = last;
@@ -1071,7 +1097,7 @@ function handle(type, p) {
       } else if (histReqKey === "02") {
         const data = decodeSteps(buf);
         if (data.length) {
-          add("stepsHist", data);
+          addUnique("stepsHist", data);
           const today = startOfDay(new Date());
           let sum = 0;
           for (const x of data) if (sameDay(new Date(x.t), today)) sum += x.steps;
@@ -1081,7 +1107,9 @@ function handle(type, p) {
       } else if (histReqKey === "04") {
         const data = decodeSleep(buf);
         if (data) {
-          add("sleep", data);
+          // 同一晚数据在同一次连接内可能被重复请求到（设备端ACK后不会立刻标记已消费），按start时间去重避免历史里出现重复记录
+          const dup = records.some(r => r.type === "sleep" && r.data && r.data.start === data.start);
+          if (!dup) add("sleep", data);
           if ($("sleepMin")) $("sleepMin").textContent = `${Math.floor(data.totalMin / 60)}h${data.totalMin % 60}m`;
           setSleepEmojis(data);
           log(`睡眠解析成功：${data.totalMin}分钟（深${data.deepMin}/浅${data.lightMin}/REM${data.remMin}）`);
@@ -1148,7 +1176,7 @@ async function connect() {
         setStatus("正在测量血压，请保持静止...");
         await measureAndWait(1, 1, MODE_DURATION[1], "bp");
         setStatus("正在测量心率...");
-        await measureAndWait(0, null, MODE_DURATION[0], "hr");
+        await measureAndWait(0, 0, MODE_DURATION[0], "hr");
         setStatus("已连接 · " + (device?.name || "TK5") + " (自动流程完成)", "connected");
       } catch (e) {
         log("自动测量出错: " + e.message);
@@ -1312,6 +1340,7 @@ function hydrateFromRecords() {
 document.addEventListener("click", e => {
   const btn = e.target.closest("button");
   if (btn) {
+    unlockAudioSession();
     playClick();
     btn.classList.add("glow");
     setTimeout(() => btn.classList.remove("glow"), 400);
