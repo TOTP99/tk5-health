@@ -120,6 +120,10 @@ button.glow{
   border-color:var(--pink)!important;
   box-shadow:0 0 0 3px rgba(255,143,171,.35)!important;
 }
+#panel-control button{
+  padding:7px 11px;font-size:11px;border-radius:12px;
+}
+#panel-control .row{gap:5px}
 .mini-refresh{
   position:absolute;top:8px;right:8px;
   padding:3px 8px;font-size:13px;line-height:1.3;
@@ -1739,10 +1743,10 @@ function updateBatteryUI() {
   const days = daysSinceCharge();
   const c3 = $("bat3"), c2 = $("bat2"), c1 = $("bat1"), warn = $("batWarn"), icon = $("batIcon");
   if (!c3) return;
-  const base = "inherit";
-  c3.style.color = days >= 1 ? "#ef4444" : base;
-  c2.style.color = days >= 2 ? "#ffd166" : base;
-  c1.style.color = days >= 3 ? "#95e1d3" : base;
+  const full = "#d4af37";
+  c3.style.color = days >= 1 ? "#ef4444" : full;
+  c2.style.color = days >= 2 ? "#ffd166" : full;
+  c1.style.color = days >= 3 ? "#95e1d3" : full;
   if (warn) warn.textContent = days >= 4 ? "⚠️" : "";
   if (icon) icon.style.filter = days >= 4 ? "grayscale(0.4)" : "";
 }
