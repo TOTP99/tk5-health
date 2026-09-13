@@ -3,125 +3,536 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>TK5 Smart Ring</title>
+<title>TK5 Smart Ring · 猫咪版</title>
 <style>
-:root{--gold:#d6b56a;--cyan:#67d9df;--coral:#e08a67;--text:#edf5f7;--muted:#8ea3ad;--line:#715f35;--line2:#29404b;--num-font:ui-rounded,"SF Pro Rounded","Segoe UI Rounded",-apple-system,sans-serif}
-*{box-sizing:border-box}html{background:#050a0e}
-body{margin:0;min-height:100vh;background:radial-gradient(circle at 20% 0%,#183140 0%,#071018 40%,#050a0e 100%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:max(14px,env(safe-area-inset-top)) 12px max(28px,env(safe-area-inset-bottom))}
+:root{
+  --pink:#ff8fab;
+  --pink-soft:#ffb3c6;
+  --coral:#ff6b6b;
+  --peach:#ffd6a5;
+  --mint:#95e1d3;
+  --sky:#a0e7e5;
+  --lavender:#c9b6e4;
+  --gold:#ffd166;
+  --cream:#fff8f0;
+  --ink:#2d1b2e;
+  --muted:#8a6f7a;
+  --card:#fffaf5;
+  --card-border:#ffe0e9;
+  --shadow:0 8px 24px rgba(255,143,171,.18);
+  --shadow-soft:0 4px 14px rgba(45,27,46,.08);
+  --num-font:ui-rounded,"SF Pro Rounded","Segoe UI Rounded",-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+html{background:#fff5f8}
+body{
+  margin:0;min-height:100vh;
+  background:
+    radial-gradient(ellipse 80% 50% at 10% -10%,#ffe0ec 0%,transparent 55%),
+    radial-gradient(ellipse 70% 40% at 90% 0%,#e0f7f5 0%,transparent 50%),
+    radial-gradient(ellipse 60% 30% at 50% 100%,#fff0d6 0%,transparent 45%),
+    #fff8fb;
+  color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB",sans-serif;
+  padding:max(12px,env(safe-area-inset-top)) 12px max(24px,env(safe-area-inset-bottom));
+}
 main{max-width:720px;margin:0 auto}
-.card{border:1px solid var(--line);background:linear-gradient(145deg,rgba(17,30,41,.98),rgba(7,15,22,.98));border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 10px 28px rgba(0,0,0,.4)}
-h1{margin:0;font-size:18px}h1 span{color:var(--gold);font-size:14px;margin-left:20px}
-.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.status{margin-top:0;padding:4px 10px;border:1px solid var(--line2);border-radius:20px;color:var(--cyan);background:#07141c;font-size:11px;display:flex;align-items:center;gap:6px;max-width:150px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.status-dot{width:8px;height:8px;border-radius:50%;background:#f59e0b;box-shadow:0 0 8px #f59e0b;flex-shrink:0}
-.status.connected .status-dot{background:#10b981;box-shadow:0 0 10px #10b981}
-.status.disconnected .status-dot{background:#ef4444;box-shadow:0 0 8px #ef4444}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.m{border:1px solid #35505b;border-radius:12px;padding:12px;background:linear-gradient(145deg,#142733,#0a151d);min-height:86px;position:relative;overflow:hidden}
-#card-hr,#card-spo2,#card-bp,#card-hrv,#card-sleep,#card-steps,#card-pressure{cursor:pointer}
-.m .l{font-size:12px;color:var(--muted)}.m .v{font-size:24px;font-weight:700;margin:6px 0 2px;line-height:1.1;font-family:var(--num-font);font-variant-numeric:tabular-nums;letter-spacing:.2px}.m .u{font-size:11px;color:var(--muted)}
-.m-progress{position:absolute;bottom:0;left:0;height:3px;background:var(--cyan);width:0%;transition:width .12s linear;border-radius:0 2px 0 0}
-.shape-rhythmic .m-progress{height:4px;transition:width .18s ease-out}
-.shape-rhythmic.measuring .m-progress{animation:pulse-bar 1.2s ease-in-out infinite}
-.shape-discrete .m-progress{height:2.5px;transition:width .08s linear}
-@keyframes pulse-bar{0%,100%{opacity:1;filter:brightness(1)}50%{opacity:.75;filter:brightness(1.25)}}
-.cat-cool{background:linear-gradient(160deg,#0f2a32 0%,#0a1c22 55%,#071418 100%)}.cat-cool .l{color:#7ecfd6}
-.cat-warm{background:linear-gradient(160deg,#2c1a12 0%,#1a100c 55%,#120b08 100%)}.cat-warm .l{color:#e0a88a}.cat-warm .m-progress{background:var(--coral)}
-.shape-rhythmic{border-radius:22px}.shape-discrete{border-radius:6px}
-.cat-cool.shape-rhythmic{border:1px solid #3d8a94;box-shadow:inset 0 0 0 1px #08161a,inset 0 0 0 3px rgba(103,217,223,.45),0 0 12px rgba(103,217,223,.08)}
-.cat-cool.shape-discrete{border:2.5px solid #2a6570;box-shadow:inset 0 1px 0 rgba(103,217,223,.12)}
-.cat-warm.shape-rhythmic{border:1px solid #9a6540;box-shadow:inset 0 0 0 1px #140c08,inset 0 0 0 3px rgba(224,138,103,.45),0 0 12px rgba(224,138,103,.08)}
-.cat-warm.shape-discrete{border:2.5px solid #75422e;box-shadow:inset 0 1px 0 rgba(224,138,103,.12)}
-#card-steps{border:1px solid #3a4c54;background:linear-gradient(145deg,#14202a,#0b1319)}
-.m.done-flash{animation:done-flash .45s ease-out}
-@keyframes done-flash{0%{filter:brightness(1.35)}100%{filter:brightness(1)}}
 
-.clock-card{aspect-ratio:1/1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:radial-gradient(ellipse at 50% 15%,#2b1f0d 0%,#0d0904 72%);border-color:#8a6a28;box-shadow:inset 0 0 0 1px rgba(214,181,106,.22),inset 0 0 16px rgba(0,0,0,.55)}
-.clock-card .clock-date{font-family:"Courier New",monospace;font-size:11px;letter-spacing:2px;color:var(--gold);text-shadow:0 0 6px rgba(214,181,106,.5);text-transform:uppercase}
-.clock-card .clock-divider{width:56%;height:1px;background:linear-gradient(90deg,transparent,rgba(214,181,106,.75),transparent);position:relative}
-.clock-card .clock-divider::before{content:"";position:absolute;left:50%;top:-1.5px;width:4px;height:4px;background:var(--gold);border-radius:50%;transform:translateX(-50%);box-shadow:0 0 5px var(--gold)}
-.clock-card .clock-week{font-family:"Courier New",monospace;font-size:10px;letter-spacing:4px;color:#b89a58;opacity:.9}
-.clock-card .clock-time{font-family:"Courier New",monospace;font-size:21px;font-weight:700;letter-spacing:1px;color:var(--gold);text-shadow:0 0 8px rgba(214,181,106,.7)}
-.mini-refresh{position:absolute;top:8px;right:8px;padding:2px 7px;font-size:12px;line-height:1.4;border-radius:8px}
-.status-emoji{position:absolute;top:8px;right:10px;font-size:16px;line-height:1}
-.sleep-emojis{position:absolute;top:8px;right:10px;display:flex;gap:4px;font-size:16px;line-height:1}
-.pressure-col{display:flex;flex-direction:column;gap:8px}
-.pressure-mini{min-height:0;padding:10px 12px}
-.pressure-mini .v{font-size:20px;margin:4px 0 0}
-.pressure-btns{flex:1;align-items:flex-end;margin:0}
-.pressure-btns button{flex:1}
-button{border:1px solid #8b7440;border-radius:10px;padding:10px 14px;background:linear-gradient(145deg,#172933,#101d25);color:var(--text);font-size:13px;transition:border-color .2s,box-shadow .2s}
-button:active{filter:brightness(1.12)}
+/* ========== Header ========== */
+.hero{
+  background:linear-gradient(145deg,#fff,#fff5f8);
+  border:2px solid var(--card-border);
+  border-radius:28px;
+  padding:18px 16px 14px;
+  margin-bottom:14px;
+  box-shadow:var(--shadow);
+  position:relative;
+  overflow:hidden;
+}
+.hero::before{
+  content:"🐾";
+  position:absolute;top:8px;right:14px;
+  font-size:28px;opacity:.35;transform:rotate(12deg);
+  animation:paw-wiggle 4s ease-in-out infinite;
+}
+.hero-title{
+  display:flex;align-items:center;gap:10px;margin-bottom:12px;
+}
+.hero-title .cat{
+  font-size:36px;line-height:1;
+  filter:drop-shadow(0 2px 4px rgba(255,143,171,.4));
+  display:inline-block;
+  animation:cat-bounce 2.4s ease-in-out infinite;
+  cursor:pointer;
+  transform-origin:center bottom;
+  transition:transform .2s;
+}
+.hero-title .cat:active{transform:scale(1.2) rotate(-8deg)}
+.hero-title .cat.happy{
+  animation:cat-happy .6s ease-out;
+}
+.hero-title .cat.measure{
+  animation:cat-wiggle .5s ease-in-out infinite;
+}
+.hero-title h1{
+  margin:0;font-size:20px;font-weight:800;letter-spacing:.5px;
+  background:linear-gradient(90deg,#ff6b9d,#ff8fab,#c9b6e4);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero-title .tag{
+  font-size:11px;font-weight:600;color:var(--muted);
+  background:#ffeef3;padding:3px 10px;border-radius:20px;
+  border:1px solid #ffd0dc;
+}
+.connect-row{
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;
+}
+.status{
+  padding:6px 14px;border-radius:24px;font-size:12px;font-weight:600;
+  display:flex;align-items:center;gap:7px;
+  background:#fff;border:2px solid #eee;color:var(--muted);
+  max-width:180px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+}
+.status-dot{
+  width:9px;height:9px;border-radius:50%;flex-shrink:0;
+  background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.25);
+}
+.status.connected{
+  border-color:#95e1d3;background:#f0fffb;color:#0d9488;
+}
+.status.connected .status-dot{
+  background:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.3);
+  animation:dot-pulse 1.6s ease-in-out infinite;
+}
+.status.disconnected{
+  border-color:#fecaca;background:#fff5f5;color:#b91c1c;
+}
+.status.disconnected .status-dot{
+  background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.25);
+}
+
+/* ========== Buttons ========== */
+button{
+  border:2px solid #ffd0dc;border-radius:16px;
+  padding:10px 16px;background:#fff;color:var(--ink);
+  font-size:13px;font-weight:600;cursor:pointer;
+  transition:transform .12s,box-shadow .15s,border-color .15s;
+  box-shadow:var(--shadow-soft);
+}
+button:active{transform:scale(.94) rotate(-1deg)}
 button:disabled{opacity:.4;pointer-events:none}
-button.p{background:linear-gradient(135deg,#806a39,#4f4327);color:#fff}
-button.c{border-color:#438d91;background:linear-gradient(135deg,#153b41,#10282e)}
-button.d{border-color:#7b4141;color:#ffdede}
-button.glow{border-color:var(--cyan)!important;box-shadow:0 0 10px var(--cyan)!important}
-.hist{max-height:340px;overflow:auto;margin-top:6px}
-.rc{background:#0c1820;border:1px solid #2a4550;border-radius:10px;padding:10px 12px;margin-bottom:6px;font-size:13px}
-.rc .t{color:var(--gold);font-size:12px;margin-bottom:3px}
-.chart-box{margin-top:10px;background:#030709;border:1px solid #25343b;border-radius:10px;padding:10px;min-height:100px}
-.chart-title{font-size:11px;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between}
+button:hover{transform:translateY(-1px)}
+button.p{
+  background:linear-gradient(135deg,#ff8fab,#ff6b9d);
+  border-color:#ff6b9d;color:#fff;
+  box-shadow:0 6px 16px rgba(255,107,157,.35);
+}
+button.c{
+  background:linear-gradient(135deg,#a0e7e5,#95e1d3);
+  border-color:#7dd3c8;color:#0f766e;
+}
+button.d{
+  border-color:#fca5a5;color:#b91c1c;background:#fff5f5;
+}
+button.glow{
+  border-color:var(--pink)!important;
+  box-shadow:0 0 0 3px rgba(255,143,171,.35)!important;
+}
+.mini-refresh{
+  position:absolute;top:8px;right:8px;
+  padding:3px 8px;font-size:13px;line-height:1.3;
+  border-radius:12px;border-width:1.5px;
+}
+
+/* ========== Metric Grid ========== */
+.grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+}
+.m{
+  border:2.5px solid var(--card-border);
+  border-radius:22px;padding:14px 12px 12px;
+  background:var(--card);
+  min-height:92px;position:relative;overflow:hidden;
+  box-shadow:var(--shadow-soft);
+  transition:transform .15s,box-shadow .15s;
+}
+.m:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(255,143,171,.22)}
+.m:active{transform:scale(.97)}
+#card-hr,#card-spo2,#card-bp,#card-hrv,#card-sleep,#card-steps,#card-pressure{cursor:pointer}
+
+.m .l{
+  font-size:12px;font-weight:700;color:var(--muted);
+  display:flex;align-items:center;gap:4px;
+}
+.m .v{
+  font-size:26px;font-weight:800;margin:6px 0 2px;
+  line-height:1.1;font-family:var(--num-font);
+  font-variant-numeric:tabular-nums;letter-spacing:.3px;
+  color:var(--ink);
+}
+.m .u{font-size:11px;color:var(--muted);font-weight:500}
+
+/* Category skins */
+.cat-cool{
+  background:linear-gradient(160deg,#f0fffe 0%,#e8f9f8 60%,#fff 100%);
+  border-color:#b8ebe6;
+}
+.cat-cool .l{color:#0d9488}
+.cat-cool .v{color:#0f766e}
+
+.cat-warm{
+  background:linear-gradient(160deg,#fff5f0 0%,#ffe8e0 55%,#fff 100%);
+  border-color:#ffcbb8;
+}
+.cat-warm .l{color:#c2410c}
+.cat-warm .v{color:#9a3412}
+
+.cat-pink{
+  background:linear-gradient(160deg,#fff0f5 0%,#ffe4ec 55%,#fff 100%);
+  border-color:#ffc2d4;
+}
+.cat-pink .l{color:#be185d}
+.cat-pink .v{color:#9d174d}
+
+.cat-lavender{
+  background:linear-gradient(160deg,#f8f0ff 0%,#efe4ff 55%,#fff 100%);
+  border-color:#d8c4f0;
+}
+.cat-lavender .l{color:#7c3aed}
+.cat-lavender .v{color:#6d28d9}
+
+.cat-gold{
+  background:linear-gradient(160deg,#fffbeb 0%,#fef3c7 55%,#fff 100%);
+  border-color:#fde68a;
+}
+.cat-gold .l{color:#b45309}
+.cat-gold .v{color:#92400e}
+
+/* Progress bar under cards */
+.m-progress{
+  position:absolute;bottom:0;left:0;height:4px;
+  background:linear-gradient(90deg,var(--pink),var(--coral));
+  width:0%;transition:width .12s linear;border-radius:0 3px 0 0;
+}
+.shape-rhythmic .m-progress{height:5px;transition:width .18s ease-out}
+.shape-rhythmic.measuring .m-progress{
+  animation:pulse-bar 1.1s ease-in-out infinite;
+  background:linear-gradient(90deg,#ff8fab,#ff6b6b,#ffd166);
+}
+.shape-discrete .m-progress{height:3px;transition:width .08s linear}
+.m.measuring{
+  animation:card-measuring 1.2s ease-in-out infinite;
+}
+@keyframes pulse-bar{
+  0%,100%{opacity:1;filter:brightness(1)}
+  50%{opacity:.8;filter:brightness(1.2)}
+}
+@keyframes card-measuring{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.015)}
+}
+.m.done-flash{animation:done-flash .55s cubic-bezier(.34,1.56,.64,1)}
+@keyframes done-flash{
+  0%{filter:brightness(1.3);transform:scale(1.06)}
+  60%{filter:brightness(1.1);transform:scale(1.02)}
+  100%{filter:brightness(1);transform:scale(1)}
+}
+
+/* Cat animations */
+@keyframes cat-bounce{
+  0%,100%{transform:translateY(0) rotate(0)}
+  25%{transform:translateY(-4px) rotate(-4deg)}
+  50%{transform:translateY(0) rotate(0)}
+  75%{transform:translateY(-2px) rotate(3deg)}
+}
+@keyframes cat-happy{
+  0%{transform:scale(1) rotate(0)}
+  25%{transform:scale(1.35) rotate(-12deg)}
+  50%{transform:scale(1.2) rotate(10deg)}
+  75%{transform:scale(1.3) rotate(-6deg)}
+  100%{transform:scale(1) rotate(0)}
+}
+@keyframes cat-wiggle{
+  0%,100%{transform:rotate(-6deg) scale(1.05)}
+  50%{transform:rotate(6deg) scale(1.05)}
+}
+@keyframes paw-wiggle{
+  0%,100%{transform:rotate(12deg) translateY(0)}
+  50%{transform:rotate(18deg) translateY(-3px)}
+}
+@keyframes dot-pulse{
+  0%,100%{box-shadow:0 0 0 3px rgba(16,185,129,.3)}
+  50%{box-shadow:0 0 0 6px rgba(16,185,129,.15)}
+}
+@keyframes float-paw{
+  0%{transform:translateY(0) rotate(var(--r,0deg));opacity:.08}
+  50%{transform:translateY(-18px) rotate(calc(var(--r,0deg) + 8deg));opacity:.14}
+  100%{transform:translateY(0) rotate(var(--r,0deg));opacity:.08}
+}
+@keyframes sparkle-pop{
+  0%{transform:scale(0) rotate(0);opacity:1}
+  60%{transform:scale(1.2) rotate(20deg);opacity:.9}
+  100%{transform:scale(0) rotate(40deg);opacity:0}
+}
+@keyframes status-meow{
+  0%,100%{transform:scale(1)}
+  40%{transform:scale(1.08)}
+  70%{transform:scale(.97)}
+}
+
+.status-emoji{
+  position:absolute;top:10px;right:12px;
+  font-size:20px;line-height:1;
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.08));
+}
+.sleep-emojis{
+  position:absolute;top:10px;right:12px;
+  display:flex;gap:3px;font-size:18px;line-height:1;
+}
+
+/* Clock card */
+.clock-card{
+  aspect-ratio:1/1;min-height:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  background:linear-gradient(160deg,#2d1b2e 0%,#4a2c4a 50%,#2d1b2e 100%);
+  border-color:#c9b6e4;
+  box-shadow:0 8px 20px rgba(45,27,46,.25),inset 0 0 20px rgba(201,182,228,.15);
+}
+.clock-card .clock-date{
+  font-family:"Courier New",monospace;font-size:11px;letter-spacing:2px;
+  color:var(--gold);text-shadow:0 0 8px rgba(255,209,102,.5);
+  text-transform:uppercase;
+}
+.clock-card .clock-divider{
+  width:50%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,209,102,.7),transparent);
+  position:relative;margin:2px 0;
+}
+.clock-card .clock-divider::before{
+  content:"";position:absolute;left:50%;top:-2px;
+  width:5px;height:5px;background:var(--gold);border-radius:50%;
+  transform:translateX(-50%);box-shadow:0 0 6px var(--gold);
+}
+.clock-card .clock-week{
+  font-family:"Courier New",monospace;font-size:10px;letter-spacing:3px;
+  color:#e8c4d8;opacity:.9;
+}
+.clock-card .clock-time{
+  font-family:"Courier New",monospace;font-size:22px;font-weight:700;
+  letter-spacing:1px;color:#fff;
+  text-shadow:0 0 12px rgba(255,143,171,.6);
+}
+
+/* Pressure column */
+.pressure-col{display:flex;flex-direction:column;gap:8px}
+.pressure-mini{min-height:0;padding:12px}
+.pressure-mini .v{font-size:22px;margin:4px 0 0}
+.pressure-btns{flex:1;align-items:flex-end;margin:0;display:flex;gap:6px}
+.pressure-btns button{flex:1;padding:10px 8px;font-size:12px}
+
+/* Panels */
+.card{
+  border:2.5px solid var(--card-border);
+  background:var(--card);
+  border-radius:22px;padding:14px;
+  margin-bottom:12px;
+  box-shadow:var(--shadow-soft);
+}
+.panel-title{
+  font-size:13px;font-weight:700;color:var(--muted);
+  margin-bottom:10px;display:flex;align-items:center;gap:6px;
+}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.hist{max-height:320px;overflow:auto;margin-top:4px}
+.rc{
+  background:#fff;border:1.5px solid #ffe0e9;
+  border-radius:14px;padding:10px 12px;margin-bottom:6px;font-size:13px;
+}
+.rc .t{color:#be185d;font-size:12px;font-weight:600;margin-bottom:3px}
+.chart-box{
+  margin-top:10px;background:#fff;
+  border:1.5px solid #ffe0e9;border-radius:16px;
+  padding:10px;min-height:100px;
+}
+.chart-title{
+  font-size:13px;font-weight:700;color:var(--ink);
+  margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;
+}
+.chart-title span:last-child{font-size:11px;font-weight:500;color:var(--muted)}
 canvas{width:100%!important;height:100%!important;display:block;min-height:100px}
 .range-tabs{display:flex;gap:4px;margin-top:2px}
-.range-tabs button{flex:1;padding:4px 0;font-size:11px;border-radius:20px}
-.range-tabs button.active{background:linear-gradient(135deg,#806a39,#4f4327);color:#fff;border-color:#8b7440}
-#log{margin-top:8px;background:#030709;border:1px solid #25343b;color:#9fe9d0;font:11px/1.4 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto;padding:10px;border-radius:10px}
+.range-tabs button{
+  flex:1;padding:6px 0;font-size:12px;border-radius:14px;
+  border-width:1.5px;box-shadow:none;
+}
+.range-tabs button.active{
+  background:linear-gradient(135deg,#ff8fab,#ff6b9d);
+  color:#fff;border-color:#ff6b9d;
+}
+#log{
+  margin-top:8px;background:#2d1b2e;border:2px solid #4a2c4a;
+  color:#f9a8d4;font:11px/1.45 ui-monospace,Menlo,Consolas,monospace;
+  white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto;
+  padding:12px;border-radius:14px;
+}
+.hp-back{
+  background:#fff;border-color:#ffd0dc;color:#be185d;
+  font-weight:700;padding:8px 14px;border-radius:14px;
+}
+
+/* Fun decorative paw prints */
+.paw-deco{
+  position:fixed;pointer-events:none;font-size:42px;
+  z-index:0;opacity:.1;
+  animation:float-paw 5s ease-in-out infinite;
+}
+.paw1{top:10%;left:3%;--r:-20deg;animation-delay:0s}
+.paw2{top:38%;right:2%;--r:15deg;animation-delay:1.2s;font-size:36px}
+.paw3{bottom:12%;left:5%;--r:28deg;animation-delay:2.4s;font-size:40px}
+.paw4{top:55%;right:6%;--r:-12deg;animation-delay:0.8s;font-size:32px;opacity:.08}
+.paw5{bottom:28%;right:8%;--r:22deg;animation-delay:3s;font-size:38px;opacity:.09}
+
+/* Sparkle burst on measure done */
+.sparkle-layer{
+  position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:inherit;
+}
+.sparkle{
+  position:absolute;font-size:14px;
+  animation:sparkle-pop .7s ease-out forwards;
+}
+
+/* Empty state hint */
+.empty-hint{
+  text-align:center;padding:20px;color:var(--muted);font-size:13px;
+}
+
+/* Soft sound toggle */
+.sound-toggle{
+  position:absolute;top:12px;left:14px;
+  font-size:16px;opacity:.55;cursor:pointer;
+  transition:opacity .2s,transform .15s;
+  z-index:2;user-select:none;
+}
+.sound-toggle:hover{opacity:1;transform:scale(1.15)}
+.sound-toggle.off{opacity:.3;filter:grayscale(1)}
+
 </style>
 </head>
 <body>
 <audio id="audioUnlock" preload="auto" style="display:none" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="></audio>
+<span class="paw-deco paw1">🐾</span>
+<span class="paw-deco paw2">🐾</span>
+<span class="paw-deco paw3">🐾</span>
+<span class="paw-deco paw4">🐾</span>
+<span class="paw-deco paw5">🐾</span>
+
 <main>
 <div id="page1">
-  <div class="card">
-    <h1>TK5 Smart Ring <span>TP制作🐈🎏</span></h1>
-    <div class="row" style="margin-top:10px;justify-content:center">
-      <button id="btnConnect" class="p">连接</button>
+  <!-- Hero / Connect -->
+  <div class="hero">
+    <span class="sound-toggle" id="soundToggle" title="点击开关音效">🔊</span>
+    <div class="hero-title">
+      <span class="cat" id="mascotCat" title="点我喵～">🐈</span>
+      <div>
+        <h1>TK5 Smart Ring</h1>
+        <span class="tag">TP制作 · 猫咪特别版</span>
+      </div>
+    </div>
+    <div class="connect-row">
+      <button id="btnConnect" class="p">🔗 连接戒指</button>
       <button id="btnDisconnect">断开</button>
-      <div id="status" class="status disconnected"><div class="status-dot"></div><span>未连接</span></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="grid">
-      <div class="m cat-cool shape-rhythmic" id="card-hr"><span class="status-emoji" id="hrEmoji"></span><div class="l">❤️ 心率</div><div id="hr" class="v">--</div><div class="u">BPM</div><div class="m-progress" id="prog-hr"></div></div>
-      <div class="m cat-cool shape-rhythmic" id="card-spo2"><span class="status-emoji" id="spo2Emoji"></span><div class="l">🩸 血氧</div><div id="spo2" class="v">--</div><div class="u">%</div><div class="m-progress" id="prog-spo2"></div></div>
-      <div class="m cat-cool shape-discrete" id="card-bp"><span class="status-emoji" id="bpEmoji"></span><div class="l">🩺 血压</div><div id="bp" class="v">-- / --</div><div class="u" id="bpHr"></div><div class="m-progress" id="prog-bp"></div></div>
-      <div class="m cat-cool shape-rhythmic" id="card-hrv"><span class="status-emoji" id="hrvEmoji"></span><div class="l">📈 HRV</div><div id="hrv" class="v">--</div><div class="u"></div><div class="m-progress" id="prog-hrv"></div></div>
-      <div class="m shape-discrete" id="card-steps"><button id="btnSteps" class="mini-refresh">🔄</button><div class="l">👣 步数</div><div id="steps" class="v">--</div><div class="u">今日</div></div>
-      <div class="m cat-warm shape-rhythmic" id="card-sleep"><div class="sleep-emojis"><span id="sleepQualityEmoji"></span><span id="sleepDurationEmoji"></span></div><div class="l">😴 睡眠</div><div id="sleepMin" class="v">--</div><div class="u">时长</div></div>
-      <div class="pressure-col">
-        <div class="m pressure-mini cat-warm shape-discrete" id="card-pressure"><span class="status-emoji" id="pressureEmoji"></span><div class="l">💆 压力</div><div id="pressureVal" class="v">--</div><div class="u">最新</div><div class="m-progress" id="prog-pressure"></div></div>
-        <div class="row pressure-btns">
-          <button id="btnControl" class="c">控制</button>
-          <button id="btnData" class="c">数据</button>
-        </div>
-      </div>
-      <div class="m clock-card" id="card-clock">
-        <div class="clock-date" id="clockDate">--- --, ----</div>
-        <div class="clock-divider"></div>
-        <div class="clock-week" id="clockWeek">---</div>
-        <div class="clock-time" id="clockTime">--:--:--</div>
+      <div id="status" class="status disconnected">
+        <div class="status-dot"></div>
+        <span>未连接</span>
       </div>
     </div>
   </div>
 
+  <!-- Main metrics -->
+  <div class="grid" style="margin-bottom:12px">
+    <div class="m cat-pink shape-rhythmic" id="card-hr">
+      <span class="status-emoji" id="hrEmoji"></span>
+      <div class="l">❤️ 心率</div>
+      <div id="hr" class="v">--</div>
+      <div class="u">BPM</div>
+      <div class="m-progress" id="prog-hr"></div>
+    </div>
+    <div class="m cat-cool shape-rhythmic" id="card-spo2">
+      <span class="status-emoji" id="spo2Emoji"></span>
+      <div class="l">🩸 血氧</div>
+      <div id="spo2" class="v">--</div>
+      <div class="u">%</div>
+      <div class="m-progress" id="prog-spo2"></div>
+    </div>
+    <div class="m cat-warm shape-discrete" id="card-bp">
+      <span class="status-emoji" id="bpEmoji"></span>
+      <div class="l">🩺 血压</div>
+      <div id="bp" class="v">-- / --</div>
+      <div class="u" id="bpHr"></div>
+      <div class="m-progress" id="prog-bp"></div>
+    </div>
+    <div class="m cat-lavender shape-rhythmic" id="card-hrv">
+      <span class="status-emoji" id="hrvEmoji"></span>
+      <div class="l">📈 HRV</div>
+      <div id="hrv" class="v">--</div>
+      <div class="u"></div>
+      <div class="m-progress" id="prog-hrv"></div>
+    </div>
+    <div class="m cat-gold shape-discrete" id="card-steps">
+      <button id="btnSteps" class="mini-refresh">🔄</button>
+      <div class="l">👣 步数</div>
+      <div id="steps" class="v">--</div>
+      <div class="u">今日</div>
+    </div>
+    <div class="m cat-lavender shape-rhythmic" id="card-sleep">
+      <div class="sleep-emojis">
+        <span id="sleepQualityEmoji"></span>
+        <span id="sleepDurationEmoji"></span>
+      </div>
+      <div class="l">😴 睡眠</div>
+      <div id="sleepMin" class="v">--</div>
+      <div class="u">时长</div>
+    </div>
+    <div class="pressure-col">
+      <div class="m pressure-mini cat-warm shape-discrete" id="card-pressure">
+        <span class="status-emoji" id="pressureEmoji"></span>
+        <div class="l">💆 压力</div>
+        <div id="pressureVal" class="v">--</div>
+        <div class="u">最新</div>
+        <div class="m-progress" id="prog-pressure"></div>
+      </div>
+      <div class="row pressure-btns">
+        <button id="btnControl" class="c">🎛️ 控制</button>
+        <button id="btnData" class="c">📋 数据</button>
+      </div>
+    </div>
+    <div class="m clock-card" id="card-clock">
+      <div class="clock-date" id="clockDate">--- --, ----</div>
+      <div class="clock-divider"></div>
+      <div class="clock-week" id="clockWeek">---</div>
+      <div class="clock-time" id="clockTime">--:--:--</div>
+    </div>
+  </div>
+
+  <!-- Control panel -->
   <div id="panel-control" style="display:none">
     <div class="card">
+      <div class="panel-title">🐱 测量控制</div>
       <div class="row">
         <button class="c" data-mode="0">测心率</button>
         <button class="c" data-mode="2">测血氧</button>
         <button class="c" data-mode="1">测血压</button>
         <button class="c" data-mode="10">测HRV</button>
         <button class="c" data-mode="3">测压力</button>
-        <button data-mode="-1">停止</button>
+        <button data-mode="-1">⏹ 停止</button>
       </div>
-      <div class="row" style="margin-top:8px">
+      <div class="row" style="margin-top:10px">
         <button data-h="09">同步全部</button>
         <button data-h="08">血压历史</button>
         <button data-h="06">心率历史</button>
         <button data-h="04">睡眠历史</button>
-        <span id="batInd" style="margin-left:12px;font-size:15px;letter-spacing:1px;cursor:pointer;user-select:none;display:inline-flex;align-items:center;gap:1px" title="点击🔋重置为满电">
+        <span id="batInd" style="margin-left:8px;font-size:15px;letter-spacing:1px;cursor:pointer;user-select:none;display:inline-flex;align-items:center;gap:1px" title="点击🔋重置为满电">
           <span id="batIcon">🔋</span><span id="bat3">3</span><span id="bat2">2</span><span id="bat1">1</span>🔌<span id="batWarn"></span>
         </span>
       </div>
@@ -133,8 +544,12 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
     </div>
   </div>
 
+  <!-- Data panel -->
   <div id="panel-data" style="display:none">
-    <div class="card"><div id="history" class="hist"></div></div>
+    <div class="card">
+      <div class="panel-title">📜 历史记录</div>
+      <div id="history" class="hist"></div>
+    </div>
     <div class="card">
       <div class="row">
         <button id="btnCopy">复制日志</button>
@@ -150,15 +565,18 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
 <div id="pageHR" style="display:none">
   <div class="card">
     <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
-    <div class="chart-title"><span>❤️ 心率</span><span id="chart-sub">暂无数据</span></div>
+    <div class="chart-title"><span>❤️ 心率趋势</span><span id="chart-sub">暂无数据</span></div>
     <div class="range-tabs" id="trend-range">
-      <button data-range="day">日</button><button data-range="week" class="active">周</button><button data-range="month">月</button><button data-range="year">年</button>
+      <button data-range="day">日</button>
+      <button data-range="week" class="active">周</button>
+      <button data-range="month">月</button>
+      <button data-range="year">年</button>
     </div>
     <div class="chart-box"><canvas id="trendCanvas"></canvas></div>
-    <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
-      <div><div style="font-size:20px;font-weight:700" id="hr-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
-      <div><div style="font-size:20px;font-weight:700;color:#67d9df" id="hr-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
-      <div><div style="font-size:20px;font-weight:700;color:#d6b56a" id="hr-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
+    <div style="display:flex;justify-content:space-around;margin-top:12px;text-align:center">
+      <div><div style="font-size:22px;font-weight:800" id="hr-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
+      <div><div style="font-size:22px;font-weight:800;color:#0d9488" id="hr-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
+      <div><div style="font-size:22px;font-weight:800;color:#be185d" id="hr-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
     </div>
   </div>
 </div>
@@ -166,15 +584,18 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
 <div id="pageSpO2" style="display:none">
   <div class="card">
     <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
-    <div class="chart-title"><span>🩸 血氧</span><span id="spo2-chart-sub">暂无数据</span></div>
+    <div class="chart-title"><span>🩸 血氧趋势</span><span id="spo2-chart-sub">暂无数据</span></div>
     <div class="range-tabs" id="spo2-range">
-      <button data-range="day">日</button><button data-range="week" class="active">周</button><button data-range="month">月</button><button data-range="year">年</button>
+      <button data-range="day">日</button>
+      <button data-range="week" class="active">周</button>
+      <button data-range="month">月</button>
+      <button data-range="year">年</button>
     </div>
     <div class="chart-box"><canvas id="spo2Canvas"></canvas></div>
-    <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
-      <div><div style="font-size:20px;font-weight:700" id="spo2-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
-      <div><div style="font-size:20px;font-weight:700;color:#67d9df" id="spo2-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
-      <div><div style="font-size:20px;font-weight:700;color:#d6b56a" id="spo2-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
+    <div style="display:flex;justify-content:space-around;margin-top:12px;text-align:center">
+      <div><div style="font-size:22px;font-weight:800" id="spo2-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
+      <div><div style="font-size:22px;font-weight:800;color:#0d9488" id="spo2-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
+      <div><div style="font-size:22px;font-weight:800;color:#be185d" id="spo2-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
     </div>
   </div>
 </div>
@@ -182,15 +603,18 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
 <div id="pageHRV" style="display:none">
   <div class="card">
     <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
-    <div class="chart-title"><span>📈 HRV</span><span id="hrv-chart-sub">暂无数据</span></div>
+    <div class="chart-title"><span>📈 HRV 趋势</span><span id="hrv-chart-sub">暂无数据</span></div>
     <div class="range-tabs" id="hrv-range">
-      <button data-range="day">日</button><button data-range="week" class="active">周</button><button data-range="month">月</button><button data-range="year">年</button>
+      <button data-range="day">日</button>
+      <button data-range="week" class="active">周</button>
+      <button data-range="month">月</button>
+      <button data-range="year">年</button>
     </div>
     <div class="chart-box"><canvas id="hrvCanvas"></canvas></div>
-    <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
-      <div><div style="font-size:20px;font-weight:700" id="hrv-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
-      <div><div style="font-size:20px;font-weight:700;color:#67d9df" id="hrv-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
-      <div><div style="font-size:20px;font-weight:700;color:#d6b56a" id="hrv-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
+    <div style="display:flex;justify-content:space-around;margin-top:12px;text-align:center">
+      <div><div style="font-size:22px;font-weight:800" id="hrv-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
+      <div><div style="font-size:22px;font-weight:800;color:#0d9488" id="hrv-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
+      <div><div style="font-size:22px;font-weight:800;color:#be185d" id="hrv-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
     </div>
   </div>
 </div>
@@ -198,19 +622,22 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
 <div id="pageBP" style="display:none">
   <div class="card">
     <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
-    <div class="chart-title"><span>🩺 血压</span><span id="bp-chart-sub">暂无数据</span></div>
+    <div class="chart-title"><span>🩺 血压趋势</span><span id="bp-chart-sub">暂无数据</span></div>
     <div class="range-tabs" id="bp-range">
-      <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
+      <button data-range="day" class="active">日</button>
+      <button data-range="week">周</button>
+      <button data-range="month">月</button>
+      <button data-range="year">年</button>
     </div>
     <div class="chart-box"><canvas id="bpCanvas"></canvas></div>
-    <div style="display:flex;gap:14px;margin-top:6px;font-size:11px;color:var(--muted)">
-      <span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f0b46b;margin-right:4px"></i>收缩压</span>
-      <span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#c9772e;margin-right:4px"></i>舒张压</span>
+    <div style="display:flex;gap:14px;margin-top:8px;font-size:11px;color:var(--muted)">
+      <span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff8fab;margin-right:4px"></i>收缩压</span>
+      <span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#95e1d3;margin-right:4px"></i>舒张压</span>
     </div>
-    <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
-      <div><div style="font-size:20px;font-weight:700" id="bp-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
-      <div><div style="font-size:20px;font-weight:700;color:#67d9df" id="bp-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
-      <div><div style="font-size:20px;font-weight:700;color:#d6b56a" id="bp-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
+    <div style="display:flex;justify-content:space-around;margin-top:12px;text-align:center">
+      <div><div style="font-size:22px;font-weight:800" id="bp-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
+      <div><div style="font-size:22px;font-weight:800;color:#0d9488" id="bp-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
+      <div><div style="font-size:22px;font-weight:800;color:#be185d" id="bp-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
     </div>
   </div>
 </div>
@@ -218,64 +645,66 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
 <div id="pageSleep" style="display:none">
   <div class="card">
     <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
-    <div class="chart-title"><span>😴 睡眠阶段</span><span id="hypnoDateLabel" style="color:var(--cyan)">--</span></div>
-    <div class="row" id="hypnoDateNav" style="justify-content:center;align-items:center;gap:16px;margin:6px 0">
-      <button id="hypnoDatePrev" class="c" style="padding:2px 12px">‹</button>
+    <div class="chart-title"><span>😴 睡眠阶段</span><span id="hypnoDateLabel" style="color:#be185d">--</span></div>
+    <div class="row" id="hypnoDateNav" style="justify-content:center;align-items:center;gap:16px;margin:8px 0">
+      <button id="hypnoDatePrev" class="c" style="padding:4px 14px">‹</button>
       <span style="font-size:12px;color:var(--muted)">切换日期</span>
-      <button id="hypnoDateNext" class="c" style="padding:2px 12px">›</button>
+      <button id="hypnoDateNext" class="c" style="padding:4px 14px">›</button>
     </div>
-    <div class="chart-box" style="height:120px">
-      <canvas id="hypnoCanvas"></canvas>
-    </div>
-    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:2px" id="hypnoTimeRow">
+    <div class="chart-box" style="height:120px"><canvas id="hypnoCanvas"></canvas></div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px" id="hypnoTimeRow">
       <span id="hypno-start">--</span><span id="hypno-end">--</span>
     </div>
     <div style="display:flex;justify-content:space-around;margin-top:14px;text-align:center">
-      <div><div style="font-size:18px;font-weight:700;color:#5b4fd6" id="hypno-deep">--</div><div style="font-size:11px;color:var(--muted)">深睡</div></div>
-      <div><div style="font-size:18px;font-weight:700;color:#b9a6f2" id="hypno-light">--</div><div style="font-size:11px;color:var(--muted)">浅睡</div></div>
-      <div><div style="font-size:18px;font-weight:700;color:#e8834a" id="hypno-rem">--</div><div style="font-size:11px;color:var(--muted)">REM</div></div>
+      <div><div style="font-size:18px;font-weight:800;color:#7c3aed" id="hypno-deep">--</div><div style="font-size:11px;color:var(--muted)">深睡</div></div>
+      <div><div style="font-size:18px;font-weight:800;color:#c9b6e4" id="hypno-light">--</div><div style="font-size:11px;color:var(--muted)">浅睡</div></div>
+      <div><div style="font-size:18px;font-weight:800;color:#ff8fab" id="hypno-rem">--</div><div style="font-size:11px;color:var(--muted)">REM</div></div>
     </div>
     <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
-      <div><div style="font-size:18px;font-weight:700" id="hypno-total">--</div><div style="font-size:11px;color:var(--muted)">睡眠时长</div></div>
-      <div><div style="font-size:18px;font-weight:700;color:#d6b56a" id="hypno-awake">--</div><div style="font-size:11px;color:var(--muted)">清醒次数</div></div>
+      <div><div style="font-size:18px;font-weight:800" id="hypno-total">--</div><div style="font-size:11px;color:var(--muted)">睡眠时长</div></div>
+      <div><div style="font-size:18px;font-weight:800;color:#b45309" id="hypno-awake">--</div><div style="font-size:11px;color:var(--muted)">清醒次数</div></div>
     </div>
     <div style="margin-top:14px;font-size:12px;color:var(--muted)" id="hypno-analysis"></div>
   </div>
   <div class="card">
     <div class="chart-title"><span>📈 睡眠质量趋势</span><span id="sleep-chart-sub">暂无数据</span></div>
     <div class="range-tabs" id="sleep-range">
-      <button data-range="day">日</button><button data-range="week" class="active">周</button><button data-range="month">月</button><button data-range="year">年</button>
+      <button data-range="day">日</button>
+      <button data-range="week" class="active">周</button>
+      <button data-range="month">月</button>
+      <button data-range="year">年</button>
     </div>
-    <div class="chart-box" style="height:120px">
-      <canvas id="sleepCanvas"></canvas>
-    </div>
+    <div class="chart-box" style="height:120px"><canvas id="sleepCanvas"></canvas></div>
   </div>
 </div>
 
 <div id="pagePressure" style="display:none">
   <div class="card">
     <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
-    <div class="chart-title"><span>💆 压力</span><span id="pressure-chart-sub">暂无数据</span></div>
+    <div class="chart-title"><span>💆 压力趋势</span><span id="pressure-chart-sub">暂无数据</span></div>
     <div class="range-tabs" id="pressure-range">
-      <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
+      <button data-range="day" class="active">日</button>
+      <button data-range="week">周</button>
+      <button data-range="month">月</button>
+      <button data-range="year">年</button>
     </div>
-    <div class="row" id="pressureDateNav" style="justify-content:center;align-items:center;gap:16px;margin:6px 0">
-      <button id="pressureDatePrev" class="c" style="padding:2px 12px">‹</button>
-      <span id="pressureDateLabel" style="font-size:13px;color:var(--cyan)">--</span>
-      <button id="pressureDateNext" class="c" style="padding:2px 12px">›</button>
+    <div class="row" id="pressureDateNav" style="justify-content:center;align-items:center;gap:16px;margin:8px 0">
+      <button id="pressureDatePrev" class="c" style="padding:4px 14px">‹</button>
+      <span id="pressureDateLabel" style="font-size:13px;color:#be185d;font-weight:600">--</span>
+      <button id="pressureDateNext" class="c" style="padding:4px 14px">›</button>
     </div>
     <div class="chart-box"><canvas id="pressureCanvas"></canvas></div>
-    <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
-      <div><div style="font-size:20px;font-weight:700" id="pressure-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
-      <div><div style="font-size:20px;font-weight:700;color:#67d9df" id="pressure-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
-      <div><div style="font-size:20px;font-weight:700;color:#d6b56a" id="pressure-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
+    <div style="display:flex;justify-content:space-around;margin-top:12px;text-align:center">
+      <div><div style="font-size:22px;font-weight:800" id="pressure-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
+      <div><div style="font-size:22px;font-weight:800;color:#0d9488" id="pressure-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
+      <div><div style="font-size:22px;font-weight:800;color:#be185d" id="pressure-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
     </div>
-    <div style="margin-top:14px;font-size:12px">
-      <div style="color:var(--muted);margin-bottom:6px">📈 压力参考值</div>
-      <div style="display:flex;justify-content:space-between;padding:3px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#67d9df;margin-right:6px"></i>&lt;=25</span><span style="color:#67d9df">轻松</span></div>
-      <div style="display:flex;justify-content:space-between;padding:3px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3b8ef0;margin-right:6px"></i>26-50</span><span style="color:#3b8ef0">正常</span></div>
-      <div style="display:flex;justify-content:space-between;padding:3px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#d6b56a;margin-right:6px"></i>51-80</span><span style="color:#d6b56a">中等</span></div>
-      <div style="display:flex;justify-content:space-between;padding:3px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-right:6px"></i>81-100</span><span style="color:#ef4444">偏高</span></div>
+    <div style="margin-top:16px;font-size:12px">
+      <div style="color:var(--muted);margin-bottom:8px;font-weight:600">📈 压力参考值</div>
+      <div style="display:flex;justify-content:space-between;padding:4px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#95e1d3;margin-right:6px"></i>≤25</span><span style="color:#0d9488;font-weight:600">轻松 🥳</span></div>
+      <div style="display:flex;justify-content:space-between;padding:4px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#60a5fa;margin-right:6px"></i>26-50</span><span style="color:#2563eb;font-weight:600">正常 😇</span></div>
+      <div style="display:flex;justify-content:space-between;padding:4px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ffd166;margin-right:6px"></i>51-80</span><span style="color:#b45309;font-weight:600">中等 😐</span></div>
+      <div style="display:flex;justify-content:space-between;padding:4px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-right:6px"></i>81-100</span><span style="color:#dc2626;font-weight:600">偏高 😫</span></div>
     </div>
   </div>
 </div>
@@ -283,24 +712,27 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
 <div id="pageSteps" style="display:none">
   <div class="card">
     <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
-    <div class="chart-title"><span>👣 步数</span><span id="steps-chart-sub">暂无数据</span></div>
+    <div class="chart-title"><span>👣 步数趋势</span><span id="steps-chart-sub">暂无数据</span></div>
     <div class="range-tabs" id="steps-range">
-      <button data-range="day" class="active">日</button><button data-range="week">周</button><button data-range="month">月</button><button data-range="year">年</button>
+      <button data-range="day" class="active">日</button>
+      <button data-range="week">周</button>
+      <button data-range="month">月</button>
+      <button data-range="year">年</button>
     </div>
-    <div class="row" id="stepsDateNav" style="justify-content:center;align-items:center;gap:16px;margin:6px 0">
-      <button id="stepsDatePrev" class="c" style="padding:2px 12px">‹</button>
-      <span id="stepsDateLabel" style="font-size:13px;color:var(--cyan)">--</span>
-      <button id="stepsDateNext" class="c" style="padding:2px 12px">›</button>
+    <div class="row" id="stepsDateNav" style="justify-content:center;align-items:center;gap:16px;margin:8px 0">
+      <button id="stepsDatePrev" class="c" style="padding:4px 14px">‹</button>
+      <span id="stepsDateLabel" style="font-size:13px;color:#be185d;font-weight:600">--</span>
+      <button id="stepsDateNext" class="c" style="padding:4px 14px">›</button>
     </div>
     <div class="chart-box" style="height:120px"><canvas id="stepsCanvas"></canvas></div>
-    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:2px;padding:0 2px" id="stepsHourLabels">
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:4px;padding:0 2px" id="stepsHourLabels">
       <span>0</span><span>6</span><span>12</span><span>18</span><span>23</span>
     </div>
-    <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
-      <div><div style="font-size:20px;font-weight:700" id="steps-total">--</div><div style="font-size:11px;color:var(--muted)">合计</div></div>
-      <div><div style="font-size:20px;font-weight:700" id="steps-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
-      <div><div style="font-size:20px;font-weight:700;color:#67d9df" id="steps-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
-      <div><div style="font-size:20px;font-weight:700;color:#d6b56a" id="steps-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
+    <div style="display:flex;justify-content:space-around;margin-top:12px;text-align:center">
+      <div><div style="font-size:20px;font-weight:800" id="steps-total">--</div><div style="font-size:11px;color:var(--muted)">合计</div></div>
+      <div><div style="font-size:20px;font-weight:800" id="steps-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
+      <div><div style="font-size:20px;font-weight:800;color:#0d9488" id="steps-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
+      <div><div style="font-size:20px;font-weight:800;color:#be185d" id="steps-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
     </div>
   </div>
 </div>
@@ -313,14 +745,14 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
 const SVC = "be940000-7333-be46-b7ae-689e71722bd5";
 const C1U = "be940001-7333-be46-b7ae-689e71722bd5";
 const C3U = "be940003-7333-be46-b7ae-689e71722bd5";
-const EPOCH = 946684800; // 2000-01-01 UTC
+const EPOCH = 946684800;
 const REALTIME = new Set([0x0600, 0x0601, 0x0602, 0x0603, 0x0615, 0x040e, 0x0200, 0x020c, 0x0203]);
 const HIST_LABEL = { "04": "睡眠历史", "02": "步数历史", "1a": "血氧历史", "33": "压力历史" };
 const MODE_NAME = { 0: "心率", 1: "血压", 2: "血氧", 10: "HRV", 3: "压力" };
 const MODE_CARD = { 0: "hr", 1: "bp", 2: "spo2", 10: "hrv", 3: "pressure" };
 const MODE_NATURE = { 0: "rhythmic", 2: "rhythmic", 10: "rhythmic", 1: "discrete", 3: "discrete" };
 const MODE_DURATION = { 0: 28000, 2: 26000, 10: 30000, 1: 32000, 3: 22000 };
-const MODE_EXPECT = { 0: 0, 1: 1, 10: 10, 3: 3 }; // 0x040e 完成码：格式为[mode,0x01]，心率(0)也有完成信号
+const MODE_EXPECT = { 0: 0, 1: 1, 10: 10, 3: 3 };
 const RANGE_DAYS = { day: 1, week: 7, month: 30, year: 365 };
 const PAGES = ["page1", "pageHR", "pageSpO2", "pageHRV", "pageBP", "pageSleep", "pagePressure", "pageSteps"];
 
@@ -365,31 +797,30 @@ function setStatus(text, type = "connected") {
   if (span) span.textContent = text;
 }
 
-/* 数值粗略分级（非医疗诊断） */
 function setEmoji(key, emoji) {
   const el = $(key + "Emoji");
   if (el) el.textContent = emoji;
 }
 function evalHR(v) {
-  if (v >= 60 && v <= 100) return "😀";
-  if ((v >= 50 && v < 60) || (v > 100 && v <= 110)) return "🫡";
-  return "😱";
+  if (v >= 60 && v <= 100) return "😺";
+  if ((v >= 50 && v < 60) || (v > 100 && v <= 110)) return "😼";
+  return "🙀";
 }
 function evalSpo2(v) {
-  if (v >= 95) return "😀";
-  if (v >= 90) return "🫡";
-  return "😱";
+  if (v >= 95) return "😺";
+  if (v >= 90) return "😼";
+  return "🙀";
 }
 function evalBP(sys, dia) {
-  if (sys < 90 || dia < 60) return "😱";
-  if (sys < 120 && dia < 80) return "😀";
-  if (sys < 140 && dia < 90) return "🫡";
-  return "😱";
+  if (sys < 90 || dia < 60) return "🙀";
+  if (sys < 120 && dia < 80) return "😺";
+  if (sys < 140 && dia < 90) return "😼";
+  return "🙀";
 }
 function evalHRV(v) {
-  if (v >= 20) return "😀";
-  if (v >= 10) return "🫡";
-  return "😱";
+  if (v >= 20) return "😺";
+  if (v >= 10) return "😼";
+  return "🙀";
 }
 function setSleepEmojis(data) {
   const q = $("sleepQualityEmoji"), d = $("sleepDurationEmoji");
@@ -398,36 +829,120 @@ function setSleepEmojis(data) {
 }
 function evalPressure(v) {
   if (v >= 76) return "😫";
-  if (v >= 51) return "😇";
+  if (v >= 51) return "😐";
   return "🥳";
 }
 
 let audioUnlocked = false;
+let soundEnabled = localStorage.getItem("tk5Sound") !== "0";
+
 function unlockAudioSession() {
-  // iOS静音开关会屏蔽AudioContext合成音效，但<audio>标签走不同的音频会话通道不受影响；
-  // 首次用户手势时播放一个无声<audio>可以把会话切到"播放"类别，之后Web Audio的声音也能绕过静音开关
   if (audioUnlocked) return;
   audioUnlocked = true;
   const el = $("audioUnlock");
   if (el) el.play().catch(() => {});
+  ensureAudio();
 }
 
-function playClick() {
+function ensureAudio() {
   try {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (audioCtx.state === "suspended") audioCtx.resume();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.05);
-    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.05);
   } catch (_) {}
+  return audioCtx;
+}
+
+function tone(freq, dur, type = "sine", vol = 0.12, slideTo = null) {
+  if (!soundEnabled) return;
+  try {
+    const ctx = ensureAudio();
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t);
+    if (slideTo != null) osc.frequency.exponentialRampToValueAtTime(Math.max(1, slideTo), t + dur);
+    gain.gain.setValueAtTime(vol, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + dur + 0.02);
+  } catch (_) {}
+}
+
+function playClick() {
+  // Soft paw-tap
+  tone(520, 0.045, "sine", 0.1, 180);
+  setTimeout(() => tone(380, 0.03, "triangle", 0.06), 20);
+}
+
+function playMeow() {
+  // Cute short meow
+  tone(680, 0.12, "sine", 0.14, 420);
+  setTimeout(() => tone(520, 0.1, "triangle", 0.1, 280), 70);
+}
+
+function playConnect() {
+  // Happy ascending chirp
+  tone(440, 0.08, "sine", 0.12);
+  setTimeout(() => tone(660, 0.08, "sine", 0.12), 70);
+  setTimeout(() => tone(880, 0.12, "triangle", 0.1, 660), 140);
+}
+
+function playSuccess() {
+  // Measure done sparkle
+  tone(523, 0.07, "sine", 0.11);
+  setTimeout(() => tone(659, 0.07, "sine", 0.11), 60);
+  setTimeout(() => tone(784, 0.14, "triangle", 0.12, 980), 120);
+}
+
+function playPop() {
+  tone(320, 0.06, "square", 0.05, 90);
+}
+
+function playWarn() {
+  tone(220, 0.15, "sawtooth", 0.06, 160);
+}
+
+function bounceMascot(kind = "happy") {
+  const cat = $("mascotCat");
+  if (!cat) return;
+  cat.classList.remove("happy", "measure");
+  void cat.offsetWidth;
+  if (kind === "measure") cat.classList.add("measure");
+  else cat.classList.add("happy");
+  if (kind !== "measure") setTimeout(() => cat.classList.remove("happy"), 650);
+}
+
+function sparkleOnCard(cardKey) {
+  const card = $(`card-${cardKey}`);
+  if (!card) return;
+  let layer = card.querySelector(".sparkle-layer");
+  if (!layer) {
+    layer = document.createElement("div");
+    layer.className = "sparkle-layer";
+    card.appendChild(layer);
+  }
+  const emojis = ["✨", "🌟", "💫", "🐱", "💕"];
+  for (let i = 0; i < 5; i++) {
+    const s = document.createElement("span");
+    s.className = "sparkle";
+    s.textContent = emojis[i % emojis.length];
+    s.style.left = (15 + Math.random() * 70) + "%";
+    s.style.top = (10 + Math.random() * 50) + "%";
+    s.style.animationDelay = (i * 0.05) + "s";
+    layer.appendChild(s);
+    setTimeout(() => s.remove(), 800);
+  }
+}
+
+function updateSoundToggleUI() {
+  const el = $("soundToggle");
+  if (!el) return;
+  el.textContent = soundEnabled ? "🔊" : "🔇";
+  el.classList.toggle("off", !soundEnabled);
 }
 
 /* ========== Protocol ========== */
@@ -515,7 +1030,6 @@ function decodeAll(bytes) {
   return r;
 }
 
-// 压力 0x33：28字节/条，压力值 = data[13] + 24
 function decodePressure(bytes) {
   const r = [];
   for (let i = 0; i + 28 <= bytes.length; i += 28) {
@@ -525,7 +1039,6 @@ function decodePressure(bytes) {
   return r;
 }
 
-// 步数 0x02：10或12字节/条
 function decodeSteps(bytes) {
   const r = [];
   if (!bytes || bytes.length < 10) return r;
@@ -546,7 +1059,6 @@ function decodeSteps(bytes) {
   return r;
 }
 
-// 睡眠 0x04：变长记录，阶段 tag & 0x0F (1深/2浅/3REM)
 function decodeSleep(bytes) {
   if (!bytes || bytes.length < 8) return null;
   let start = null, end = null, deepSec = 0, lightSec = 0, remSec = 0, sessionCount = 0;
@@ -619,8 +1131,6 @@ function add(type, data) {
   refreshAll();
 }
 
-/* 同一次连接内重复请求历史，设备可能原样返回同一批数据（ACK后不会立刻标记已消费）；
-   按内容做全量比对去重，避免图表/统计里重复计入同一批数据 */
 function addUnique(type, data) {
   const sig = JSON.stringify(data);
   const dup = records.some(r => r.type === type && JSON.stringify(r.data) === sig);
@@ -663,11 +1173,11 @@ function renderHist() {
         cards.push(`<div class="rc"><div class="t">${esc(x.local)}</div><div>步数 <b>${x.steps}</b>${x.distance ? ` · 距离 <b>${x.distance}</b>m` : ""}${x.calories ? ` · 卡路里 <b>${x.calories}</b>` : ""}</div></div>`);
     } else if (rec.type === "raw") {
       const d = rec.data;
-      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} · ${esc(d.label)} · 帧0x${(d.frameType || 0).toString(16).padStart(4, "0")} · ${d.bytes}字节</div><div style="font:11px/1.4 ui-monospace,Menlo,Consolas,monospace;word-break:break-all;color:var(--cyan)">${esc(d.hex)}</div></div>`);
+      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} · ${esc(d.label)} · 帧0x${(d.frameType || 0).toString(16).padStart(4, "0")} · ${d.bytes}字节</div><div style="font:11px/1.4 ui-monospace,Menlo,Consolas,monospace;word-break:break-all;color:#be185d">${esc(d.hex)}</div></div>`);
     }
     if (cards.length >= 40) break;
   }
-  box.innerHTML = cards.length ? cards.join("") : "";
+  box.innerHTML = cards.length ? cards.join("") : `<div class="empty-hint">暂无记录喵～ 连接戒指测一测吧 🐱</div>`;
 }
 
 /* ========== Charts ========== */
@@ -684,8 +1194,8 @@ function initCanvas(id) {
 }
 
 function drawEmpty(ctx, w, h, msg) {
-  ctx.fillStyle = "#8ea3ad";
-  ctx.font = "12px sans-serif";
+  ctx.fillStyle = "#8a6f7a";
+  ctx.font = "13px sans-serif";
   ctx.textAlign = "center";
   ctx.fillText(msg, w / 2, h / 2 + 4);
 }
@@ -695,7 +1205,7 @@ function drawArea(ctx, w, h, points, stroke, fillFn, dot) {
   const stepX = w / (points.length - 1);
   const yOf = v => h - ((v - min) / (max - min || 1)) * (h - 20) - 10;
   const grad = ctx.createLinearGradient(0, 0, 0, h);
-  grad.addColorStop(0, fillFn(0.25));
+  grad.addColorStop(0, fillFn(0.3));
   grad.addColorStop(1, fillFn(0));
   ctx.beginPath();
   points.forEach((v, i) => i === 0 ? ctx.moveTo(i * stepX, yOf(v)) : ctx.lineTo(i * stepX, yOf(v)));
@@ -703,9 +1213,9 @@ function drawArea(ctx, w, h, points, stroke, fillFn, dot) {
   ctx.fillStyle = grad; ctx.fill();
   ctx.beginPath();
   points.forEach((v, i) => i === 0 ? ctx.moveTo(i * stepX, yOf(v)) : ctx.lineTo(i * stepX, yOf(v)));
-  ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.stroke();
+  ctx.strokeStyle = stroke; ctx.lineWidth = 2.5; ctx.lineJoin = "round"; ctx.stroke();
   points.forEach((v, i) => {
-    ctx.beginPath(); ctx.arc(i * stepX, yOf(v), 3, 0, Math.PI * 2);
+    ctx.beginPath(); ctx.arc(i * stepX, yOf(v), 3.5, 0, Math.PI * 2);
     ctx.fillStyle = dot; ctx.fill();
   });
 }
@@ -749,8 +1259,8 @@ function drawTrendChart() {
   drawMetricChart({
     canvas: "trendCanvas", type: "hr", rangeKey: "trend", fromAll: "hr",
     subId: "chart-sub", statIds: ["hr-avg", "hr-high", "hr-low"],
-    emptyMsg: "数据较少，多测几次即可生成趋势图",
-    stroke: "#67d9df", fill: a => `rgba(103,217,223,${a})`, dot: "#d6b56a"
+    emptyMsg: "多测几次就能看到趋势图喵～",
+    stroke: "#ff8fab", fill: a => `rgba(255,143,171,${a})`, dot: "#ff6b9d"
   });
 }
 
@@ -758,8 +1268,8 @@ function drawSpo2Chart() {
   drawMetricChart({
     canvas: "spo2Canvas", type: "spo2", rangeKey: "spo2", fromAll: "spo2",
     subId: "spo2-chart-sub", statIds: ["spo2-avg", "spo2-high", "spo2-low"],
-    emptyMsg: "数据较少，多测几次即可生成趋势图",
-    stroke: "#e2703a", fill: a => `rgba(226,112,58,${a})`, dot: "#e2703a"
+    emptyMsg: "多测几次就能看到趋势图喵～",
+    stroke: "#0d9488", fill: a => `rgba(13,148,136,${a})`, dot: "#14b8a6"
   });
 }
 
@@ -767,8 +1277,8 @@ function drawHRVChart() {
   drawMetricChart({
     canvas: "hrvCanvas", type: "hrv", rangeKey: "hrv",
     subId: "hrv-chart-sub", statIds: ["hrv-avg", "hrv-high", "hrv-low"],
-    emptyMsg: "数据较少，多测几次即可生成趋势图",
-    stroke: "#e8607a", fill: a => `rgba(232,96,122,${a})`, dot: "#e8607a"
+    emptyMsg: "多测几次就能看到趋势图喵～",
+    stroke: "#7c3aed", fill: a => `rgba(124,58,237,${a})`, dot: "#a78bfa"
   });
 }
 
@@ -782,8 +1292,8 @@ function drawSleepChart() {
   points = points.reverse().slice(-20);
   const sub = $("sleep-chart-sub");
   if (sub) sub.textContent = points.length ? `共 ${points.length} 个样本` : "暂无数据";
-  if (points.length < 2) return drawEmpty(ctx, width, height, "同步睡眠历史后生成睡眠质量趋势图");
-  drawArea(ctx, width, height, points, "#d6b56a", a => `rgba(214,181,106,${a})`, "#67d9df");
+  if (points.length < 2) return drawEmpty(ctx, width, height, "同步睡眠历史后生成趋势图");
+  drawArea(ctx, width, height, points, "#c9b6e4", a => `rgba(201,182,228,${a})`, "#7c3aed");
 }
 
 function drawBPChart() {
@@ -805,7 +1315,7 @@ function drawBPChart() {
   if (sub) sub.textContent = points.length ? `共 ${points.length} 个样本` : "暂无数据";
   if (points.length < 2) {
     setStats(["bp-avg", "bp-high", "bp-low"], ["--", "--", "--"]);
-    return drawEmpty(ctx, width, height, "数据较少，多测几次即可生成血压分析图");
+    return drawEmpty(ctx, width, height, "多测几次就能看到血压图喵～");
   }
   const sys = points.map(p => p.sys), dia = points.map(p => p.dia);
   setStats(["bp-avg", "bp-high", "bp-low"], [
@@ -818,25 +1328,25 @@ function drawBPChart() {
   const yOf = v => height - ((v - min) / (max - min)) * (height - 20) - 10;
   ctx.save();
   ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
-  ctx.strokeStyle = "rgba(214,181,106,0.6)";
+  ctx.strokeStyle = "rgba(255,143,171,0.6)";
   ctx.beginPath(); ctx.moveTo(0, yOf(SYS)); ctx.lineTo(width, yOf(SYS)); ctx.stroke();
-  ctx.fillStyle = "rgba(214,181,106,0.9)"; ctx.font = "9px sans-serif"; ctx.textAlign = "left";
+  ctx.fillStyle = "rgba(255,143,171,0.9)"; ctx.font = "9px sans-serif"; ctx.textAlign = "left";
   ctx.setLineDash([]); ctx.fillText("120", 2, yOf(SYS) - 2);
   ctx.setLineDash([4, 4]);
-  ctx.strokeStyle = "rgba(103,217,223,0.6)";
+  ctx.strokeStyle = "rgba(13,148,136,0.6)";
   ctx.beginPath(); ctx.moveTo(0, yOf(DIA)); ctx.lineTo(width, yOf(DIA)); ctx.stroke();
-  ctx.fillStyle = "rgba(103,217,223,0.9)"; ctx.setLineDash([]); ctx.fillText("80", 2, yOf(DIA) - 2);
+  ctx.fillStyle = "rgba(13,148,136,0.9)"; ctx.setLineDash([]); ctx.fillText("80", 2, yOf(DIA) - 2);
   ctx.restore();
   const drawLine = (key, color) => {
     ctx.beginPath();
     points.forEach((pt, i) => { const x = i * stepX, y = yOf(pt[key]); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); });
-    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+    ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.lineJoin = "round"; ctx.stroke();
   };
-  drawLine("sys", "#d6b56a"); drawLine("dia", "#67d9df");
+  drawLine("sys", "#ff8fab"); drawLine("dia", "#95e1d3");
   points.forEach((pt, i) => {
     const x = i * stepX;
-    [["sys", "#d6b56a", SYS], ["dia", "#67d9df", DIA]].forEach(([k, col, lim]) => {
-      ctx.beginPath(); ctx.arc(x, yOf(pt[k]), 3, 0, Math.PI * 2);
+    [["sys", "#ff8fab", SYS], ["dia", "#95e1d3", DIA]].forEach(([k, col, lim]) => {
+      ctx.beginPath(); ctx.arc(x, yOf(pt[k]), 3.5, 0, Math.PI * 2);
       ctx.fillStyle = pt[k] > lim ? "#ef4444" : col; ctx.fill();
     });
   });
@@ -877,8 +1387,11 @@ function drawPressureChart() {
   bars.forEach((v, i) => {
     if (v == null) return;
     const h = (v / 100) * (height - 10);
-    ctx.fillStyle = "#67d9df";
-    ctx.fillRect(i * barW + barW * 0.2, height - h, barW * 0.6, h);
+    ctx.fillStyle = "#ff8fab";
+    ctx.beginPath();
+    const x = i * barW + barW * 0.15, bw = barW * 0.7;
+    ctx.roundRect(x, height - h, bw, h, 4);
+    ctx.fill();
   });
 }
 
@@ -912,15 +1425,15 @@ function drawHypnogram() {
     fmt(new Date(tMax)).split(" ").pop().slice(0, 5)
   ]);
   if ($("hypno-analysis")) {
-    const text = d.totalMin >= 420 ? "睡眠时长充足" : d.totalMin >= 300 ? "睡眠时长一般" : "睡眠时长偏短";
-    $("hypno-analysis").textContent = `📈 ${text}（本地粗略估算）`;
+    const text = d.totalMin >= 420 ? "睡眠时长充足，小猫精神满满 😺" : d.totalMin >= 300 ? "睡眠时长一般，可以再睡一会儿" : "睡眠时长偏短，注意休息喵";
+    $("hypno-analysis").textContent = `📈 ${text}`;
   }
   const span = (tMax - tMin) || 1;
   const xOf = t => (t - tMin) / span * width;
   const LEVEL = {
-    3: { y: height * 0.12, h: height * 0.30, color: "#e8834a" },
-    2: { y: height * 0.46, h: height * 0.30, color: "#b9a6f2" },
-    1: { y: height * 0.80, h: height * 0.18, color: "#5b4fd6" }
+    3: { y: height * 0.12, h: height * 0.30, color: "#ff8fab" },
+    2: { y: height * 0.46, h: height * 0.30, color: "#c9b6e4" },
+    1: { y: height * 0.80, h: height * 0.18, color: "#7c3aed" }
   };
   for (const seg of segs) {
     const lvl = LEVEL[seg.stage];
@@ -928,7 +1441,9 @@ function drawHypnogram() {
     const x1 = xOf(new Date(seg.start).getTime());
     const x2 = xOf(new Date(seg.start).getTime() + seg.durSec * 1000);
     ctx.fillStyle = lvl.color;
-    ctx.fillRect(x1, lvl.y, Math.max(x2 - x1, 1.5), lvl.h);
+    ctx.beginPath();
+    ctx.roundRect(x1, lvl.y, Math.max(x2 - x1, 1.5), lvl.h, 3);
+    ctx.fill();
   }
 }
 
@@ -966,8 +1481,10 @@ function drawStepsChart() {
     buckets.forEach((v, i) => {
       if (v <= 0) return;
       const h = (v / max) * (height - 12);
-      ctx.fillStyle = "#67d9df";
-      ctx.fillRect(i * barW + barW * 0.15, height - h, barW * 0.7, h);
+      ctx.fillStyle = "#ff8fab";
+      ctx.beginPath();
+      ctx.roundRect(i * barW + barW * 0.15, height - h, barW * 0.7, h, 4);
+      ctx.fill();
     });
     return;
   }
@@ -990,11 +1507,13 @@ function drawStepsChart() {
   ]);
   if (points.length === 1) {
     const max = points[0] || 1;
-    ctx.fillStyle = "#67d9df";
-    ctx.fillRect(width * 0.35, height - (points[0] / max) * (height - 12), width * 0.3, (points[0] / max) * (height - 12));
+    ctx.fillStyle = "#ff8fab";
+    ctx.beginPath();
+    ctx.roundRect(width * 0.35, height - (points[0] / max) * (height - 12), width * 0.3, (points[0] / max) * (height - 12), 6);
+    ctx.fill();
     return;
   }
-  drawArea(ctx, width, height, points, "#67d9df", a => `rgba(103,217,223,${a})`, "#d6b56a");
+  drawArea(ctx, width, height, points, "#ff8fab", a => `rgba(255,143,171,${a})`, "#ff6b9d");
 }
 
 function refreshAll() {
@@ -1012,7 +1531,6 @@ function refreshAll() {
 /* ========== Packet Handler ========== */
 function handle(type, p) {
   if (histBusy && type === histEchoType && p.length < 10) {
-    // 直接回显包且长度<10字节（无header）：设备判定"无新记录"，不会再有0x0580终止帧，直接结束避免空等12秒超时
     log(`${HIST_LABEL[histReqKey] || histReqKey || "历史"} 无新记录`);
     finishHist();
     return;
@@ -1083,7 +1601,7 @@ function handle(type, p) {
       }
       break;
     case 0x0580: {
-      send(0x0580, [0x00]); // ACK
+      send(0x0580, [0x00]);
       const buf = histChunks.reduce(cat, new Uint8Array());
       if (histReqKey === "06") addUnique("hrHist", decodeHR(buf));
       else if (histReqKey === "08") addUnique("bpHist", decodeBP(buf));
@@ -1110,7 +1628,6 @@ function handle(type, p) {
       } else if (histReqKey === "04") {
         const data = decodeSleep(buf);
         if (data) {
-          // 同一晚数据在同一次连接内可能被重复请求到（设备端ACK后不会立刻标记已消费），按start时间去重避免历史里出现重复记录
           const dup = records.some(r => r.type === "sleep" && r.data && r.data.start === data.start);
           if (!dup) add("sleep", data);
           if ($("sleepMin")) $("sleepMin").textContent = `${Math.floor(data.totalMin / 60)}h${data.totalMin % 60}m`;
@@ -1158,8 +1675,13 @@ async function connect() {
       isMeasuring = false;
       measuringCard = null;
       clearProgress();
+      const mascot = $("mascotCat");
+      if (mascot) mascot.classList.remove("measure", "happy");
+      playWarn();
     });
     setStatus("已连接 · " + (device.name || "TK5"), "connected");
+    playConnect();
+    bounceMascot("happy");
     await send(0x0201, [0x47, 0x46]);
     await send(0x0100, timePayload());
     await send(0x021b);
@@ -1240,8 +1762,13 @@ function onMeasureDone(cardKey) {
     card.classList.remove("done-flash");
     void card.offsetWidth;
     card.classList.add("done-flash");
-    setTimeout(() => card.classList.remove("done-flash"), 450);
+    setTimeout(() => card.classList.remove("done-flash"), 550);
   }
+  playSuccess();
+  bounceMascot("happy");
+  sparkleOnCard(cardKey);
+  const mascot = $("mascotCat");
+  if (mascot) mascot.classList.remove("measure");
   if (device?.gatt?.connected) setStatus("已连接 · " + (device.name || "TK5"), "connected");
 }
 
@@ -1251,6 +1778,9 @@ async function measure(mode) {
     measuringCard = null;
     isMeasuring = false;
     clearProgress();
+    const mascot = $("mascotCat");
+    if (mascot) mascot.classList.remove("measure");
+    playPop();
     await send(0x032f, [0x00, 0x00]);
     setStatus("已连接 · " + (device?.name || "TK5"), "connected");
     return;
@@ -1264,6 +1794,8 @@ async function measureAndWait(mode, expectCode, timeoutMs, cardKey) {
     ? `正在测量 ${MODE_NAME[mode]}，请保持静止...`
     : `正在测量 ${MODE_NAME[mode]}，请保持佩戴...`);
   startProgress(cardKey, timeoutMs, nature);
+  bounceMascot("measure");
+  playPop();
   await measure(mode);
   if (expectCode === null) {
     await sleep(timeoutMs);
@@ -1350,6 +1882,31 @@ document.addEventListener("click", e => {
   }
 });
 
+// Mascot interaction
+const mascotEl = $("mascotCat");
+if (mascotEl) {
+  mascotEl.onclick = (e) => {
+    e.stopPropagation();
+    unlockAudioSession();
+    playMeow();
+    bounceMascot("happy");
+  };
+}
+
+// Sound toggle
+updateSoundToggleUI();
+const soundToggleEl = $("soundToggle");
+if (soundToggleEl) {
+  soundToggleEl.onclick = (e) => {
+    e.stopPropagation();
+    unlockAudioSession();
+    soundEnabled = !soundEnabled;
+    localStorage.setItem("tk5Sound", soundEnabled ? "1" : "0");
+    updateSoundToggleUI();
+    if (soundEnabled) playMeow();
+  };
+}
+
 document.querySelectorAll("[data-mode]").forEach(b => {
   b.onclick = async () => {
     if (isMeasuring && +b.dataset.mode !== -1) return;
@@ -1411,14 +1968,7 @@ $("hypnoDateNext").onclick = () => { hypnoDate.setDate(hypnoDate.getDate() + 1);
 $("stepsDatePrev").onclick = () => { stepsDate.setDate(stepsDate.getDate() - 1); drawStepsChart(); };
 $("stepsDateNext").onclick = () => { stepsDate.setDate(stepsDate.getDate() + 1); drawStepsChart(); };
 
-/* ========== Battery estimate (click 🔋 to reset full charge) ==========
- * 假设充满后约 5 天需再充。天数按本地日历日差计算：
- * day0（刚点🔋）: 321 正常色
- * day1: 3 红
- * day2: 2 黄
- * day3: 1 蓝
- * day>=4: 🔌 后出现 ⚠️ 提醒充电
- */
+/* Battery */
 function getLastCharge() {
   const v = localStorage.getItem("tk5LastCharge");
   return v ? +v : null;
@@ -1439,8 +1989,8 @@ function updateBatteryUI() {
   if (!c3) return;
   const base = "inherit";
   c3.style.color = days >= 1 ? "#ef4444" : base;
-  c2.style.color = days >= 2 ? "#d6b56a" : base;
-  c1.style.color = days >= 3 ? "#67d9df" : base;
+  c2.style.color = days >= 2 ? "#ffd166" : base;
+  c1.style.color = days >= 3 ? "#95e1d3" : base;
   if (warn) warn.textContent = days >= 4 ? "⚠️" : "";
   if (icon) icon.style.filter = days >= 4 ? "grayscale(0.4)" : "";
 }
