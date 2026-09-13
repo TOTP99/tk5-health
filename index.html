@@ -53,26 +53,9 @@ main{max-width:720px;margin:0 auto}
   content:"🐾";
   position:absolute;top:8px;right:14px;
   font-size:28px;opacity:.35;transform:rotate(12deg);
-  animation:paw-wiggle 4s ease-in-out infinite;
 }
 .hero-title{
   display:flex;align-items:center;gap:10px;margin-bottom:12px;
-}
-.hero-title .cat{
-  font-size:36px;line-height:1;
-  filter:drop-shadow(0 2px 4px rgba(255,143,171,.4));
-  display:inline-block;
-  animation:cat-bounce 2.4s ease-in-out infinite;
-  cursor:pointer;
-  transform-origin:center bottom;
-  transition:transform .2s;
-}
-.hero-title .cat:active{transform:scale(1.2) rotate(-8deg)}
-.hero-title .cat.happy{
-  animation:cat-happy .6s ease-out;
-}
-.hero-title .cat.measure{
-  animation:cat-wiggle .5s ease-in-out infinite;
 }
 .hero-title h1{
   margin:0;font-size:20px;font-weight:800;letter-spacing:.5px;
@@ -103,7 +86,6 @@ main{max-width:720px;margin:0 auto}
 }
 .status.connected .status-dot{
   background:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.3);
-  animation:dot-pulse 1.6s ease-in-out infinite;
 }
 .status.disconnected{
   border-color:#fecaca;background:#fff5f5;color:#b91c1c;
@@ -120,9 +102,8 @@ button{
   transition:transform .12s,box-shadow .15s,border-color .15s;
   box-shadow:var(--shadow-soft);
 }
-button:active{transform:scale(.94) rotate(-1deg)}
+button:active{transform:scale(.96)}
 button:disabled{opacity:.4;pointer-events:none}
-button:hover{transform:translateY(-1px)}
 button.p{
   background:linear-gradient(135deg,#ff8fab,#ff6b9d);
   border-color:#ff6b9d;color:#fff;
@@ -157,8 +138,7 @@ button.glow{
   box-shadow:var(--shadow-soft);
   transition:transform .15s,box-shadow .15s;
 }
-.m:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(255,143,171,.22)}
-.m:active{transform:scale(.97)}
+.m:active{transform:scale(.98)}
 #card-hr,#card-spo2,#card-bp,#card-hrv,#card-sleep,#card-steps,#card-pressure{cursor:pointer}
 
 .m .l{
@@ -221,64 +201,14 @@ button.glow{
   background:linear-gradient(90deg,#ff8fab,#ff6b6b,#ffd166);
 }
 .shape-discrete .m-progress{height:3px;transition:width .08s linear}
-.m.measuring{
-  animation:card-measuring 1.2s ease-in-out infinite;
-}
 @keyframes pulse-bar{
   0%,100%{opacity:1;filter:brightness(1)}
   50%{opacity:.8;filter:brightness(1.2)}
 }
-@keyframes card-measuring{
-  0%,100%{transform:scale(1)}
-  50%{transform:scale(1.015)}
-}
-.m.done-flash{animation:done-flash .55s cubic-bezier(.34,1.56,.64,1)}
+.m.done-flash{animation:done-flash .45s ease-out}
 @keyframes done-flash{
-  0%{filter:brightness(1.3);transform:scale(1.06)}
-  60%{filter:brightness(1.1);transform:scale(1.02)}
-  100%{filter:brightness(1);transform:scale(1)}
-}
-
-/* Cat animations */
-@keyframes cat-bounce{
-  0%,100%{transform:translateY(0) rotate(0)}
-  25%{transform:translateY(-4px) rotate(-4deg)}
-  50%{transform:translateY(0) rotate(0)}
-  75%{transform:translateY(-2px) rotate(3deg)}
-}
-@keyframes cat-happy{
-  0%{transform:scale(1) rotate(0)}
-  25%{transform:scale(1.35) rotate(-12deg)}
-  50%{transform:scale(1.2) rotate(10deg)}
-  75%{transform:scale(1.3) rotate(-6deg)}
-  100%{transform:scale(1) rotate(0)}
-}
-@keyframes cat-wiggle{
-  0%,100%{transform:rotate(-6deg) scale(1.05)}
-  50%{transform:rotate(6deg) scale(1.05)}
-}
-@keyframes paw-wiggle{
-  0%,100%{transform:rotate(12deg) translateY(0)}
-  50%{transform:rotate(18deg) translateY(-3px)}
-}
-@keyframes dot-pulse{
-  0%,100%{box-shadow:0 0 0 3px rgba(16,185,129,.3)}
-  50%{box-shadow:0 0 0 6px rgba(16,185,129,.15)}
-}
-@keyframes float-paw{
-  0%{transform:translateY(0) rotate(var(--r,0deg));opacity:.08}
-  50%{transform:translateY(-18px) rotate(calc(var(--r,0deg) + 8deg));opacity:.14}
-  100%{transform:translateY(0) rotate(var(--r,0deg));opacity:.08}
-}
-@keyframes sparkle-pop{
-  0%{transform:scale(0) rotate(0);opacity:1}
-  60%{transform:scale(1.2) rotate(20deg);opacity:.9}
-  100%{transform:scale(0) rotate(40deg);opacity:0}
-}
-@keyframes status-meow{
-  0%,100%{transform:scale(1)}
-  40%{transform:scale(1.08)}
-  70%{transform:scale(.97)}
+  0%{filter:brightness(1.25)}
+  100%{filter:brightness(1)}
 }
 
 .status-emoji{
@@ -295,33 +225,33 @@ button.glow{
 .clock-card{
   aspect-ratio:1/1;min-height:0;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
-  background:linear-gradient(160deg,#2d1b2e 0%,#4a2c4a 50%,#2d1b2e 100%);
-  border-color:#c9b6e4;
-  box-shadow:0 8px 20px rgba(45,27,46,.25),inset 0 0 20px rgba(201,182,228,.15);
+  background:linear-gradient(160deg,#0ea5e9 0%,#38bdf8 45%,#0284c7 100%);
+  border-color:#7dd3fc;
+  box-shadow:0 8px 20px rgba(14,165,233,.28),inset 0 0 20px rgba(255,255,255,.12);
 }
 .clock-card .clock-date{
   font-family:"Courier New",monospace;font-size:11px;letter-spacing:2px;
-  color:var(--gold);text-shadow:0 0 8px rgba(255,209,102,.5);
+  color:#e0f2fe;text-shadow:0 0 8px rgba(255,255,255,.45);
   text-transform:uppercase;
 }
 .clock-card .clock-divider{
   width:50%;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(255,209,102,.7),transparent);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);
   position:relative;margin:2px 0;
 }
 .clock-card .clock-divider::before{
   content:"";position:absolute;left:50%;top:-2px;
-  width:5px;height:5px;background:var(--gold);border-radius:50%;
-  transform:translateX(-50%);box-shadow:0 0 6px var(--gold);
+  width:5px;height:5px;background:#fff;border-radius:50%;
+  transform:translateX(-50%);box-shadow:0 0 6px rgba(255,255,255,.8);
 }
 .clock-card .clock-week{
   font-family:"Courier New",monospace;font-size:10px;letter-spacing:3px;
-  color:#e8c4d8;opacity:.9;
+  color:#e0f2fe;opacity:.9;
 }
 .clock-card .clock-time{
   font-family:"Courier New",monospace;font-size:22px;font-weight:700;
   letter-spacing:1px;color:#fff;
-  text-shadow:0 0 12px rgba(255,143,171,.6);
+  text-shadow:0 0 12px rgba(255,255,255,.55);
 }
 
 /* Pressure column */
@@ -381,62 +311,37 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
   font-weight:700;padding:8px 14px;border-radius:14px;
 }
 
-/* Fun decorative paw prints */
+/* Decorative paw prints (static) */
 .paw-deco{
-  position:fixed;pointer-events:none;font-size:42px;
-  z-index:0;opacity:.1;
-  animation:float-paw 5s ease-in-out infinite;
+  position:fixed;pointer-events:none;opacity:.06;font-size:48px;
+  z-index:0;
 }
-.paw1{top:10%;left:3%;--r:-20deg;animation-delay:0s}
-.paw2{top:38%;right:2%;--r:15deg;animation-delay:1.2s;font-size:36px}
-.paw3{bottom:12%;left:5%;--r:28deg;animation-delay:2.4s;font-size:40px}
-.paw4{top:55%;right:6%;--r:-12deg;animation-delay:0.8s;font-size:32px;opacity:.08}
-.paw5{bottom:28%;right:8%;--r:22deg;animation-delay:3s;font-size:38px;opacity:.09}
-
-/* Sparkle burst on measure done */
-.sparkle-layer{
-  position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:inherit;
-}
-.sparkle{
-  position:absolute;font-size:14px;
-  animation:sparkle-pop .7s ease-out forwards;
-}
+.paw1{top:12%;left:4%;transform:rotate(-20deg)}
+.paw2{top:40%;right:3%;transform:rotate(15deg)}
+.paw3{bottom:15%;left:6%;transform:rotate(30deg)}
 
 /* Empty state hint */
 .empty-hint{
   text-align:center;padding:20px;color:var(--muted);font-size:13px;
 }
 
-/* Soft sound toggle */
-.sound-toggle{
-  position:absolute;top:12px;left:14px;
-  font-size:16px;opacity:.55;cursor:pointer;
-  transition:opacity .2s,transform .15s;
-  z-index:2;user-select:none;
-}
-.sound-toggle:hover{opacity:1;transform:scale(1.15)}
-.sound-toggle.off{opacity:.3;filter:grayscale(1)}
+
 
 </style>
 </head>
 <body>
-<audio id="audioUnlock" preload="auto" style="display:none" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="></audio>
 <span class="paw-deco paw1">🐾</span>
 <span class="paw-deco paw2">🐾</span>
 <span class="paw-deco paw3">🐾</span>
-<span class="paw-deco paw4">🐾</span>
-<span class="paw-deco paw5">🐾</span>
 
 <main>
 <div id="page1">
   <!-- Hero / Connect -->
   <div class="hero">
-    <span class="sound-toggle" id="soundToggle" title="点击开关音效">🔊</span>
     <div class="hero-title">
-      <span class="cat" id="mascotCat" title="点我喵～">🐈</span>
       <div>
         <h1>TK5 Smart Ring</h1>
-        <span class="tag">TP制作 · 猫咪特别版</span>
+        <span class="tag">TP制作</span>
       </div>
     </div>
     <div class="connect-row">
@@ -764,7 +669,8 @@ let histBusy = false, histTimer = null, histType = null, histChunks = [], histRe
 let measureResolve = null, measureExpectCode = null, isMeasuring = false, activeTimer = null, measuringCard = null;
 let chartRange = { trend: "week", sleep: "week", bp: "day", pressure: "day", spo2: "week", hrv: "week", steps: "day" };
 let pressureDate = startOfDay(new Date()), hypnoDate = startOfDay(new Date()), stepsDate = startOfDay(new Date());
-let audioCtx = null;
+
+
 
 /* ========== Utils ========== */
 const $ = id => document.getElementById(id);
@@ -831,118 +737,6 @@ function evalPressure(v) {
   if (v >= 76) return "😫";
   if (v >= 51) return "😐";
   return "🥳";
-}
-
-let audioUnlocked = false;
-let soundEnabled = localStorage.getItem("tk5Sound") !== "0";
-
-function unlockAudioSession() {
-  if (audioUnlocked) return;
-  audioUnlocked = true;
-  const el = $("audioUnlock");
-  if (el) el.play().catch(() => {});
-  ensureAudio();
-}
-
-function ensureAudio() {
-  try {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === "suspended") audioCtx.resume();
-  } catch (_) {}
-  return audioCtx;
-}
-
-function tone(freq, dur, type = "sine", vol = 0.12, slideTo = null) {
-  if (!soundEnabled) return;
-  try {
-    const ctx = ensureAudio();
-    if (!ctx) return;
-    const t = ctx.currentTime;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, t);
-    if (slideTo != null) osc.frequency.exponentialRampToValueAtTime(Math.max(1, slideTo), t + dur);
-    gain.gain.setValueAtTime(vol, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(t);
-    osc.stop(t + dur + 0.02);
-  } catch (_) {}
-}
-
-function playClick() {
-  // Soft paw-tap
-  tone(520, 0.045, "sine", 0.1, 180);
-  setTimeout(() => tone(380, 0.03, "triangle", 0.06), 20);
-}
-
-function playMeow() {
-  // Cute short meow
-  tone(680, 0.12, "sine", 0.14, 420);
-  setTimeout(() => tone(520, 0.1, "triangle", 0.1, 280), 70);
-}
-
-function playConnect() {
-  // Happy ascending chirp
-  tone(440, 0.08, "sine", 0.12);
-  setTimeout(() => tone(660, 0.08, "sine", 0.12), 70);
-  setTimeout(() => tone(880, 0.12, "triangle", 0.1, 660), 140);
-}
-
-function playSuccess() {
-  // Measure done sparkle
-  tone(523, 0.07, "sine", 0.11);
-  setTimeout(() => tone(659, 0.07, "sine", 0.11), 60);
-  setTimeout(() => tone(784, 0.14, "triangle", 0.12, 980), 120);
-}
-
-function playPop() {
-  tone(320, 0.06, "square", 0.05, 90);
-}
-
-function playWarn() {
-  tone(220, 0.15, "sawtooth", 0.06, 160);
-}
-
-function bounceMascot(kind = "happy") {
-  const cat = $("mascotCat");
-  if (!cat) return;
-  cat.classList.remove("happy", "measure");
-  void cat.offsetWidth;
-  if (kind === "measure") cat.classList.add("measure");
-  else cat.classList.add("happy");
-  if (kind !== "measure") setTimeout(() => cat.classList.remove("happy"), 650);
-}
-
-function sparkleOnCard(cardKey) {
-  const card = $(`card-${cardKey}`);
-  if (!card) return;
-  let layer = card.querySelector(".sparkle-layer");
-  if (!layer) {
-    layer = document.createElement("div");
-    layer.className = "sparkle-layer";
-    card.appendChild(layer);
-  }
-  const emojis = ["✨", "🌟", "💫", "🐱", "💕"];
-  for (let i = 0; i < 5; i++) {
-    const s = document.createElement("span");
-    s.className = "sparkle";
-    s.textContent = emojis[i % emojis.length];
-    s.style.left = (15 + Math.random() * 70) + "%";
-    s.style.top = (10 + Math.random() * 50) + "%";
-    s.style.animationDelay = (i * 0.05) + "s";
-    layer.appendChild(s);
-    setTimeout(() => s.remove(), 800);
-  }
-}
-
-function updateSoundToggleUI() {
-  const el = $("soundToggle");
-  if (!el) return;
-  el.textContent = soundEnabled ? "🔊" : "🔇";
-  el.classList.toggle("off", !soundEnabled);
 }
 
 /* ========== Protocol ========== */
@@ -1675,13 +1469,8 @@ async function connect() {
       isMeasuring = false;
       measuringCard = null;
       clearProgress();
-      const mascot = $("mascotCat");
-      if (mascot) mascot.classList.remove("measure", "happy");
-      playWarn();
     });
     setStatus("已连接 · " + (device.name || "TK5"), "connected");
-    playConnect();
-    bounceMascot("happy");
     await send(0x0201, [0x47, 0x46]);
     await send(0x0100, timePayload());
     await send(0x021b);
@@ -1764,11 +1553,6 @@ function onMeasureDone(cardKey) {
     card.classList.add("done-flash");
     setTimeout(() => card.classList.remove("done-flash"), 550);
   }
-  playSuccess();
-  bounceMascot("happy");
-  sparkleOnCard(cardKey);
-  const mascot = $("mascotCat");
-  if (mascot) mascot.classList.remove("measure");
   if (device?.gatt?.connected) setStatus("已连接 · " + (device.name || "TK5"), "connected");
 }
 
@@ -1778,9 +1562,6 @@ async function measure(mode) {
     measuringCard = null;
     isMeasuring = false;
     clearProgress();
-    const mascot = $("mascotCat");
-    if (mascot) mascot.classList.remove("measure");
-    playPop();
     await send(0x032f, [0x00, 0x00]);
     setStatus("已连接 · " + (device?.name || "TK5"), "connected");
     return;
@@ -1794,8 +1575,6 @@ async function measureAndWait(mode, expectCode, timeoutMs, cardKey) {
     ? `正在测量 ${MODE_NAME[mode]}，请保持静止...`
     : `正在测量 ${MODE_NAME[mode]}，请保持佩戴...`);
   startProgress(cardKey, timeoutMs, nature);
-  bounceMascot("measure");
-  playPop();
   await measure(mode);
   if (expectCode === null) {
     await sleep(timeoutMs);
@@ -1875,37 +1654,10 @@ function hydrateFromRecords() {
 document.addEventListener("click", e => {
   const btn = e.target.closest("button");
   if (btn) {
-    unlockAudioSession();
-    playClick();
     btn.classList.add("glow");
     setTimeout(() => btn.classList.remove("glow"), 400);
   }
 });
-
-// Mascot interaction
-const mascotEl = $("mascotCat");
-if (mascotEl) {
-  mascotEl.onclick = (e) => {
-    e.stopPropagation();
-    unlockAudioSession();
-    playMeow();
-    bounceMascot("happy");
-  };
-}
-
-// Sound toggle
-updateSoundToggleUI();
-const soundToggleEl = $("soundToggle");
-if (soundToggleEl) {
-  soundToggleEl.onclick = (e) => {
-    e.stopPropagation();
-    unlockAudioSession();
-    soundEnabled = !soundEnabled;
-    localStorage.setItem("tk5Sound", soundEnabled ? "1" : "0");
-    updateSoundToggleUI();
-    if (soundEnabled) playMeow();
-  };
-}
 
 document.querySelectorAll("[data-mode]").forEach(b => {
   b.onclick = async () => {
