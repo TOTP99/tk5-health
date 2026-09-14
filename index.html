@@ -57,6 +57,13 @@ main{max-width:720px;margin:0 auto}
 .hero-title{
   display:flex;align-items:center;gap:10px;margin-bottom:12px;
 }
+.hero-avatar{
+  width:44px;height:44px;border-radius:50%;flex-shrink:0;
+  object-fit:cover;object-position:center top;
+  border:2px solid #ffd0dc;
+  box-shadow:0 2px 8px rgba(255,143,171,.25);
+  background:#fff5f8;
+}
 .hero-title h1{
   margin:0;font-size:20px;font-weight:800;letter-spacing:.5px;
   background:linear-gradient(90deg,#ff6b9d,#ff8fab,#c9b6e4);
@@ -343,6 +350,7 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
   <!-- Hero / Connect -->
   <div class="hero">
     <div class="hero-title">
+      <img class="hero-avatar" src="avatar.webp" width="44" height="44" alt="" decoding="async" />
       <div>
         <h1>TK5 Smart Ring</h1>
         <span class="tag">TP制作</span>
