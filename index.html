@@ -3,133 +3,173 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>TK5 Smart Ring · 猫咪版</title>
+<meta name="theme-color" content="#0a0b0d">
+<title>TK5 Smart Ring</title>
 <style>
 :root{
-  --pink:#ff8fab;
-  --pink-soft:#ffb3c6;
-  --coral:#ff6b6b;
-  --peach:#ffd6a5;
-  --mint:#95e1d3;
-  --sky:#a0e7e5;
-  --lavender:#c9b6e4;
-  --gold:#ffd166;
-  --cream:#fff8f0;
-  --ink:#2d1b2e;
-  --muted:#8a6f7a;
-  --card:#fffaf5;
-  --card-border:#ffe0e9;
-  --shadow:0 8px 24px rgba(255,143,171,.18);
-  --shadow-soft:0 4px 14px rgba(45,27,46,.08);
+  --bg:#0a0b0d;
+  --bg2:#12141a;
+  --card:#161922;
+  --card2:#1c2030;
+  --ink:#f4f4f5;
+  --muted:#9ca3af;
+  --line:#2a2f3d;
+  --gold:#d4af37;
+  --gold-soft:#e8d48b;
+  --red:#ef4444;
+  --red-dim:#7f1d1d;
+  --teal:#14b8a6;
+  --teal-dim:#0f766e;
+  --blue:#3b82f6;
+  --white:#ffffff;
+  --shadow:0 8px 28px rgba(0,0,0,.45);
+  --shadow-soft:0 4px 14px rgba(0,0,0,.35);
   --num-font:ui-rounded,"SF Pro Rounded","Segoe UI Rounded",-apple-system,sans-serif;
 }
 *{box-sizing:border-box}
-html{background:#fff5f8}
+html{background:var(--bg)}
 body{
   margin:0;min-height:100vh;
   background:
-    radial-gradient(ellipse 80% 50% at 10% -10%,#ffe0ec 0%,transparent 55%),
-    radial-gradient(ellipse 70% 40% at 90% 0%,#e0f7f5 0%,transparent 50%),
-    radial-gradient(ellipse 60% 30% at 50% 100%,#fff0d6 0%,transparent 45%),
-    #fff8fb;
+    radial-gradient(ellipse 70% 45% at 15% -5%,rgba(212,175,55,.12) 0%,transparent 55%),
+    radial-gradient(ellipse 60% 40% at 95% 10%,rgba(20,184,166,.10) 0%,transparent 50%),
+    radial-gradient(ellipse 50% 30% at 50% 100%,rgba(239,68,68,.06) 0%,transparent 45%),
+    var(--bg);
   color:var(--ink);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB",sans-serif;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   padding:max(12px,env(safe-area-inset-top)) 12px max(24px,env(safe-area-inset-bottom));
 }
 main{max-width:720px;margin:0 auto}
 
-/* ========== Header ========== */
 .hero{
-  background:linear-gradient(145deg,#fff,#fff5f8);
-  border:2px solid var(--card-border);
-  border-radius:28px;
-  padding:18px 16px 14px;
-  margin-bottom:14px;
+  background:linear-gradient(145deg,#1a1d27,#12141a);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:16px 14px 12px;
+  margin-bottom:12px;
   box-shadow:var(--shadow);
-  position:relative;
-  overflow:hidden;
+  position:relative;overflow:hidden;
 }
 .hero::before{
   content:"🐾";
-  position:absolute;top:8px;right:14px;
-  font-size:28px;opacity:.35;transform:rotate(12deg);
+  position:absolute;top:8px;right:12px;
+  font-size:26px;opacity:.9;transform:rotate(12deg);
+  filter:sepia(1) saturate(5) hue-rotate(2deg) brightness(1.15);
 }
 .hero-title{
-  display:flex;align-items:center;gap:10px;margin-bottom:12px;
-}
-.hero-avatar{
-  width:44px;height:44px;border-radius:50%;flex-shrink:0;
-  object-fit:cover;object-position:center top;
-  border:2px solid #ffd0dc;
-  box-shadow:0 2px 8px rgba(255,143,171,.25);
-  background:#fff5f8;
+  display:flex;align-items:center;gap:8px;margin-bottom:10px;
+  padding-right:36px; 
 }
 .hero-title h1{
-  margin:0;font-size:20px;font-weight:800;letter-spacing:.5px;
-  background:linear-gradient(90deg,#ff6b9d,#ff8fab,#c9b6e4);
+  margin:0;font-weight:800;letter-spacing:.3px;
+  display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;
+  background:linear-gradient(90deg,var(--gold-soft),var(--gold),#f5e6b8);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
   background-clip:text;
 }
+.hero-title .brand-tk5{font-size:20px;font-weight:800}
+.hero-title .brand-ring{font-size:13px;font-weight:700;letter-spacing:.2px;opacity:.9}
 .hero-title .tag{
-  font-size:11px;font-weight:600;color:var(--muted);
-  background:#ffeef3;padding:3px 10px;border-radius:20px;
-  border:1px solid #ffd0dc;
+  font-size:10px;font-weight:600;color:var(--gold-soft);
+  background:rgba(212,175,55,.12);padding:2px 8px;border-radius:20px;
+  border:1px solid rgba(212,175,55,.35);
+  flex-shrink:0;
+  -webkit-text-fill-color:var(--gold-soft);
+  background-clip:border-box;
 }
 .connect-row{
-  display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;
+  display:flex;align-items:center;gap:10px;
+  justify-content:space-between;
 }
 .status{
-  padding:6px 14px;border-radius:24px;font-size:12px;font-weight:600;
-  display:flex;align-items:center;gap:7px;
-  background:#fff;border:2px solid #eee;color:var(--muted);
-  max-width:180px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+  flex:1;min-width:0;
+  padding:6px 10px;border-radius:14px;font-size:11px;font-weight:600;
+  display:flex;align-items:flex-start;gap:8px;
+  background:var(--card2);border:1px solid var(--line);color:var(--muted);
 }
 .status-dot{
-  width:9px;height:9px;border-radius:50%;flex-shrink:0;
-  background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.25);
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;
+  background:var(--gold);box-shadow:0 0 0 3px rgba(212,175,55,.25);
+}
+.status-text{
+  display:flex;flex-direction:column;gap:2px;min-width:0;flex:1;
+  min-height:2.6em;justify-content:center;
+}
+.status-line1{
+  font-size:11px;font-weight:700;line-height:1.25;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.status-line2{
+  font-size:10px;font-weight:500;line-height:1.3;opacity:.88;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  overflow:hidden;word-break:break-word;
 }
 .status.connected{
-  border-color:#95e1d3;background:#f0fffb;color:#0d9488;
+  border-color:rgba(20,184,166,.45);background:rgba(20,184,166,.1);color:var(--teal);
 }
 .status.connected .status-dot{
-  background:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.3);
+  background:var(--teal);box-shadow:0 0 0 3px rgba(20,184,166,.25);
 }
 .status.disconnected{
-  border-color:#fecaca;background:#fff5f5;color:#b91c1c;
+  border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.08);color:#fca5a5;
 }
 .status.disconnected .status-dot{
-  background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.25);
+  background:var(--red);box-shadow:0 0 0 3px rgba(239,68,68,.25);
 }
+/* Power switch */
+.pwr-sw{
+  position:relative;flex-shrink:0;
+  width:48px;height:28px;cursor:pointer;
+}
+.pwr-sw input{
+  opacity:0;width:0;height:0;position:absolute;
+}
+.pwr-sw .pwr-track{
+  position:absolute;inset:0;border-radius:20px;
+  background:#3f1520;border:1px solid var(--red-dim);
+  transition:background .2s,border-color .2s;
+}
+.pwr-sw .pwr-knob{
+  position:absolute;top:3px;left:3px;
+  width:20px;height:20px;border-radius:50%;
+  background:var(--white);box-shadow:0 1px 4px rgba(0,0,0,.4);
+  transition:transform .2s;
+}
+.pwr-sw input:checked + .pwr-track{
+  background:linear-gradient(135deg,var(--teal),var(--teal-dim));
+  border-color:var(--teal);
+}
+.pwr-sw input:checked + .pwr-track .pwr-knob{
+  transform:translateX(20px);
+}
+.pwr-sw input:disabled + .pwr-track{opacity:.55;cursor:wait}
 
-/* ========== Buttons ========== */
 button{
-  border:2px solid #ffd0dc;border-radius:16px;
-  padding:10px 16px;background:#fff;color:var(--ink);
-  font-size:13px;font-weight:600;cursor:pointer;
-  transition:transform .12s,box-shadow .15s,border-color .15s;
+  border:1px solid var(--line);border-radius:12px;
+  padding:9px 14px;background:var(--card2);color:var(--ink);
+  font-size:12px;font-weight:600;cursor:pointer;
+  transition:transform .12s,box-shadow .15s,border-color .15s,background .15s;
   box-shadow:var(--shadow-soft);
 }
 button:active{transform:scale(.96)}
 button:disabled{opacity:.4;pointer-events:none}
 button.p{
-  background:linear-gradient(135deg,#ff8fab,#ff6b9d);
-  border-color:#ff6b9d;color:#fff;
-  box-shadow:0 6px 16px rgba(255,107,157,.35);
+  background:linear-gradient(135deg,var(--gold),#b8962e);
+  border-color:var(--gold);color:#111;
+  box-shadow:0 6px 16px rgba(212,175,55,.3);
 }
 button.c{
-  background:linear-gradient(135deg,#a0e7e5,#95e1d3);
-  border-color:#7dd3c8;color:#0f766e;
+  background:rgba(20,184,166,.15);
+  border-color:rgba(20,184,166,.4);color:var(--teal);
 }
 button.d{
-  border-color:#fca5a5;color:#b91c1c;background:#fff5f5;
+  border-color:rgba(239,68,68,.45);color:#fca5a5;background:rgba(239,68,68,.1);
 }
 button.glow{
-  border-color:var(--pink)!important;
-  box-shadow:0 0 0 3px rgba(255,143,171,.35)!important;
+  border-color:var(--gold)!important;
+  box-shadow:0 0 0 3px rgba(212,175,55,.3)!important;
 }
-#panel-control button{
-  padding:7px 11px;font-size:11px;border-radius:12px;
-}
+#panel-control button{padding:7px 11px;font-size:11px;border-radius:10px}
 #panel-control .row{gap:5px}
 .mini-refresh{
   position:absolute;top:8px;right:8px;
@@ -137,15 +177,14 @@ button.glow{
   border-radius:12px;border-width:1.5px;
 }
 
-/* ========== Metric Grid ========== */
 .grid{
   display:grid;grid-template-columns:1fr 1fr;gap:10px;
 }
 .m{
-  border:2.5px solid var(--card-border);
-  border-radius:22px;padding:14px 12px 12px;
+  border:1px solid var(--line);
+  border-radius:16px;padding:12px 11px 10px;
   background:var(--card);
-  min-height:92px;position:relative;overflow:hidden;
+  min-height:84px;position:relative;overflow:hidden;
   box-shadow:var(--shadow-soft);
   transition:transform .15s,box-shadow .15s;
 }
@@ -157,59 +196,59 @@ button.glow{
   display:flex;align-items:center;gap:4px;
 }
 .m .v{
-  font-size:26px;font-weight:800;margin:6px 0 2px;
+  font-size:22px;font-weight:800;margin:5px 0 2px;
   line-height:1.1;font-family:var(--num-font);
   font-variant-numeric:tabular-nums;letter-spacing:.3px;
   color:var(--ink);
 }
-.m .u{font-size:11px;color:var(--muted);font-weight:500}
+.m .u{font-size:10px;color:var(--muted);font-weight:500}
 
-/* Category skins */
+/* Metric category accents */
 .cat-cool{
-  background:linear-gradient(160deg,#f0fffe 0%,#e8f9f8 60%,#fff 100%);
-  border-color:#b8ebe6;
+  background:linear-gradient(165deg,rgba(20,184,166,.14),var(--card) 70%);
+  border-color:rgba(20,184,166,.35);
 }
-.cat-cool .l{color:#0d9488}
-.cat-cool .v{color:#0f766e}
+.cat-cool .l{color:var(--teal)}
+.cat-cool .v{color:#5eead4}
 
 .cat-warm{
-  background:linear-gradient(160deg,#fff5f0 0%,#ffe8e0 55%,#fff 100%);
-  border-color:#ffcbb8;
+  background:linear-gradient(165deg,rgba(239,68,68,.12),var(--card) 70%);
+  border-color:rgba(239,68,68,.35);
 }
-.cat-warm .l{color:#c2410c}
-.cat-warm .v{color:#9a3412}
+.cat-warm .l{color:#f87171}
+.cat-warm .v{color:#fca5a5}
 
 .cat-pink{
-  background:linear-gradient(160deg,#fff0f5 0%,#ffe4ec 55%,#fff 100%);
-  border-color:#ffc2d4;
+  background:linear-gradient(165deg,rgba(212,175,55,.12),var(--card) 70%);
+  border-color:rgba(212,175,55,.4);
 }
-.cat-pink .l{color:#be185d}
-.cat-pink .v{color:#9d174d}
+.cat-pink .l{color:var(--gold-soft)}
+.cat-pink .v{color:var(--gold)}
 
 .cat-lavender{
-  background:linear-gradient(160deg,#f8f0ff 0%,#efe4ff 55%,#fff 100%);
-  border-color:#d8c4f0;
+  background:linear-gradient(165deg,rgba(59,130,246,.12),var(--card) 70%);
+  border-color:rgba(59,130,246,.35);
 }
-.cat-lavender .l{color:#7c3aed}
-.cat-lavender .v{color:#6d28d9}
+.cat-lavender .l{color:#93c5fd}
+.cat-lavender .v{color:#bfdbfe}
 
 .cat-gold{
-  background:linear-gradient(160deg,#fffbeb 0%,#fef3c7 55%,#fff 100%);
-  border-color:#fde68a;
+  background:linear-gradient(165deg,rgba(212,175,55,.08),var(--card) 70%);
+  border-color:rgba(212,175,55,.28);
 }
-.cat-gold .l{color:#b45309}
-.cat-gold .v{color:#92400e}
+.cat-gold .l{color:var(--gold-soft)}
+.cat-gold .v{color:var(--gold)}
 
 /* Progress bar under cards */
 .m-progress{
-  position:absolute;bottom:0;left:0;height:4px;
-  background:linear-gradient(90deg,var(--pink),var(--coral));
+  position:absolute;bottom:0;left:0;height:3px;
+  background:linear-gradient(90deg,var(--gold),var(--teal));
   width:0%;transition:width .12s linear;border-radius:0 3px 0 0;
 }
-.shape-rhythmic .m-progress{height:5px;transition:width .18s ease-out}
+.shape-rhythmic .m-progress{height:4px;transition:width .18s ease-out}
 .shape-rhythmic.measuring .m-progress{
   animation:pulse-bar 1.1s ease-in-out infinite;
-  background:linear-gradient(90deg,#ff8fab,#ff6b6b,#ffd166);
+  background:linear-gradient(90deg,var(--gold),var(--red),var(--teal));
 }
 .shape-discrete .m-progress{height:3px;transition:width .08s linear}
 @keyframes pulse-bar{
@@ -235,20 +274,28 @@ button.glow{
 /* Clock card */
 .clock-card{
   aspect-ratio:1/1;min-height:0;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
-  background:linear-gradient(160deg,#0ea5e9 0%,#38bdf8 45%,#0284c7 100%);
-  border-color:#7dd3fc;
-  box-shadow:0 8px 20px rgba(14,165,233,.28),inset 0 0 20px rgba(255,255,255,.12);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  padding:10px 8px;
+  background:linear-gradient(160deg,#0c4a6e 0%,#0e7490 45%,#134e4a 100%);
+  border-color:rgba(20,184,166,.45);
+  box-shadow:0 8px 20px rgba(15,118,110,.35),inset 0 0 24px rgba(255,255,255,.06);
 }
 .clock-card .clock-date{
-  font-family:"Courier New",monospace;font-size:11px;letter-spacing:2px;
+  font-family:"Courier New",ui-monospace,monospace;font-size:11px;letter-spacing:1.5px;
   color:#e0f2fe;text-shadow:0 0 8px rgba(255,255,255,.45);
-  text-transform:uppercase;
+  text-transform:uppercase;text-align:center;line-height:1.25;
+}
+.clock-card .clock-date .clock-month{
+  font-weight:800;font-size:13px;letter-spacing:2px;
+  color:#fff;text-shadow:0 0 10px rgba(255,255,255,.65);
+}
+.clock-card .clock-date .clock-dayyear{
+  font-weight:500;opacity:.95;
 }
 .clock-card .clock-divider{
   width:50%;height:1px;
   background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);
-  position:relative;margin:2px 0;
+  position:relative;margin:1px 0;
 }
 .clock-card .clock-divider::before{
   content:"";position:absolute;left:50%;top:-2px;
@@ -256,14 +303,26 @@ button.glow{
   transform:translateX(-50%);box-shadow:0 0 6px rgba(255,255,255,.8);
 }
 .clock-card .clock-week{
-  font-family:"Courier New",monospace;font-size:10px;letter-spacing:3px;
+  font-family:"Courier New",ui-monospace,monospace;font-size:10px;letter-spacing:3px;
   color:#e0f2fe;opacity:.9;
 }
 .clock-card .clock-time{
-  font-family:"Courier New",monospace;font-size:22px;font-weight:700;
+  font-family:"Courier New",ui-monospace,monospace;font-size:20px;font-weight:700;
   letter-spacing:1px;color:#fff;
   text-shadow:0 0 12px rgba(255,255,255,.55);
 }
+.clock-card .clock-weather{
+  margin-top:2px;display:flex;align-items:center;justify-content:center;gap:4px;
+  font-size:12px;font-weight:700;color:#fff;
+  text-shadow:0 0 8px rgba(255,255,255,.4);
+  min-height:1.4em;line-height:1.2;
+}
+.clock-card .clock-weather .wx-icon{font-size:15px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.15))}
+.clock-card .clock-weather .wx-temp{
+  font-family:var(--num-font);font-size:13px;font-weight:800;
+  font-variant-numeric:tabular-nums;letter-spacing:.3px;
+}
+.clock-card .clock-weather .wx-unit{font-size:10px;font-weight:600;opacity:.9}
 
 /* Pressure column */
 .pressure-col{display:flex;flex-direction:column;gap:8px}
@@ -274,9 +333,9 @@ button.glow{
 
 /* Panels */
 .card{
-  border:2.5px solid var(--card-border);
+  border:1px solid var(--line);
   background:var(--card);
-  border-radius:22px;padding:14px;
+  border-radius:16px;padding:12px;
   margin-bottom:12px;
   box-shadow:var(--shadow-soft);
 }
@@ -287,13 +346,13 @@ button.glow{
 .row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .hist{max-height:320px;overflow:auto;margin-top:4px}
 .rc{
-  background:#fff;border:1.5px solid #ffe0e9;
-  border-radius:14px;padding:10px 12px;margin-bottom:6px;font-size:13px;
+  background:var(--card2);border:1px solid var(--line);
+  border-radius:12px;padding:10px 12px;margin-bottom:6px;font-size:13px;
 }
-.rc .t{color:#be185d;font-size:12px;font-weight:600;margin-bottom:3px}
+.rc .t{color:var(--gold-soft);font-size:12px;font-weight:600;margin-bottom:3px}
 .chart-box{
-  margin-top:10px;background:#fff;
-  border:1.5px solid #ffe0e9;border-radius:16px;
+  margin-top:10px;background:var(--bg2);
+  border:1px solid var(--line);border-radius:14px;
   padding:10px;min-height:100px;
 }
 .chart-title{
@@ -308,35 +367,32 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
   border-width:1.5px;box-shadow:none;
 }
 .range-tabs button.active{
-  background:linear-gradient(135deg,#ff8fab,#ff6b9d);
-  color:#fff;border-color:#ff6b9d;
+  background:linear-gradient(135deg,var(--gold),#b8962e);
+  color:#111;border-color:var(--gold);
 }
 #log{
-  margin-top:8px;background:#2d1b2e;border:2px solid #4a2c4a;
-  color:#f9a8d4;font:11px/1.45 ui-monospace,Menlo,Consolas,monospace;
+  margin-top:8px;background:#0c0d10;border:1px solid var(--line);
+  color:var(--teal);font:11px/1.45 ui-monospace,Menlo,Consolas,monospace;
   white-space:pre-wrap;word-break:break-all;max-height:200px;overflow:auto;
-  padding:12px;border-radius:14px;
+  padding:12px;border-radius:12px;
 }
 .hp-back{
-  background:#fff;border-color:#ffd0dc;color:#be185d;
-  font-weight:700;padding:8px 14px;border-radius:14px;
+  background:var(--card2);border-color:var(--line);color:var(--gold-soft);
+  font-weight:700;padding:8px 14px;border-radius:12px;
 }
 
 /* Decorative paw prints (static) */
 .paw-deco{
-  position:fixed;pointer-events:none;opacity:.06;font-size:48px;
+  position:fixed;pointer-events:none;opacity:.18;font-size:48px;
   z-index:0;
+  filter:sepia(1) saturate(4.5) hue-rotate(2deg) brightness(1.1);
 }
 .paw1{top:12%;left:4%;transform:rotate(-20deg)}
 .paw2{top:40%;right:3%;transform:rotate(15deg)}
 .paw3{bottom:15%;left:6%;transform:rotate(30deg)}
 
 /* Empty state hint */
-.empty-hint{
-  text-align:center;padding:20px;color:var(--muted);font-size:13px;
-}
-
-
+.empty-hint{text-align:center;padding:20px;color:var(--muted);font-size:13px}
 
 </style>
 </head>
@@ -350,19 +406,24 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
   <!-- Hero / Connect -->
   <div class="hero">
     <div class="hero-title">
-      <img class="hero-avatar" src="avatar.webp" width="44" height="44" alt="" decoding="async" />
-      <div>
-        <h1>TK5 Smart Ring</h1>
-        <span class="tag">TP制作</span>
+      <img class="avatar" src="avatar.webp" width="44" height="44" alt="TK5" draggable="false">
+      <div class="hero-title-text">
+        <h1><span class="brand-tk5">TK5</span> <span class="brand-ring">Smart Ring</span></h1>
+        <span class="tag">TP🐈💍</span>
       </div>
     </div>
     <div class="connect-row">
-      <button id="btnConnect" class="p">🔗 连接戒指</button>
-      <button id="btnDisconnect">断开</button>
       <div id="status" class="status disconnected">
         <div class="status-dot"></div>
-        <span>未连接</span>
+        <div class="status-text">
+          <div class="status-line1" id="statusL1">Disconnected</div>
+          <div class="status-line2" id="statusL2">Tap the switch to connect</div>
+        </div>
       </div>
+      <label class="pwr-sw" title="Connect / Disconnect" aria-label="Power switch">
+        <input type="checkbox" id="btnPower">
+        <span class="pwr-track"><span class="pwr-knob"></span></span>
+      </label>
     </div>
   </div>
 
@@ -370,21 +431,21 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
   <div class="grid" style="margin-bottom:12px">
     <div class="m cat-pink shape-rhythmic" id="card-hr">
       <span class="status-emoji" id="hrEmoji"></span>
-      <div class="l">❤️ 心率</div>
+      <div class="l">❤️ Heart Rate</div>
       <div id="hr" class="v">--</div>
       <div class="u">BPM</div>
       <div class="m-progress" id="prog-hr"></div>
     </div>
     <div class="m cat-cool shape-rhythmic" id="card-spo2">
       <span class="status-emoji" id="spo2Emoji"></span>
-      <div class="l">🩸 血氧</div>
+      <div class="l">🩸 SpO₂</div>
       <div id="spo2" class="v">--</div>
       <div class="u">%</div>
       <div class="m-progress" id="prog-spo2"></div>
     </div>
     <div class="m cat-warm shape-discrete" id="card-bp">
       <span class="status-emoji" id="bpEmoji"></span>
-      <div class="l">🩺 血压</div>
+      <div class="l">🩺 Blood Pressure</div>
       <div id="bp" class="v">-- / --</div>
       <div class="u" id="bpHr"></div>
       <div class="m-progress" id="prog-bp"></div>
@@ -398,65 +459,69 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
     </div>
     <div class="m cat-gold shape-discrete" id="card-steps">
       <button id="btnSteps" class="mini-refresh">🔄</button>
-      <div class="l">👣 步数</div>
+      <div class="l">👣 Steps</div>
       <div id="steps" class="v">--</div>
-      <div class="u">今日</div>
+      <div class="u">Today</div>
     </div>
     <div class="m cat-lavender shape-rhythmic" id="card-sleep">
       <div class="sleep-emojis">
         <span id="sleepQualityEmoji"></span>
         <span id="sleepDurationEmoji"></span>
       </div>
-      <div class="l">😴 睡眠</div>
+      <div class="l">😴 Sleep</div>
       <div id="sleepMin" class="v">--</div>
-      <div class="u">时长</div>
+      <div class="u">Duration</div>
     </div>
     <div class="pressure-col">
       <div class="m pressure-mini cat-warm shape-discrete" id="card-pressure">
         <span class="status-emoji" id="pressureEmoji"></span>
-        <div class="l">💆 压力</div>
+        <div class="l">💆 Stress</div>
         <div id="pressureVal" class="v">--</div>
-        <div class="u">最新</div>
+        <div class="u">Latest</div>
         <div class="m-progress" id="prog-pressure"></div>
       </div>
       <div class="row pressure-btns">
-        <button id="btnControl" class="c">🎛️ 控制</button>
-        <button id="btnData" class="c">📋 数据</button>
+        <button id="btnControl" class="c">🎛️ Control</button>
+        <button id="btnData" class="c">📋 Data</button>
       </div>
     </div>
-    <div class="m clock-card" id="card-clock">
-      <div class="clock-date" id="clockDate">--- --, ----</div>
+    <div class="m clock-card" id="card-clock" title="Tap to refresh weather">
+      <div class="clock-date" id="clockDate"><span class="clock-month">---</span> <span class="clock-dayyear">--, ----</span></div>
       <div class="clock-divider"></div>
       <div class="clock-week" id="clockWeek">---</div>
       <div class="clock-time" id="clockTime">--:--:--</div>
+      <div class="clock-weather" id="clockWeather" aria-live="polite">
+        <span class="wx-icon" id="wxIcon">…</span>
+        <span class="wx-temp" id="wxTemp">--</span><span class="wx-unit">°C</span>
+      </div>
     </div>
   </div>
 
   <!-- Control panel -->
   <div id="panel-control" style="display:none">
     <div class="card">
-      <div class="panel-title">🐱 测量控制</div>
+      <div class="panel-title">🐱 Measurement</div>
       <div class="row">
-        <button class="c" data-mode="0">测心率</button>
-        <button class="c" data-mode="2">测血氧</button>
-        <button class="c" data-mode="1">测血压</button>
-        <button class="c" data-mode="10">测HRV</button>
-        <button class="c" data-mode="3">测压力</button>
-        <button data-mode="-1">⏹ 停止</button>
+        <button class="c" data-mode="0">HR</button>
+        <button class="c" data-mode="2">SpO₂</button>
+        <button class="c" data-mode="1">BP</button>
+        <button class="c" data-mode="10">HRV</button>
+        <button class="c" data-mode="3">Stress</button>
+        <button data-mode="-1">⏹ Stop</button>
       </div>
       <div class="row" style="margin-top:10px">
-        <button data-h="09">同步全部</button>
-        <button data-h="08">血压历史</button>
-        <button data-h="06">心率历史</button>
-        <button data-h="04">睡眠历史</button>
-        <span id="batInd" style="margin-left:8px;font-size:15px;letter-spacing:1px;cursor:pointer;user-select:none;display:inline-flex;align-items:center;gap:1px" title="点击🔋重置为满电">
+        <button data-h="09">Sync all</button>
+        <button data-h="08">BP history</button>
+        <button data-h="06">HR history</button>
+        <button data-h="04">Sleep history</button>
+        <span id="batInd" style="margin-left:8px;font-size:15px;letter-spacing:1px;cursor:pointer;user-select:none;display:inline-flex;align-items:center;gap:1px" title="Tap 🔋 to reset battery estimate">
           <span id="batIcon">🔋</span><span id="bat3">3</span><span id="bat2">2</span><span id="bat1">1</span>🔌<span id="batWarn"></span>
         </span>
       </div>
       <div class="row" style="margin-top:8px">
-        <button data-h="02">步数历史</button>
-        <button data-h="1a">血氧历史</button>
-        <button data-h="33">压力历史</button>
+        <button data-h="02">Steps history</button>
+        <button data-h="1a">SpO₂ history</button>
+        <button data-h="33">Stress history</button>
       </div>
     </div>
   </div>
@@ -464,14 +529,14 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
   <!-- Data panel -->
   <div id="panel-data" style="display:none">
     <div class="card">
-      <div class="panel-title">📜 历史记录</div>
+      <div class="panel-title">📜 History</div>
       <div id="history" class="hist"></div>
     </div>
     <div class="card">
       <div class="row">
-        <button id="btnCopy">复制日志</button>
-        <button id="btnClearLog">清空日志</button>
-        <button id="btnClearRec" class="d">清空记录</button>
+        <button id="btnCopy">Copy log</button>
+        <button id="btnClearLog">Clear log</button>
+        <button id="btnClearRec" class="d">Clear records</button>
       </div>
       <div id="log"></div>
     </div>
@@ -481,91 +546,91 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
 <!-- Detail pages -->
 <div id="pageHR" style="display:none">
   <div class="card">
-    <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
-    <div class="chart-title"><span>❤️ 心率趋势</span><span id="chart-sub">暂无数据</span></div>
+    <div class="row"><button class="hp-back" data-back>‹ Back</button></div>
+    <div class="chart-title"><span>❤️ HR Trend</span><span id="chart-sub">No data</span></div>
     <div class="range-tabs" id="trend-range">
-      <button data-range="day">日</button>
-      <button data-range="week" class="active">周</button>
-      <button data-range="month">月</button>
-      <button data-range="year">年</button>
+      <button data-range="day">Day</button>
+      <button data-range="week" class="active">Week</button>
+      <button data-range="month">Month</button>
+      <button data-range="year">Year</button>
     </div>
     <div class="chart-box"><canvas id="trendCanvas"></canvas></div>
     <div style="display:flex;justify-content:space-around;margin-top:12px;text-align:center">
-      <div><div style="font-size:22px;font-weight:800" id="hr-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
-      <div><div style="font-size:22px;font-weight:800;color:#0d9488" id="hr-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
-      <div><div style="font-size:22px;font-weight:800;color:#be185d" id="hr-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
+      <div><div style="font-size:22px;font-weight:800" id="hr-avg">--</div><div style="font-size:11px;color:var(--muted)">Avg</div></div>
+      <div><div style="font-size:22px;font-weight:800;color:#0d9488" id="hr-high">--</div><div style="font-size:11px;color:var(--muted)">Max</div></div>
+      <div><div style="font-size:22px;font-weight:800;color:#d4af37" id="hr-low">--</div><div style="font-size:11px;color:var(--muted)">Min</div></div>
     </div>
   </div>
 </div>
 
 <div id="pageSpO2" style="display:none">
   <div class="card">
-    <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
-    <div class="chart-title"><span>🩸 血氧趋势</span><span id="spo2-chart-sub">暂无数据</span></div>
+    <div class="row"><button class="hp-back" data-back>‹ Back</button></div>
+    <div class="chart-title"><span>🩸 SpO₂ Trend</span><span id="spo2-chart-sub">No data</span></div>
     <div class="range-tabs" id="spo2-range">
-      <button data-range="day">日</button>
-      <button data-range="week" class="active">周</button>
-      <button data-range="month">月</button>
-      <button data-range="year">年</button>
+      <button data-range="day">Day</button>
+      <button data-range="week" class="active">Week</button>
+      <button data-range="month">Month</button>
+      <button data-range="year">Year</button>
     </div>
     <div class="chart-box"><canvas id="spo2Canvas"></canvas></div>
     <div style="display:flex;justify-content:space-around;margin-top:12px;text-align:center">
-      <div><div style="font-size:22px;font-weight:800" id="spo2-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
-      <div><div style="font-size:22px;font-weight:800;color:#0d9488" id="spo2-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
-      <div><div style="font-size:22px;font-weight:800;color:#be185d" id="spo2-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
+      <div><div style="font-size:22px;font-weight:800" id="spo2-avg">--</div><div style="font-size:11px;color:var(--muted)">Avg</div></div>
+      <div><div style="font-size:22px;font-weight:800;color:#0d9488" id="spo2-high">--</div><div style="font-size:11px;color:var(--muted)">Max</div></div>
+      <div><div style="font-size:22px;font-weight:800;color:#d4af37" id="spo2-low">--</div><div style="font-size:11px;color:var(--muted)">Min</div></div>
     </div>
   </div>
 </div>
 
 <div id="pageHRV" style="display:none">
   <div class="card">
-    <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
-    <div class="chart-title"><span>📈 HRV 趋势</span><span id="hrv-chart-sub">暂无数据</span></div>
+    <div class="row"><button class="hp-back" data-back>‹ Back</button></div>
+    <div class="chart-title"><span>📈 HRV Trend</span><span id="hrv-chart-sub">No data</span></div>
     <div class="range-tabs" id="hrv-range">
-      <button data-range="day">日</button>
-      <button data-range="week" class="active">周</button>
-      <button data-range="month">月</button>
-      <button data-range="year">年</button>
+      <button data-range="day">Day</button>
+      <button data-range="week" class="active">Week</button>
+      <button data-range="month">Month</button>
+      <button data-range="year">Year</button>
     </div>
     <div class="chart-box"><canvas id="hrvCanvas"></canvas></div>
     <div style="display:flex;justify-content:space-around;margin-top:12px;text-align:center">
-      <div><div style="font-size:22px;font-weight:800" id="hrv-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
-      <div><div style="font-size:22px;font-weight:800;color:#0d9488" id="hrv-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
-      <div><div style="font-size:22px;font-weight:800;color:#be185d" id="hrv-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
+      <div><div style="font-size:22px;font-weight:800" id="hrv-avg">--</div><div style="font-size:11px;color:var(--muted)">Avg</div></div>
+      <div><div style="font-size:22px;font-weight:800;color:#0d9488" id="hrv-high">--</div><div style="font-size:11px;color:var(--muted)">Max</div></div>
+      <div><div style="font-size:22px;font-weight:800;color:#d4af37" id="hrv-low">--</div><div style="font-size:11px;color:var(--muted)">Min</div></div>
     </div>
   </div>
 </div>
 
 <div id="pageBP" style="display:none">
   <div class="card">
-    <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
-    <div class="chart-title"><span>🩺 血压趋势</span><span id="bp-chart-sub">暂无数据</span></div>
+    <div class="row"><button class="hp-back" data-back>‹ Back</button></div>
+    <div class="chart-title"><span>🩺 BP Trend</span><span id="bp-chart-sub">No data</span></div>
     <div class="range-tabs" id="bp-range">
-      <button data-range="day" class="active">日</button>
-      <button data-range="week">周</button>
-      <button data-range="month">月</button>
-      <button data-range="year">年</button>
+      <button data-range="day" class="active">Day</button>
+      <button data-range="week">Week</button>
+      <button data-range="month">Month</button>
+      <button data-range="year">Year</button>
     </div>
     <div class="chart-box"><canvas id="bpCanvas"></canvas></div>
     <div style="display:flex;gap:14px;margin-top:8px;font-size:11px;color:var(--muted)">
-      <span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ff8fab;margin-right:4px"></i>收缩压</span>
-      <span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#95e1d3;margin-right:4px"></i>舒张压</span>
+      <span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#d4af37;margin-right:4px"></i>Systolic</span>
+      <span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#95e1d3;margin-right:4px"></i>Diastolic</span>
     </div>
     <div style="display:flex;justify-content:space-around;margin-top:12px;text-align:center">
-      <div><div style="font-size:22px;font-weight:800" id="bp-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
-      <div><div style="font-size:22px;font-weight:800;color:#0d9488" id="bp-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
-      <div><div style="font-size:22px;font-weight:800;color:#be185d" id="bp-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
+      <div><div style="font-size:22px;font-weight:800" id="bp-avg">--</div><div style="font-size:11px;color:var(--muted)">Avg</div></div>
+      <div><div style="font-size:22px;font-weight:800;color:#0d9488" id="bp-high">--</div><div style="font-size:11px;color:var(--muted)">Max</div></div>
+      <div><div style="font-size:22px;font-weight:800;color:#d4af37" id="bp-low">--</div><div style="font-size:11px;color:var(--muted)">Min</div></div>
     </div>
   </div>
 </div>
 
 <div id="pageSleep" style="display:none">
   <div class="card">
-    <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
-    <div class="chart-title"><span>😴 睡眠阶段</span><span id="hypnoDateLabel" style="color:#be185d">--</span></div>
+    <div class="row"><button class="hp-back" data-back>‹ Back</button></div>
+    <div class="chart-title"><span>😴 Sleep Stages</span><span id="hypnoDateLabel" style="color:#d4af37">--</span></div>
     <div class="row" id="hypnoDateNav" style="justify-content:center;align-items:center;gap:16px;margin:8px 0">
       <button id="hypnoDatePrev" class="c" style="padding:4px 14px">‹</button>
-      <span style="font-size:12px;color:var(--muted)">切换日期</span>
+      <span style="font-size:12px;color:var(--muted)">Change date</span>
       <button id="hypnoDateNext" class="c" style="padding:4px 14px">›</button>
     </div>
     <div class="chart-box" style="height:120px"><canvas id="hypnoCanvas"></canvas></div>
@@ -573,23 +638,23 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
       <span id="hypno-start">--</span><span id="hypno-end">--</span>
     </div>
     <div style="display:flex;justify-content:space-around;margin-top:14px;text-align:center">
-      <div><div style="font-size:18px;font-weight:800;color:#7c3aed" id="hypno-deep">--</div><div style="font-size:11px;color:var(--muted)">深睡</div></div>
-      <div><div style="font-size:18px;font-weight:800;color:#c9b6e4" id="hypno-light">--</div><div style="font-size:11px;color:var(--muted)">浅睡</div></div>
-      <div><div style="font-size:18px;font-weight:800;color:#ff8fab" id="hypno-rem">--</div><div style="font-size:11px;color:var(--muted)">REM</div></div>
+      <div><div style="font-size:18px;font-weight:800;color:#3b82f6" id="hypno-deep">--</div><div style="font-size:11px;color:var(--muted)">Deep</div></div>
+      <div><div style="font-size:18px;font-weight:800;color:#3b82f6" id="hypno-light">--</div><div style="font-size:11px;color:var(--muted)">Light</div></div>
+      <div><div style="font-size:18px;font-weight:800;color:#d4af37" id="hypno-rem">--</div><div style="font-size:11px;color:var(--muted)">REM</div></div>
     </div>
     <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
-      <div><div style="font-size:18px;font-weight:800" id="hypno-total">--</div><div style="font-size:11px;color:var(--muted)">睡眠时长</div></div>
-      <div><div style="font-size:18px;font-weight:800;color:#b45309" id="hypno-awake">--</div><div style="font-size:11px;color:var(--muted)">清醒次数</div></div>
+      <div><div style="font-size:18px;font-weight:800" id="hypno-total">--</div><div style="font-size:11px;color:var(--muted)">Sleep duration</div></div>
+      <div><div style="font-size:18px;font-weight:800;color:#b45309" id="hypno-awake">--</div><div style="font-size:11px;color:var(--muted)">Awakenings</div></div>
     </div>
     <div style="margin-top:14px;font-size:12px;color:var(--muted)" id="hypno-analysis"></div>
   </div>
   <div class="card">
-    <div class="chart-title"><span>📈 睡眠质量趋势</span><span id="sleep-chart-sub">暂无数据</span></div>
+    <div class="chart-title"><span>📈 Sleep Quality</span><span id="sleep-chart-sub">No data</span></div>
     <div class="range-tabs" id="sleep-range">
-      <button data-range="day">日</button>
-      <button data-range="week" class="active">周</button>
-      <button data-range="month">月</button>
-      <button data-range="year">年</button>
+      <button data-range="day">Day</button>
+      <button data-range="week" class="active">Week</button>
+      <button data-range="month">Month</button>
+      <button data-range="year">Year</button>
     </div>
     <div class="chart-box" style="height:120px"><canvas id="sleepCanvas"></canvas></div>
   </div>
@@ -597,48 +662,48 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
 
 <div id="pagePressure" style="display:none">
   <div class="card">
-    <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
-    <div class="chart-title"><span>💆 压力趋势</span><span id="pressure-chart-sub">暂无数据</span></div>
+    <div class="row"><button class="hp-back" data-back>‹ Back</button></div>
+    <div class="chart-title"><span>💆 Stress Trend</span><span id="pressure-chart-sub">No data</span></div>
     <div class="range-tabs" id="pressure-range">
-      <button data-range="day" class="active">日</button>
-      <button data-range="week">周</button>
-      <button data-range="month">月</button>
-      <button data-range="year">年</button>
+      <button data-range="day" class="active">Day</button>
+      <button data-range="week">Week</button>
+      <button data-range="month">Month</button>
+      <button data-range="year">Year</button>
     </div>
     <div class="row" id="pressureDateNav" style="justify-content:center;align-items:center;gap:16px;margin:8px 0">
       <button id="pressureDatePrev" class="c" style="padding:4px 14px">‹</button>
-      <span id="pressureDateLabel" style="font-size:13px;color:#be185d;font-weight:600">--</span>
+      <span id="pressureDateLabel" style="font-size:13px;color:#d4af37;font-weight:600">--</span>
       <button id="pressureDateNext" class="c" style="padding:4px 14px">›</button>
     </div>
     <div class="chart-box"><canvas id="pressureCanvas"></canvas></div>
     <div style="display:flex;justify-content:space-around;margin-top:12px;text-align:center">
-      <div><div style="font-size:22px;font-weight:800" id="pressure-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
-      <div><div style="font-size:22px;font-weight:800;color:#0d9488" id="pressure-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
-      <div><div style="font-size:22px;font-weight:800;color:#be185d" id="pressure-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
+      <div><div style="font-size:22px;font-weight:800" id="pressure-avg">--</div><div style="font-size:11px;color:var(--muted)">Avg</div></div>
+      <div><div style="font-size:22px;font-weight:800;color:#0d9488" id="pressure-high">--</div><div style="font-size:11px;color:var(--muted)">Max</div></div>
+      <div><div style="font-size:22px;font-weight:800;color:#d4af37" id="pressure-low">--</div><div style="font-size:11px;color:var(--muted)">Min</div></div>
     </div>
     <div style="margin-top:16px;font-size:12px">
-      <div style="color:var(--muted);margin-bottom:8px;font-weight:600">📈 压力参考值</div>
-      <div style="display:flex;justify-content:space-between;padding:4px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#95e1d3;margin-right:6px"></i>≤25</span><span style="color:#0d9488;font-weight:600">轻松 🥳</span></div>
-      <div style="display:flex;justify-content:space-between;padding:4px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#60a5fa;margin-right:6px"></i>26-50</span><span style="color:#2563eb;font-weight:600">正常 😇</span></div>
-      <div style="display:flex;justify-content:space-between;padding:4px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ffd166;margin-right:6px"></i>51-80</span><span style="color:#b45309;font-weight:600">中等 😐</span></div>
-      <div style="display:flex;justify-content:space-between;padding:4px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-right:6px"></i>81-100</span><span style="color:#dc2626;font-weight:600">偏高 😫</span></div>
+      <div style="color:var(--muted);margin-bottom:8px;font-weight:600">📈 Stress Reference</div>
+      <div style="display:flex;justify-content:space-between;padding:4px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#95e1d3;margin-right:6px"></i>≤25</span><span style="color:#0d9488;font-weight:600">Relaxed 🥳</span></div>
+      <div style="display:flex;justify-content:space-between;padding:4px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#60a5fa;margin-right:6px"></i>26-50</span><span style="color:#2563eb;font-weight:600">Normal 😇</span></div>
+      <div style="display:flex;justify-content:space-between;padding:4px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ffd166;margin-right:6px"></i>51-80</span><span style="color:#b45309;font-weight:600">Moderate 😐</span></div>
+      <div style="display:flex;justify-content:space-between;padding:4px 0"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-right:6px"></i>81-100</span><span style="color:#dc2626;font-weight:600">High 😫</span></div>
     </div>
   </div>
 </div>
 
 <div id="pageSteps" style="display:none">
   <div class="card">
-    <div class="row"><button class="hp-back" data-back>‹ 返回</button></div>
-    <div class="chart-title"><span>👣 步数趋势</span><span id="steps-chart-sub">暂无数据</span></div>
+    <div class="row"><button class="hp-back" data-back>‹ Back</button></div>
+    <div class="chart-title"><span>👣 Steps Trend</span><span id="steps-chart-sub">No data</span></div>
     <div class="range-tabs" id="steps-range">
-      <button data-range="day" class="active">日</button>
-      <button data-range="week">周</button>
-      <button data-range="month">月</button>
-      <button data-range="year">年</button>
+      <button data-range="day" class="active">Day</button>
+      <button data-range="week">Week</button>
+      <button data-range="month">Month</button>
+      <button data-range="year">Year</button>
     </div>
     <div class="row" id="stepsDateNav" style="justify-content:center;align-items:center;gap:16px;margin:8px 0">
       <button id="stepsDatePrev" class="c" style="padding:4px 14px">‹</button>
-      <span id="stepsDateLabel" style="font-size:13px;color:#be185d;font-weight:600">--</span>
+      <span id="stepsDateLabel" style="font-size:13px;color:#d4af37;font-weight:600">--</span>
       <button id="stepsDateNext" class="c" style="padding:4px 14px">›</button>
     </div>
     <div class="chart-box" style="height:120px"><canvas id="stepsCanvas"></canvas></div>
@@ -646,10 +711,10 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
       <span>0</span><span>6</span><span>12</span><span>18</span><span>23</span>
     </div>
     <div style="display:flex;justify-content:space-around;margin-top:12px;text-align:center">
-      <div><div style="font-size:20px;font-weight:800" id="steps-total">--</div><div style="font-size:11px;color:var(--muted)">合计</div></div>
-      <div><div style="font-size:20px;font-weight:800" id="steps-avg">--</div><div style="font-size:11px;color:var(--muted)">平均</div></div>
-      <div><div style="font-size:20px;font-weight:800;color:#0d9488" id="steps-high">--</div><div style="font-size:11px;color:var(--muted)">最高</div></div>
-      <div><div style="font-size:20px;font-weight:800;color:#be185d" id="steps-low">--</div><div style="font-size:11px;color:var(--muted)">最低</div></div>
+      <div><div style="font-size:20px;font-weight:800" id="steps-total">--</div><div style="font-size:11px;color:var(--muted)">Total</div></div>
+      <div><div style="font-size:20px;font-weight:800" id="steps-avg">--</div><div style="font-size:11px;color:var(--muted)">Avg</div></div>
+      <div><div style="font-size:20px;font-weight:800;color:#0d9488" id="steps-high">--</div><div style="font-size:11px;color:var(--muted)">Max</div></div>
+      <div><div style="font-size:20px;font-weight:800;color:#d4af37" id="steps-low">--</div><div style="font-size:11px;color:var(--muted)">Min</div></div>
     </div>
   </div>
 </div>
@@ -658,14 +723,13 @@ canvas{width:100%!important;height:100%!important;display:block;min-height:100px
 <script>
 "use strict";
 
-/* ========== Constants ========== */
 const SVC = "be940000-7333-be46-b7ae-689e71722bd5";
 const C1U = "be940001-7333-be46-b7ae-689e71722bd5";
 const C3U = "be940003-7333-be46-b7ae-689e71722bd5";
 const EPOCH = 946684800;
 const REALTIME = new Set([0x0600, 0x0601, 0x0602, 0x0603, 0x0615, 0x040e, 0x0200, 0x020c, 0x0203]);
-const HIST_LABEL = { "04": "睡眠历史", "02": "步数历史", "1a": "血氧历史", "33": "压力历史" };
-const MODE_NAME = { 0: "心率", 1: "血压", 2: "血氧", 10: "HRV", 3: "压力" };
+const HIST_LABEL = { "09": "All", "08": "BP", "06": "HR", "04": "Sleep", "02": "Steps", "1a": "SpO₂", "33": "Stress" };
+const MODE_NAME = { 0: "Heart Rate", 1: "Blood Pressure", 2: "SpO₂", 3: "Stress", 10: "HRV" };
 const MODE_CARD = { 0: "hr", 1: "bp", 2: "spo2", 10: "hrv", 3: "pressure" };
 const MODE_NATURE = { 0: "rhythmic", 2: "rhythmic", 10: "rhythmic", 1: "discrete", 3: "discrete" };
 const MODE_DURATION = { 0: 28000, 2: 26000, 10: 30000, 1: 32000, 3: 22000 };
@@ -673,7 +737,6 @@ const MODE_EXPECT = { 0: 0, 1: 1, 10: 10, 3: 3 };
 const RANGE_DAYS = { day: 1, week: 7, month: 30, year: 365 };
 const PAGES = ["page1", "pageHR", "pageSpO2", "pageHRV", "pageBP", "pageSleep", "pagePressure", "pageSteps"];
 
-/* ========== State ========== */
 let device = null, c1 = null, c3 = null;
 let c1Buf = new Uint8Array(), c3Buf = new Uint8Array();
 let logs = [], records = JSON.parse(localStorage.getItem("tk5Records") || "[]");
@@ -682,9 +745,6 @@ let measureResolve = null, measureExpectCode = null, isMeasuring = false, active
 let chartRange = { trend: "week", sleep: "week", bp: "day", pressure: "day", spo2: "week", hrv: "week", steps: "day" };
 let pressureDate = startOfDay(new Date()), hypnoDate = startOfDay(new Date()), stepsDate = startOfDay(new Date());
 
-
-
-/* ========== Utils ========== */
 const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const hex = a => Array.from(a).map(x => x.toString(16).padStart(2, "0")).join(" ");
@@ -711,8 +771,34 @@ function setStatus(text, type = "connected") {
   const st = $("status");
   if (!st) return;
   st.className = `status ${type}`;
-  const span = st.querySelector("span");
-  if (span) span.textContent = text;
+  const l1 = $("statusL1");
+  const l2 = $("statusL2");
+  const t = String(text || "");
+  
+  let title, detail;
+  if (type === "connected") {
+    title = "Connected";
+    detail = t.replace(/^Connected\s*[·•]?\s*/, "").trim() || "Ring online";
+  } else if (type === "disconnected") {
+    title = "Disconnected";
+    detail = t.replace(/^Disconnected\s*[·•]?\s*/, "").trim() || "Tap the switch to connect";
+  } else {
+    title = "Status";
+    detail = t || "—";
+  }
+  
+  if (/Measuring|Selecting Bluetooth|Syncing|Fetching|In progress/i.test(t) && type !== "disconnected") {
+    title = "In progress";
+    detail = t;
+  }
+  if (l1) l1.textContent = title;
+  if (l2) l2.textContent = detail;
+  
+  const sw = $("btnPower");
+  if (sw) {
+    const on = type === "connected" || title === "In progress";
+    if (sw.checked !== on) sw.checked = on;
+  }
 }
 
 function setEmoji(key, emoji) {
@@ -751,7 +837,6 @@ function evalPressure(v) {
   return "🥳";
 }
 
-/* ========== Protocol ========== */
 function crc16(data) {
   let c = 0xffff;
   for (let i = 0; i < data.length; i++) {
@@ -808,7 +893,6 @@ function feed(kind, data) {
   if (kind === "C1") c1Buf = buf; else c3Buf = buf;
 }
 
-/* ========== Decode ========== */
 function decodeHR(bytes) {
   const r = [];
   for (let i = 0; i + 6 <= bytes.length; i += 6) {
@@ -929,7 +1013,6 @@ function decodeSleep(bytes) {
   };
 }
 
-/* ========== Records ========== */
 function add(type, data) {
   records.unshift({ time: new Date().toISOString(), type, data });
   records = records.slice(0, 4000);
@@ -952,41 +1035,40 @@ function renderHist() {
     if (rec.type === "all" && rec.data) {
       for (const x of [...rec.data].reverse()) {
         if (!x.sys && !x.hr && !x.spo2) continue;
-        cards.push(`<div class="rc"><div class="t">${esc(x.local)}</div><div>${x.sys ? `血压 <b>${x.sys}/${x.dia}</b> ` : ""}${x.hr ? `心率 <b>${x.hr}</b> ` : ""}${x.spo2 ? `血氧 <b>${x.spo2}</b>%` : ""}</div></div>`);
+        cards.push(`<div class="rc"><div class="t">${esc(x.local)}</div><div>${x.sys ? `BP <b>${x.sys}/${x.dia}</b> ` : ""}${x.hr ? `HR <b>${x.hr}</b> ` : ""}${x.spo2 ? `SpO₂ <b>${x.spo2}</b>%` : ""}</div></div>`);
       }
     } else if (rec.type === "bp") {
-      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>血压 <b>${rec.data.sys}/${rec.data.dia}</b> 心率 <b>${rec.data.hr}</b></div></div>`);
+      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} Live</div><div>BP <b>${rec.data.sys}/${rec.data.dia}</b> HR <b>${rec.data.hr}</b></div></div>`);
     } else if (rec.type === "spo2") {
-      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>血氧 <b>${rec.data}</b>%</div></div>`);
+      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} Live</div><div>SpO₂ <b>${rec.data}</b>%</div></div>`);
     } else if (rec.type === "hr") {
-      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>心率 <b>${rec.data}</b></div></div>`);
+      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} Live</div><div>HR <b>${rec.data}</b></div></div>`);
     } else if (rec.type === "hrHist" && Array.isArray(rec.data)) {
       for (const x of [...rec.data].reverse())
-        cards.push(`<div class="rc"><div class="t">${esc(x.local)}</div><div>心率 <b>${x.hr}</b></div></div>`);
+        cards.push(`<div class="rc"><div class="t">${esc(x.local)}</div><div>HR <b>${x.hr}</b></div></div>`);
     } else if (rec.type === "bpHist" && Array.isArray(rec.data)) {
       for (const x of [...rec.data].reverse())
-        cards.push(`<div class="rc"><div class="t">${esc(x.local)}</div><div>血压 <b>${x.sys}/${x.dia}</b> 心率 <b>${x.hr}</b></div></div>`);
+        cards.push(`<div class="rc"><div class="t">${esc(x.local)}</div><div>BP <b>${x.sys}/${x.dia}</b> HR <b>${x.hr}</b></div></div>`);
     } else if (rec.type === "hrv") {
-      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} 实时</div><div>HRV <b>${rec.data}</b></div></div>`);
+      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} Live</div><div>HRV <b>${rec.data}</b></div></div>`);
     } else if (rec.type === "sleep" && rec.data) {
       const d = rec.data;
-      cards.push(`<div class="rc"><div class="t">😴 ${esc(d.start)} ~ ${esc(d.end)}（共${d.totalMin}分钟）</div><div>深睡 <b>${d.deepMin}</b>分 · 浅睡 <b>${d.lightMin}</b>分 · REM <b>${d.remMin}</b>分</div></div>`);
+      cards.push(`<div class="rc"><div class="t">😴 ${esc(d.start)} ~ ${esc(d.end)} (${d.totalMin} min)</div><div>Deep <b>${d.deepMin}</b>m · Light <b>${d.lightMin}</b>m · REM <b>${d.remMin}</b>m</div></div>`);
     } else if (rec.type === "pressure" && rec.data) {
       for (const x of [...rec.data].reverse())
-        cards.push(`<div class="rc"><div class="t">${esc(x.local)}</div><div>压力 <b>${x.pressure}</b></div></div>`);
+        cards.push(`<div class="rc"><div class="t">${esc(x.local)}</div><div>Stress <b>${x.pressure}</b></div></div>`);
     } else if (rec.type === "stepsHist" && rec.data) {
       for (const x of [...rec.data].reverse())
-        cards.push(`<div class="rc"><div class="t">${esc(x.local)}</div><div>步数 <b>${x.steps}</b>${x.distance ? ` · 距离 <b>${x.distance}</b>m` : ""}${x.calories ? ` · 卡路里 <b>${x.calories}</b>` : ""}</div></div>`);
+        cards.push(`<div class="rc"><div class="t">${esc(x.local)}</div><div>Steps <b>${x.steps}</b>${x.distance ? ` · Dist <b>${x.distance}</b>m` : ""}${x.calories ? ` · Cal <b>${x.calories}</b>` : ""}</div></div>`);
     } else if (rec.type === "raw") {
       const d = rec.data;
-      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} · ${esc(d.label)} · 帧0x${(d.frameType || 0).toString(16).padStart(4, "0")} · ${d.bytes}字节</div><div style="font:11px/1.4 ui-monospace,Menlo,Consolas,monospace;word-break:break-all;color:#be185d">${esc(d.hex)}</div></div>`);
+      cards.push(`<div class="rc"><div class="t">${esc(fmt(new Date(rec.time)))} · ${esc(d.label)} · frame 0x${(d.frameType || 0).toString(16).padStart(4, "0")} · ${d.bytes}B</div><div style="font:11px/1.4 ui-monospace,Menlo,Consolas,monospace;word-break:break-all;color:#d4af37">${esc(d.hex)}</div></div>`);
     }
     if (cards.length >= 40) break;
   }
-  box.innerHTML = cards.length ? cards.join("") : `<div class="empty-hint">暂无记录喵～ 连接戒指测一测吧 🐱</div>`;
+  box.innerHTML = cards.length ? cards.join("") : `<div class="empty-hint">No records yet — connect the ring 🐱</div>`;
 }
 
-/* ========== Charts ========== */
 function initCanvas(id) {
   const canvas = $(id);
   if (!canvas) return null;
@@ -1051,7 +1133,7 @@ function drawMetricChart(opts) {
   const { ctx, width, height } = c;
   const points = collectMetricPoints(opts.type, chartRange[opts.rangeKey], opts.fromAll);
   const sub = $(opts.subId);
-  if (sub) sub.textContent = points.length ? `共 ${points.length} 个样本` : "暂无数据";
+  if (sub) sub.textContent = points.length ? `${points.length} samples` : "No data";
   if (points.length < 2) {
     setStats(opts.statIds, ["--", "--", "--"]);
     return drawEmpty(ctx, width, height, opts.emptyMsg);
@@ -1065,8 +1147,8 @@ function drawTrendChart() {
   drawMetricChart({
     canvas: "trendCanvas", type: "hr", rangeKey: "trend", fromAll: "hr",
     subId: "chart-sub", statIds: ["hr-avg", "hr-high", "hr-low"],
-    emptyMsg: "多测几次就能看到趋势图喵～",
-    stroke: "#ff8fab", fill: a => `rgba(255,143,171,${a})`, dot: "#ff6b9d"
+    emptyMsg: "Measure a few more times to see the trend",
+    stroke: "#d4af37", fill: a => `rgba(212,175,55,${a})`, dot: "#d4af37"
   });
 }
 
@@ -1074,8 +1156,8 @@ function drawSpo2Chart() {
   drawMetricChart({
     canvas: "spo2Canvas", type: "spo2", rangeKey: "spo2", fromAll: "spo2",
     subId: "spo2-chart-sub", statIds: ["spo2-avg", "spo2-high", "spo2-low"],
-    emptyMsg: "多测几次就能看到趋势图喵～",
-    stroke: "#0d9488", fill: a => `rgba(13,148,136,${a})`, dot: "#14b8a6"
+    emptyMsg: "Measure a few more times to see the trend",
+    stroke: "#14b8a6", fill: a => `rgba(13,148,136,${a})`, dot: "#14b8a6"
   });
 }
 
@@ -1083,8 +1165,8 @@ function drawHRVChart() {
   drawMetricChart({
     canvas: "hrvCanvas", type: "hrv", rangeKey: "hrv",
     subId: "hrv-chart-sub", statIds: ["hrv-avg", "hrv-high", "hrv-low"],
-    emptyMsg: "多测几次就能看到趋势图喵～",
-    stroke: "#7c3aed", fill: a => `rgba(124,58,237,${a})`, dot: "#a78bfa"
+    emptyMsg: "Measure a few more times to see the trend",
+    stroke: "#3b82f6", fill: a => `rgba(59,130,246,${a})`, dot: "#a78bfa"
   });
 }
 
@@ -1097,9 +1179,9 @@ function drawSleepChart() {
     if (rec.type === "sleep" && typeof rec.data.score === "number") points.push(rec.data.score);
   points = points.reverse().slice(-20);
   const sub = $("sleep-chart-sub");
-  if (sub) sub.textContent = points.length ? `共 ${points.length} 个样本` : "暂无数据";
-  if (points.length < 2) return drawEmpty(ctx, width, height, "同步睡眠历史后生成趋势图");
-  drawArea(ctx, width, height, points, "#c9b6e4", a => `rgba(201,182,228,${a})`, "#7c3aed");
+  if (sub) sub.textContent = points.length ? `${points.length} samples` : "No data";
+  if (points.length < 2) return drawEmpty(ctx, width, height, "Sync sleep history to see the chart");
+  drawArea(ctx, width, height, points, "#3b82f6", a => `rgba(59,130,246,${a})`, "#3b82f6");
 }
 
 function drawBPChart() {
@@ -1118,10 +1200,10 @@ function drawBPChart() {
   }
   points = points.slice(-20);
   const sub = $("bp-chart-sub");
-  if (sub) sub.textContent = points.length ? `共 ${points.length} 个样本` : "暂无数据";
+  if (sub) sub.textContent = points.length ? `${points.length} samples` : "No data";
   if (points.length < 2) {
     setStats(["bp-avg", "bp-high", "bp-low"], ["--", "--", "--"]);
-    return drawEmpty(ctx, width, height, "多测几次就能看到血压图喵～");
+    return drawEmpty(ctx, width, height, "Measure a few more times to see the BP chart");
   }
   const sys = points.map(p => p.sys), dia = points.map(p => p.dia);
   setStats(["bp-avg", "bp-high", "bp-low"], [
@@ -1134,9 +1216,9 @@ function drawBPChart() {
   const yOf = v => height - ((v - min) / (max - min)) * (height - 20) - 10;
   ctx.save();
   ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
-  ctx.strokeStyle = "rgba(255,143,171,0.6)";
+  ctx.strokeStyle = "rgba(212,175,55,0.6)";
   ctx.beginPath(); ctx.moveTo(0, yOf(SYS)); ctx.lineTo(width, yOf(SYS)); ctx.stroke();
-  ctx.fillStyle = "rgba(255,143,171,0.9)"; ctx.font = "9px sans-serif"; ctx.textAlign = "left";
+  ctx.fillStyle = "rgba(212,175,55,0.9)"; ctx.font = "9px sans-serif"; ctx.textAlign = "left";
   ctx.setLineDash([]); ctx.fillText("120", 2, yOf(SYS) - 2);
   ctx.setLineDash([4, 4]);
   ctx.strokeStyle = "rgba(13,148,136,0.6)";
@@ -1148,10 +1230,10 @@ function drawBPChart() {
     points.forEach((pt, i) => { const x = i * stepX, y = yOf(pt[key]); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); });
     ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.lineJoin = "round"; ctx.stroke();
   };
-  drawLine("sys", "#ff8fab"); drawLine("dia", "#95e1d3");
+  drawLine("sys", "#d4af37"); drawLine("dia", "#95e1d3");
   points.forEach((pt, i) => {
     const x = i * stepX;
-    [["sys", "#ff8fab", SYS], ["dia", "#95e1d3", DIA]].forEach(([k, col, lim]) => {
+    [["sys", "#d4af37", SYS], ["dia", "#95e1d3", DIA]].forEach(([k, col, lim]) => {
       ctx.beginPath(); ctx.arc(x, yOf(pt[k]), 3.5, 0, Math.PI * 2);
       ctx.fillStyle = pt[k] > lim ? "#ef4444" : col; ctx.fill();
     });
@@ -1174,10 +1256,10 @@ function drawPressureChart() {
       if (rec.type === "pressure" && rec.data) for (const x of rec.data) raw.push(x);
   }
   const sub = $("pressure-chart-sub");
-  if (sub) sub.textContent = raw.length ? `共 ${raw.length} 个样本` : "暂无数据";
+  if (sub) sub.textContent = raw.length ? `${raw.length} samples` : "No data";
   if (!raw.length) {
     setStats(["pressure-avg", "pressure-high", "pressure-low"], ["--", "--", "--"]);
-    return drawEmpty(ctx, width, height, "同步压力历史后生成趋势图");
+    return drawEmpty(ctx, width, height, "Sync stress history to see the chart");
   }
   const values = raw.map(x => x.pressure);
   setStats(["pressure-avg", "pressure-high", "pressure-low"], [
@@ -1193,7 +1275,7 @@ function drawPressureChart() {
   bars.forEach((v, i) => {
     if (v == null) return;
     const h = (v / 100) * (height - 10);
-    ctx.fillStyle = "#ff8fab";
+    ctx.fillStyle = "#d4af37";
     ctx.beginPath();
     const x = i * barW + barW * 0.15, bw = barW * 0.7;
     ctx.roundRect(x, height - h, bw, h, 4);
@@ -1215,7 +1297,7 @@ function drawHypnogram() {
     setStats(["hypno-deep", "hypno-light", "hypno-rem", "hypno-total", "hypno-awake", "hypno-start", "hypno-end"],
       ["--", "--", "--", "--", "--", "--", "--"]);
     if ($("hypno-analysis")) $("hypno-analysis").textContent = "";
-    return drawEmpty(ctx, width, height, "这天没有同步到睡眠记录，试试切换日期");
+    return drawEmpty(ctx, width, height, "No sleep data for this day — try another date");
   }
   const d = rec.data;
   setStats(["hypno-deep", "hypno-light", "hypno-rem", "hypno-total", "hypno-awake"], [
@@ -1231,15 +1313,15 @@ function drawHypnogram() {
     fmt(new Date(tMax)).split(" ").pop().slice(0, 5)
   ]);
   if ($("hypno-analysis")) {
-    const text = d.totalMin >= 420 ? "睡眠时长充足，小猫精神满满 😺" : d.totalMin >= 300 ? "睡眠时长一般，可以再睡一会儿" : "睡眠时长偏短，注意休息喵";
+    const text = d.totalMin >= 420 ? "Sleep duration looks good 😺" : d.totalMin >= 300 ? "Sleep duration is average — try a bit more rest" : "Sleep duration is short — rest more";
     $("hypno-analysis").textContent = `📈 ${text}`;
   }
   const span = (tMax - tMin) || 1;
   const xOf = t => (t - tMin) / span * width;
   const LEVEL = {
-    3: { y: height * 0.12, h: height * 0.30, color: "#ff8fab" },
-    2: { y: height * 0.46, h: height * 0.30, color: "#c9b6e4" },
-    1: { y: height * 0.80, h: height * 0.18, color: "#7c3aed" }
+    3: { y: height * 0.12, h: height * 0.30, color: "#d4af37" },
+    2: { y: height * 0.46, h: height * 0.30, color: "#3b82f6" },
+    1: { y: height * 0.80, h: height * 0.18, color: "#3b82f6" }
   };
   for (const seg of segs) {
     const lvl = LEVEL[seg.stage];
@@ -1273,7 +1355,7 @@ function drawStepsChart() {
       const h = typeof x.hour === "number" ? x.hour : new Date(x.t).getHours();
       if (h >= 0 && h < 24) { buckets[h] += x.steps || 0; count++; }
     }
-    if (sub) sub.textContent = count ? `共 ${count} 个时段` : "暂无数据";
+    if (sub) sub.textContent = count ? `${count} segments` : "No data";
     const nonZero = buckets.filter(v => v > 0);
     const total = buckets.reduce((a, b) => a + b, 0);
     setStats(["steps-total", "steps-avg", "steps-high", "steps-low"], [
@@ -1282,12 +1364,12 @@ function drawStepsChart() {
       nonZero.length ? Math.max(...buckets) : "--",
       nonZero.length ? Math.min(...nonZero) : "--"
     ]);
-    if (!nonZero.length) return drawEmpty(ctx, width, height, "同步步数历史后生成每小时柱状图");
+    if (!nonZero.length) return drawEmpty(ctx, width, height, "Sync steps history for hourly bars");
     const max = Math.max(...buckets, 1), barW = width / 24;
     buckets.forEach((v, i) => {
       if (v <= 0) return;
       const h = (v / max) * (height - 12);
-      ctx.fillStyle = "#ff8fab";
+      ctx.fillStyle = "#d4af37";
       ctx.beginPath();
       ctx.roundRect(i * barW + barW * 0.15, height - h, barW * 0.7, h, 4);
       ctx.fill();
@@ -1302,10 +1384,10 @@ function drawStepsChart() {
     byDay.set(key, (byDay.get(key) || 0) + (x.steps || 0));
   }
   const points = [...byDay.entries()].sort((a, b) => a[0] - b[0]).map(e => e[1]);
-  if (sub) sub.textContent = points.length ? `共 ${points.length} 天` : "暂无数据";
+  if (sub) sub.textContent = points.length ? `${points.length} days` : "No data";
   if (!points.length) {
     setStats(["steps-total", "steps-avg", "steps-high", "steps-low"], ["--", "--", "--", "--"]);
-    return drawEmpty(ctx, width, height, "同步步数历史后可生成趋势图");
+    return drawEmpty(ctx, width, height, "Sync steps history to see the chart");
   }
   const total = points.reduce((a, b) => a + b, 0);
   setStats(["steps-total", "steps-avg", "steps-high", "steps-low"], [
@@ -1313,13 +1395,13 @@ function drawStepsChart() {
   ]);
   if (points.length === 1) {
     const max = points[0] || 1;
-    ctx.fillStyle = "#ff8fab";
+    ctx.fillStyle = "#d4af37";
     ctx.beginPath();
     ctx.roundRect(width * 0.35, height - (points[0] / max) * (height - 12), width * 0.3, (points[0] / max) * (height - 12), 6);
     ctx.fill();
     return;
   }
-  drawArea(ctx, width, height, points, "#ff8fab", a => `rgba(255,143,171,${a})`, "#ff6b9d");
+  drawArea(ctx, width, height, points, "#d4af37", a => `rgba(212,175,55,${a})`, "#d4af37");
 }
 
 function refreshAll() {
@@ -1334,10 +1416,9 @@ function refreshAll() {
   drawStepsChart();
 }
 
-/* ========== Packet Handler ========== */
 function handle(type, p) {
   if (histBusy && type === histEchoType && p.length < 10) {
-    log(`${HIST_LABEL[histReqKey] || histReqKey || "历史"} 无新记录`);
+    log(`${HIST_LABEL[histReqKey] || histReqKey || "History"} — no new records`);
     finishHist();
     return;
   }
@@ -1348,7 +1429,7 @@ function handle(type, p) {
   }
   switch (type) {
     case 0x0200:
-      if (p.length > 0 && p[0] === 0xfe) log("电量 0xfe（戒指未就绪）");
+      if (p.length > 0 && p[0] === 0xfe) log("Battery 0xfe (ring not ready)");
       break;
     case 0x020c:
       if (p.length >= 2) {
@@ -1366,7 +1447,7 @@ function handle(type, p) {
       }
       break;
     case 0x0615:
-      if (p.length >= 1 && p[0] <= 100) log("电量推送 " + p[0] + "%");
+      if (p.length >= 1 && p[0] <= 100) log("Battery push " + p[0] + "%");
       break;
     case 0x0601:
       if (p[0] > 0 && p[0] < 250) {
@@ -1438,14 +1519,14 @@ function handle(type, p) {
           if (!dup) add("sleep", data);
           if ($("sleepMin")) $("sleepMin").textContent = `${Math.floor(data.totalMin / 60)}h${data.totalMin % 60}m`;
           setSleepEmojis(data);
-          log(`睡眠解析成功：${data.totalMin}分钟（深${data.deepMin}/浅${data.lightMin}/REM${data.remMin}）`);
+          log(`Sleep parsed: ${data.totalMin} min (deep ${data.deepMin}/light ${data.lightMin}/REM${data.remMin}）`);
         } else if (buf.length) {
           add("raw", { key: histReqKey, label: HIST_LABEL[histReqKey] || histReqKey, frameType: histType, hex: hex(buf), bytes: buf.length });
-          if ($("sleepMin") && $("sleepMin").textContent === "--") $("sleepMin").textContent = "有数据";
-          log(`睡眠数据 ${buf.length} 字节，未能解析为阶段（已存原始）`);
+          if ($("sleepMin") && $("sleepMin").textContent === "--") $("sleepMin").textContent = "Data available";
+          log(`Sleep data ${buf.length} bytes — could not parse stages (raw saved)`);
         } else {
-          if ($("sleepMin") && $("sleepMin").textContent === "--") $("sleepMin").textContent = "无记录";
-          log("睡眠历史为空（戒指可能未佩戴过夜）");
+          if ($("sleepMin") && $("sleepMin").textContent === "--") $("sleepMin").textContent = "No record";
+          log("Sleep history empty (ring may not have been worn overnight)");
         }
       } else if (buf.length) {
         add("raw", { key: histReqKey, label: HIST_LABEL[histReqKey] || histReqKey, frameType: histType, hex: hex(buf), bytes: buf.length });
@@ -1456,11 +1537,10 @@ function handle(type, p) {
   }
 }
 
-/* ========== BLE Connect ========== */
 async function connect() {
   try {
-    if (!navigator.bluetooth) throw new Error("需要 Bluefy / Chrome");
-    setStatus("选择蓝牙设备中...", "disconnected");
+    if (!navigator.bluetooth) throw new Error("Requires Bluefy / Chrome");
+    setStatus("Selecting Bluetooth device...", "disconnected");
     if (device?.gatt?.connected) try { device.gatt.disconnect(); } catch (_) {}
     device = await navigator.bluetooth.requestDevice({
       filters: [{ namePrefix: "TK5" }, { namePrefix: "tk5" }],
@@ -1475,14 +1555,14 @@ async function connect() {
     await c1.startNotifications();
     await c3.startNotifications();
     device.addEventListener("gattserverdisconnected", () => {
-      setStatus("设备已断开连接", "disconnected");
+      setStatus("Device disconnected", "disconnected");
       c1 = c3 = null;
       histBusy = false;
       isMeasuring = false;
       measuringCard = null;
       clearProgress();
     });
-    setStatus("已连接 · " + (device.name || "TK5"), "connected");
+    setStatus("Connected · " + (device.name || "TK5"), "connected");
     await send(0x0201, [0x47, 0x46]);
     await send(0x0100, timePayload());
     await send(0x021b);
@@ -1495,18 +1575,18 @@ async function connect() {
       isMeasuring = true;
       try {
         await sleep(500);
-        setStatus("正在获取步数...");
+        setStatus("Fetching steps...");
         await hist("02");
-        setStatus("正在获取睡眠数据...");
+        setStatus("Fetching sleep data...");
         await hist("04");
-        setStatus("正在测量血压，请保持静止...");
+        setStatus("Measuring BP — stay still...");
         await measureAndWait(1, 1, MODE_DURATION[1], "bp");
-        setStatus("正在测量心率...");
+        setStatus("Measuring heart rate...");
         await measureAndWait(0, 0, MODE_DURATION[0], "hr");
-        setStatus("已连接 · " + (device?.name || "TK5") + " (自动流程完成)", "connected");
+        setStatus("Connected · " + (device?.name || "TK5") + " (auto complete)", "connected");
       } catch (e) {
-        log("自动测量出错: " + e.message);
-        setStatus("已连接 · " + (device?.name || "TK5"), "connected");
+        log("Auto measure error: " + e.message);
+        setStatus("Connected · " + (device?.name || "TK5"), "connected");
       } finally {
         isMeasuring = false;
         measuringCard = null;
@@ -1514,7 +1594,7 @@ async function connect() {
       }
     })();
   } catch (e) {
-    setStatus("连接失败: " + e.message, "disconnected");
+    setStatus("Connect failed: " + e.message, "disconnected");
     isMeasuring = false;
     measuringCard = null;
     clearProgress();
@@ -1525,7 +1605,6 @@ function disconnect() {
   try { if (device?.gatt?.connected) device.gatt.disconnect(); } catch (_) {}
 }
 
-/* ========== Measure ========== */
 function startProgress(cardKey, durationMs, nature) {
   clearProgress();
   measuringCard = cardKey;
@@ -1565,7 +1644,7 @@ function onMeasureDone(cardKey) {
     card.classList.add("done-flash");
     setTimeout(() => card.classList.remove("done-flash"), 550);
   }
-  if (device?.gatt?.connected) setStatus("已连接 · " + (device.name || "TK5"), "connected");
+  if (device?.gatt?.connected) setStatus("Connected · " + (device.name || "TK5"), "connected");
 }
 
 async function measure(mode) {
@@ -1575,7 +1654,7 @@ async function measure(mode) {
     isMeasuring = false;
     clearProgress();
     await send(0x032f, [0x00, 0x00]);
-    setStatus("已连接 · " + (device?.name || "TK5"), "connected");
+    setStatus("Connected · " + (device?.name || "TK5"), "connected");
     return;
   }
   await send(0x032f, [0x01, mode]);
@@ -1584,8 +1663,8 @@ async function measure(mode) {
 async function measureAndWait(mode, expectCode, timeoutMs, cardKey) {
   const nature = MODE_NATURE[mode] || "rhythmic";
   setStatus(nature === "discrete"
-    ? `正在测量 ${MODE_NAME[mode]}，请保持静止...`
-    : `正在测量 ${MODE_NAME[mode]}，请保持佩戴...`);
+    ? `Measuring ${MODE_NAME[mode]} — stay still...`
+    : `Measuring ${MODE_NAME[mode]} — keep wearing...`);
   startProgress(cardKey, timeoutMs, nature);
   await measure(mode);
   if (expectCode === null) {
@@ -1599,15 +1678,14 @@ async function measureAndWait(mode, expectCode, timeoutMs, cardKey) {
     measureExpectCode = null;
   }
   onMeasureDone(cardKey);
-  if (mode === 3) { setStatus("正在同步压力结果..."); await hist("33"); }
+  if (mode === 3) { setStatus("Syncing stress results..."); await hist("33"); }
 }
 
-/* ========== History Sync ========== */
 function finishHist() {
   clearTimeout(histTimer);
   histBusy = false; histType = null; histChunks = []; histReqKey = null; histEchoType = null;
   document.querySelectorAll("[data-h]").forEach(b => b.disabled = false);
-  setStatus("已连接 · " + (device?.name || "TK5"), "connected");
+  setStatus("Connected · " + (device?.name || "TK5"), "connected");
   if (histResolve) { const r = histResolve; histResolve = null; r(); }
 }
 
@@ -1619,13 +1697,12 @@ function hist(key) {
     histEchoType = 0x0500 | parseInt(key, 16);
     histResolve = resolve;
     document.querySelectorAll("[data-h]").forEach(b => b.disabled = true);
-    setStatus(`同步${HIST_LABEL[key] || "历史"}中…`);
+    setStatus(`Syncing ${HIST_LABEL[key] || "History"}...`);
     await send(histEchoType);
     histTimer = setTimeout(() => { if (histBusy) finishHist(); }, 20000);
   });
 }
 
-/* ========== UI Binding ========== */
 function setupRangeTabs(containerId, chartKey, redraw) {
   const el = $(containerId);
   if (!el) return;
@@ -1687,14 +1764,30 @@ document.querySelectorAll("[data-mode]").forEach(b => {
   };
 });
 
-$("btnConnect").onclick = connect;
-$("btnDisconnect").onclick = disconnect;
+const btnPower = $("btnPower");
+if (btnPower) {
+  btnPower.addEventListener("change", async () => {
+    if (btnPower.checked) {
+      btnPower.disabled = true;
+      try { await connect(); }
+      finally { btnPower.disabled = false; }
+      
+      if (!$("status")?.classList.contains("connected") &&
+          !$("statusL1")?.textContent?.includes("In progress")) {
+        btnPower.checked = false;
+      }
+    } else {
+      disconnect();
+      setStatus("Disconnected", "disconnected");
+    }
+  });
+}
 $("btnSteps").onclick = () => send(0x020c);
 document.querySelectorAll("[data-h]").forEach(b => b.onclick = () => hist(b.dataset.h));
 $("btnCopy").onclick = async () => { try { await navigator.clipboard.writeText(logs.join("\n")); } catch (_) {} };
 $("btnClearLog").onclick = () => { logs = []; $("log").textContent = ""; };
 $("btnClearRec").onclick = () => {
-  if (confirm("清空本地记录？")) { records = []; localStorage.removeItem("tk5Records"); refreshAll(); }
+  if (confirm("Clear local records?")) { records = []; localStorage.removeItem("tk5Records"); refreshAll(); }
 };
 
 setupRangeTabs("trend-range", "trend", drawTrendChart);
@@ -1764,23 +1857,126 @@ if (batIconEl) {
   batIconEl.onclick = () => {
     setLastCharge(Date.now());
     updateBatteryUI();
-    log("电量估算已重置为满电（100%）");
+    log("Battery estimate reset to full (100%)");
   };
 }
 updateBatteryUI();
 
 function pad2(n) { return String(n).padStart(2, "0"); }
 const MONTHS_EN = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-const WEEKDAYS_CN = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+const WEEKDAYS_EN = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 function updateClock() {
   const now = new Date();
-  $("clockDate").textContent = `${MONTHS_EN[now.getMonth()]} ${pad2(now.getDate())}, ${now.getFullYear()}`;
-  $("clockWeek").textContent = WEEKDAYS_CN[now.getDay()];
-  $("clockTime").textContent = `${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}`;
+  const dateEl = $("clockDate");
+  if (dateEl) {
+    dateEl.innerHTML = `<span class="clock-month">${MONTHS_EN[now.getMonth()]}</span> <span class="clock-dayyear">${pad2(now.getDate())}, ${now.getFullYear()}</span>`;
+  }
+  if ($("clockWeek")) $("clockWeek").textContent = WEEKDAYS_EN[now.getDay()];
+  if ($("clockTime")) $("clockTime").textContent = `${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}`;
   updateBatteryUI();
 }
 updateClock();
 setInterval(updateClock, 1000);
+
+function weatherEmoji(code) {
+  // WMO Weather interpretation codes
+  if (code == null || code === "") return "🌡️";
+  const c = +code;
+  if (c === 0) return "☀️";
+  if (c <= 3) return "⛅";
+  if (c <= 48) return "🌫️";
+  if (c <= 57) return "🌧️";
+  if (c <= 67) return "🌧️";
+  if (c <= 77) return "❄️";
+  if (c <= 82) return "🌧️";
+  if (c <= 86) return "❄️";
+  if (c <= 99) return "⛈️";
+  return "🌡️";
+}
+
+function setWeatherUI(icon, temp) {
+  const ic = $("wxIcon"), tp = $("wxTemp");
+  if (ic) ic.textContent = icon;
+  if (tp) tp.textContent = temp == null || temp === "" ? "--" : String(Math.round(+temp));
+}
+
+async function getGeoPosition() {
+  
+  try {
+    const raw = localStorage.getItem("tk5WeatherGeo");
+    if (raw) {
+      const o = JSON.parse(raw);
+      if (o && o.lat != null && o.lng != null && Date.now() - (o.ts || 0) < 2 * 3600 * 1000)
+        return { lat: o.lat, lng: o.lng, cached: true };
+    }
+  } catch (_) {}
+  if (!navigator.geolocation) return null;
+  return new Promise(resolve => {
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const lat = pos.coords.latitude, lng = pos.coords.longitude;
+        try { localStorage.setItem("tk5WeatherGeo", JSON.stringify({ lat, lng, ts: Date.now() })); } catch (_) {}
+        resolve({ lat, lng, cached: false });
+      },
+      () => resolve(null),
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }
+    );
+  });
+}
+
+async function fetchWeather() {
+  setWeatherUI("…", null);
+  try {
+    let geo = await getGeoPosition();
+    
+    if (!geo) {
+      try {
+        const ip = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(5000) }).then(r => r.ok ? r.json() : null);
+        if (ip && ip.latitude != null && ip.longitude != null)
+          geo = { lat: ip.latitude, lng: ip.longitude };
+      } catch (_) {}
+    }
+    if (!geo) geo = { lat: 39.9, lng: 116.4 }; 
+
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${geo.lat}&longitude=${geo.lng}&current=temperature_2m,weather_code&timezone=auto`;
+    const data = await fetch(url, { signal: AbortSignal.timeout(8000) }).then(r => {
+      if (!r.ok) throw new Error("weather http " + r.status);
+      return r.json();
+    });
+    const cur = data.current || {};
+    const temp = cur.temperature_2m;
+    const code = cur.weather_code;
+    setWeatherUI(weatherEmoji(code), temp);
+    try {
+      localStorage.setItem("tk5WeatherCache", JSON.stringify({
+        temp, code, icon: weatherEmoji(code), ts: Date.now()
+      }));
+    } catch (_) {}
+  } catch (e) {
+    
+    try {
+      const c = JSON.parse(localStorage.getItem("tk5WeatherCache") || "null");
+      if (c && c.temp != null) {
+        setWeatherUI(c.icon || weatherEmoji(c.code), c.temp);
+        return;
+      }
+    } catch (_) {}
+    setWeatherUI("🌡️", null);
+    if (typeof log === "function") log("Weather fetch failed: " + (e && e.message ? e.message : e));
+  }
+}
+
+(function initWeather() {
+  try {
+    const c = JSON.parse(localStorage.getItem("tk5WeatherCache") || "null");
+    if (c && c.temp != null && Date.now() - (c.ts || 0) < 90 * 60 * 1000)
+      setWeatherUI(c.icon || weatherEmoji(c.code), c.temp);
+  } catch (_) {}
+  fetchWeather();
+  setInterval(fetchWeather, 30 * 60 * 1000);
+  const card = $("card-clock");
+  if (card) card.addEventListener("click", () => { fetchWeather(); });
+})();
 
 hydrateFromRecords();
 refreshAll();
