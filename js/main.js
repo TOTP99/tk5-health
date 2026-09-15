@@ -94,6 +94,5 @@ setInterval(updateClock, 1000);
 initWeather();
 initSoundEffects();
 initSeasonEffect();
-initNutrition();
 hydrateFromRecords();
 refreshAll();
