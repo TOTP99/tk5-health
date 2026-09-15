@@ -20,12 +20,11 @@
 <div id="page1">
   <!-- Hero / Connect -->
   <div class="hero">
-    <button id="btnSeasonToggle" class="season-toggle" title="Tap to turn off the falling effect">🌸</button>
     <div class="hero-title">
       <img class="avatar" src="avatar.webp" width="44" height="44" alt="TK5" draggable="false">
       <div class="hero-title-text">
         <h1><span class="brand-tk5">TK5</span> <span class="brand-ring">Smart Ring</span></h1>
-        <span class="tag">TP🐈💍</span>
+        <span class="tag">TP🐈💍</span><button id="btnSeasonToggle" class="season-toggle" title="Tap to turn off the falling effect">🌸</button>
       </div>
     </div>
     <div class="connect-row">
@@ -336,26 +335,6 @@
 </div>
 </main>
 
-<!-- Nutrition / calorie estimator (independent of Bluetooth) -->
-<button id="btnNutrition" class="nutri-fab">🍽 Nutrition</button>
-<div id="nutriModal" class="nutri-modal">
-  <div class="nutri-sheet">
-    <div class="nutri-head">
-      <h2>🍽 Nutrition estimate</h2>
-      <button id="btnNutriClose" class="hp-back" style="padding:6px 10px;font-size:16px">✕</button>
-    </div>
-    <div style="font-size:12px;color:var(--muted);margin-top:6px">
-      Describe what you ate in plain language, e.g. "米饭一碗大概三两 葡萄10粒 羊肉一块大约509克 巧克力一块"
-    </div>
-    <textarea id="nutriInput" placeholder="米饭一碗大概三两 葡萄10粒 羊肉一块大约509克 巧克力一块"></textarea>
-    <div class="row" style="margin-top:8px">
-      <button id="btnNutriCalc" class="p">Calculate</button>
-    </div>
-    <div id="nutriResult"></div>
-  </div>
-</div>
-
-
 <script src="js/config.js"></script>
 <script src="js/utils.js"></script>
 <script src="js/state.js"></script>
@@ -366,7 +345,6 @@
 <script src="js/ble.js"></script>
 <script src="js/sound.js"></script>
 <script src="js/season.js"></script>
-<script src="js/nutrition.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>
